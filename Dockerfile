@@ -11,13 +11,10 @@ RUN apt-get update && apt-get install -y \
 
 COPY requirements.txt .
 
-RUN pip3 install -r requirements.txt --trusted-host pypi.org --trusted-host pypi.python.org --trusted-host=files.pythonhosted.org
+RUN pip3 install -r requirements.txt
 
-COPY grobid_magneto/ grobid_magneto
-COPY commons/ commons
-COPY resources/nims_proxy.cer .
-COPY tiktoken_cache ./tiktoken_cache
-COPY grobid_magneto/document_qa/.streamlit ./.streamlit
+COPY .streamlit ./.streamlit
+COPY *.py .
 
 # extract version
 COPY .git ./.git
