@@ -8,8 +8,6 @@ import grobid_tei_xml
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-from commons import supermat_tei_parser
-
 
 def get_span_start(type, title=None):
     title_ = ' title="' + title + '"' if title is not None else ""
@@ -659,7 +657,7 @@ class XmlProcessor(BaseProcessor):
     def parse_xml(self, text):
         output_data = OrderedDict()
         soup = BeautifulSoup(text, 'xml')
-        text_blocks_children = supermat_tei_parser.get_children_list(soup, verbose=False)
+        text_blocks_children = get_children_list_supermat(soup, verbose=False)
 
         passages = []
         output_data['passages'] = passages
@@ -680,8 +678,25 @@ class XmlProcessor(BaseProcessor):
 
         return output_data
 
+def get_children_list_supermat(soup, use_paragraphs=False, verbose=False):
+    children = []
 
-def get_children_list(soup: object, use_paragraphs: object = True, verbose: object = False) -> object:
+    child_name = "p" if use_paragraphs else "s"
+    for child in soup.tei.children:
+        if child.name == 'teiHeader':
+            pass
+            children.append(child.find_all("title"))
+            children.extend([subchild.find_all(child_name) for subchild in child.find_all("abstract")])
+            children.extend([subchild.find_all(child_name) for subchild in child.find_all("ab", {"type": "keywords"})])
+        elif child.name == 'text':
+            children.extend([subchild.find_all(child_name) for subchild in child.find_all("body")])
+
+    if verbose:
+        print(str(children))
+
+    return children
+
+def get_children_list_grobid(soup: object, use_paragraphs: object = True, verbose: object = False) -> object:
     children = []
 
     child_name = "p" if use_paragraphs else "s"
