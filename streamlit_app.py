@@ -1,16 +1,16 @@
 import os
-from datetime import datetime
 from hashlib import blake2b
 from tempfile import NamedTemporaryFile
 
 import dotenv
+
+dotenv.load_dotenv(override=True)
+
 import streamlit as st
 from langchain.chat_models import PromptLayerChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 
 from document_qa_engine import DocumentQAEngine
-
-dotenv.load_dotenv(override=True)
 
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = None
