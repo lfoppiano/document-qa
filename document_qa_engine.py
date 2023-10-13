@@ -12,6 +12,8 @@ from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
 
+from grobid_processors import GrobidProcessor
+
 
 class DocumentQAEngine:
     llm = None
