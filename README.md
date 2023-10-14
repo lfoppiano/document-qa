@@ -2,7 +2,7 @@
 
 ## Introduction
 
-Question/Answering on scientific documents using LLMs (OpenAI, Mistral, LLama2).
+Question/Answering on scientific documents using LLMs (OpenAI, Mistral, LLama2, etc..).
 This application is the frontend for testing the RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS.
 Differently to most of the project, we focus on scientific articles and we are using [Grobid](https://github.com/kermitt2/grobid) for text extraction instead of the raw PDF2Text converter (which is comparable with most of other solutions) allow to extract only full-text.
 
