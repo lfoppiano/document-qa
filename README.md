@@ -8,7 +8,7 @@ Differently to most of the project, we focus on scientific articles and we are u
 
 **Work in progress**
 
-- Select the model+embedding combination you want ot use. 
+- Select the model+embedding combination you want ot use (for LLama2 you must acknowledge their licence both on meta.com and on huggingface. See [here](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf)). 
 - Enter your API Key (Open AI or Huggingface). 
 - Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner stops, you can proceed to ask your questions
