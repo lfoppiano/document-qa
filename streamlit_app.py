@@ -3,20 +3,21 @@ from hashlib import blake2b
 from tempfile import NamedTemporaryFile
 
 import dotenv
+from langchain.llms.huggingface_hub import HuggingFaceHub
 
 dotenv.load_dotenv(override=True)
 
 import streamlit as st
 from langchain.chat_models import PromptLayerChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings
+from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
 from document_qa_engine import DocumentQAEngine
 
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = None
 
-if 'openai_key' not in st.session_state:
-    st.session_state['openai_key'] = False
+if 'api_key' not in st.session_state:
+    st.session_state['api_key'] = False
 
 if 'doc_id' not in st.session_state:
     st.session_state['doc_id'] = None
@@ -44,15 +45,23 @@ def new_file():
 
 
 @st.cache_resource
-def init_qa(openai_api_key):
-    chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo",
-                                 temperature=0,
-                                 return_pl_id=True,
-                                 pl_tags=["streamlit", "chatgpt"],
-                                 openai_api_key=openai_api_key)
-    # chat = ChatOpenAI(model_name="gpt-3.5-turbo",
-    #                   temperature=0)
-    return DocumentQAEngine(chat, OpenAIEmbeddings(openai_api_key=openai_api_key), grobid_url=os.environ['GROBID_URL'])
+def init_qa(api_key, model):
+    if model == 'chatgpt-3.5-turbo':
+        chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo",
+                                     temperature=0,
+                                     return_pl_id=True,
+                                     pl_tags=["streamlit", "chatgpt"],
+                                     openai_api_key=api_key)
+        embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+    elif model == 'mistral-7b-instruct-v0.1':
+        chat = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.1",
+                              model_kwargs={"temperature": 0.01},
+                              api_key=api_key)
+        embeddings = HuggingFaceEmbeddings(
+            model_name="all-MiniLM-L6-v2",
+            api_key=api_key)
+
+    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
 
 def get_file_hash(fname):
@@ -77,14 +86,28 @@ def play_old_messages():
                         st.write(message['content'])
 
 
-has_openai_api_key = False
-if not st.session_state['openai_key']:
-    openai_api_key = st.sidebar.text_input('OpenAI API Key')
-    if openai_api_key:
-        st.session_state['openai_key'] = has_openai_api_key = True
-        st.session_state['rqa'] = init_qa(openai_api_key)
+model = st.sidebar.radio("Model", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),
+                         index=1,
+                         captions=[
+                             "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
+                             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
+                         ],
+                         help="Select the model you want to use.")
+
+is_api_key_provided = False
+if not st.session_state['api_key']:
+    if model == 'mistral-7b-instruct-v0.1':
+        api_key = st.sidebar.text_input('Huggingface API Key')
+        if api_key:
+            st.session_state['api_key'] = is_api_key_provided = True
+            st.session_state['rqa'] = init_qa(api_key)
+    elif model == 'chatgpt-3.5-turbo':
+        api_key = st.sidebar.text_input('OpenAI API Key')
+        if api_key:
+            st.session_state['api_key'] = is_api_key_provided = True
+            st.session_state['rqa'] = init_qa(api_key)
 else:
-    has_openai_api_key = st.session_state['openai_key']
+    is_api_key_provided = st.session_state['api_key']
 
 st.title("📝 Document insight Q&A")
 st.subheader("Upload a PDF document, ask questions, get insights.")
@@ -92,7 +115,7 @@ st.subheader("Upload a PDF document, ask questions, get insights.")
 upload_col, radio_col, context_col = st.columns([7, 2, 2])
 with upload_col:
     uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
-                                     disabled=not has_openai_api_key,
+                                     disabled=not is_api_key_provided,
                                      help="The file will be uploaded to Grobid, extracted the text and calculated "
                                           "embeddings of each paragraph which are then stored to a Db for be picked "
                                           "to answer specific questions. ")
@@ -113,19 +136,20 @@ question = st.chat_input(
 
 with st.sidebar:
     st.header("Documentation")
-    st.write("""To upload the PDF file, click on the designated button and select the file from your device.""")
+    st.markdown("https://github.com/lfoppiano/document-qa")
+    st.markdown("""After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document, click on the designated button and select the file from your device.""")
 
-    st.write(
+    st.markdown(
         """After uploading, please wait for the PDF to be processed. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
 
     st.markdown("**Revision number**: [" + st.session_state[
         'git_rev'] + "](https://github.com/lfoppiano/grobid-magneto/commit/" + st.session_state['git_rev'] + ")")
 
     st.header("Query mode (Advanced use)")
-    st.write(
+    st.markdown(
         """By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the PDF content, and the system will provide relevant answers.""")
 
-    st.write(
+    st.markdown(
         """If you switch the mode to "Embedding," the system will return specific paragraphs from the document that are semantically similar to your query. This mode focuses on providing relevant excerpts rather than answering specific questions.""")
 
 if uploaded_file and not st.session_state.loaded_embeddings:
