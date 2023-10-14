@@ -60,8 +60,9 @@ def init_qa(model):
     elif model == 'llama-2-70b-chat':
         chat = HuggingFaceHub(repo_id="meta-llama/Llama-2-70b-chat-hf",
                               model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
-        embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2")
+        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
+    else:
+        st.error("The model was not loaded properly. Try reloading. ")
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
@@ -102,16 +103,14 @@ model = st.sidebar.radio("Model (cannot be changed after selection or upload)",
                          disabled=is_api_key_provided)
 
 if not st.session_state['api_key']:
-    if model == 'mistral-7b-instruct-v0.1' or 'llama-2-70b-chat':
-        api_key = st.sidebar.text_input('Huggingface API Key') if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else \
-        os.environ['HUGGINGFACEHUB_API_TOKEN']
+    if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
+        api_key = st.sidebar.text_input('Huggingface API Key')# if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ['HUGGINGFACEHUB_API_TOKEN']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
             st.session_state['rqa'] = init_qa(model)
     elif model == 'chatgpt-3.5-turbo':
-        api_key = st.sidebar.text_input('OpenAI API Key') if 'OPENAI_API_KEY' not in os.environ else os.environ[
-            'OPENAI_API_KEY']
+        api_key = st.sidebar.text_input('OpenAI API Key') #if 'OPENAI_API_KEY' not in os.environ else os.environ['OPENAI_API_KEY']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ['OPENAI_API_KEY'] = api_key
