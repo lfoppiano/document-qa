@@ -11,7 +11,7 @@ import streamlit as st
 from langchain.chat_models import PromptLayerChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
-from document_qa_engine import DocumentQAEngine
+from document_qa.document_qa_engine import DocumentQAEngine
 
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = None
