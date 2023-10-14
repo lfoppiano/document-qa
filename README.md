@@ -8,6 +8,8 @@ Differently to most of the project, we focus on scientific articles and we are u
 
 **Work in progress**
 
+Demo: https://document-insights.streamlit.app/
+
 ## Getting started
 
 - Select the model+embedding combination you want ot use (for LLama2 you must acknowledge their licence both on meta.com and on huggingface. See [here](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf)). 
@@ -25,13 +27,8 @@ Allow to change the number of embedding chunks that are considered for respondin
 By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.
 If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete.
 
-## Demo
-The demo is deployed with streamlit and, depending on the model used, requires either OpenAI or HuggingFace **API KEYs**.
 
-https://document-insights.streamlit.app/
-
-
-### Acknolwedgement 
+## Acknolwedgement 
 
 This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan. 
 
