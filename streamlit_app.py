@@ -57,6 +57,11 @@ def init_qa(model):
                               model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
         embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2")
+    elif model == 'llama-2-70b-chat':
+        chat = HuggingFaceHub(repo_id="meta-llama/Llama-2-70b-chat-hf",
+                              model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
+        embeddings = HuggingFaceEmbeddings(
+            model_name="all-MiniLM-L6-v2")
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
@@ -82,26 +87,31 @@ def play_old_messages():
                     else:
                         st.write(message['content'])
 
+
 is_api_key_provided = st.session_state['api_key']
 
-model = st.sidebar.radio("Model (cannot be changed after selection or upload)", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),
+model = st.sidebar.radio("Model (cannot be changed after selection or upload)",
+                         ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1", "llama-2-70b-chat"),
                          index=1,
                          captions=[
                              "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-                             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
+                             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)",
+                             "LLama2-70B-Chat + Sentence BERT (embeddings)",
                          ],
                          help="Select the model you want to use.",
                          disabled=is_api_key_provided)
 
 if not st.session_state['api_key']:
-    if model == 'mistral-7b-instruct-v0.1':
-        api_key = st.sidebar.text_input('Huggingface API Key') if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ['HUGGINGFACEHUB_API_TOKEN']
+    if model == 'mistral-7b-instruct-v0.1' or 'llama-2-70b-chat':
+        api_key = st.sidebar.text_input('Huggingface API Key') if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else \
+        os.environ['HUGGINGFACEHUB_API_TOKEN']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
             st.session_state['rqa'] = init_qa(model)
     elif model == 'chatgpt-3.5-turbo':
-        api_key = st.sidebar.text_input('OpenAI API Key') if 'OPENAI_API_KEY' not in os.environ else os.environ['OPENAI_API_KEY']
+        api_key = st.sidebar.text_input('OpenAI API Key') if 'OPENAI_API_KEY' not in os.environ else os.environ[
+            'OPENAI_API_KEY']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ['OPENAI_API_KEY'] = api_key
@@ -137,7 +147,8 @@ question = st.chat_input(
 with st.sidebar:
     st.header("Documentation")
     st.markdown("https://github.com/lfoppiano/document-qa")
-    st.markdown("""After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document, click on the designated button and select the file from your device.""")
+    st.markdown(
+        """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document, click on the designated button and select the file from your device.""")
 
     st.markdown(
         """After uploading, please wait for the PDF to be processed. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
@@ -158,7 +169,9 @@ if uploaded_file and not st.session_state.loaded_embeddings:
         tmp_file = NamedTemporaryFile()
         tmp_file.write(bytearray(binary))
         # hash = get_file_hash(tmp_file.name)[:10]
-        st.session_state['doc_id'] = hash = st.session_state['rqa'].create_memory_embeddings(tmp_file.name, chunk_size=250, perc_overlap=0.1)
+        st.session_state['doc_id'] = hash = st.session_state['rqa'].create_memory_embeddings(tmp_file.name,
+                                                                                             chunk_size=250,
+                                                                                             perc_overlap=0.1)
         st.session_state['loaded_embeddings'] = True
 
     # timestamp = datetime.utcnow()
