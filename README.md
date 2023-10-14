@@ -2,10 +2,12 @@
 
 ## Introduction
 
-Question/Answering on documents. Upload your document and ask questions. 
+Question/Answering on scientific documents. Upload your document and ask questions.
 In our implementation we use [Grobid](https://github.com/kermitt2/grobid) for text extraction instead of the raw PDF2Text converter.
 Thanks to Grobid we are able to precisely extract abstract and full-text.
 This is just the beginning and publishing might help gathering more feedback. 
+
+**NOTE**: This project focus on scientific articles. Uploading books or other large document might not work as expected. 
 
 **Work in progress**
 
