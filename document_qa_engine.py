@@ -200,8 +200,8 @@ class DocumentQAEngine:
 
         return texts, metadatas, ids
 
-    def create_memory_embeddings(self, pdf_path, doc_id=None):
-        texts, metadata, ids = self.get_text_from_document(pdf_path, chunk_size=500, perc_overlap=0.1)
+    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1):
+        texts, metadata, ids = self.get_text_from_document(pdf_path, chunk_size=chunk_size, perc_overlap=perc_overlap)
         if doc_id:
             hash = doc_id
         else:

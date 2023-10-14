@@ -45,21 +45,18 @@ def new_file():
 
 
 @st.cache_resource
-def init_qa(api_key, model):
+def init_qa(model):
     if model == 'chatgpt-3.5-turbo':
         chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo",
                                      temperature=0,
                                      return_pl_id=True,
-                                     pl_tags=["streamlit", "chatgpt"],
-                                     openai_api_key=api_key)
-        embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+                                     pl_tags=["streamlit", "chatgpt"])
+        embeddings = OpenAIEmbeddings()
     elif model == 'mistral-7b-instruct-v0.1':
         chat = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-                              model_kwargs={"temperature": 0.01},
-                              api_key=api_key)
+                              model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
         embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2",
-            api_key=api_key)
+            model_name="all-MiniLM-L6-v2")
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
@@ -85,6 +82,7 @@ def play_old_messages():
                     else:
                         st.write(message['content'])
 
+is_api_key_provided = st.session_state['api_key']
 
 model = st.sidebar.radio("Model", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),
                          index=1,
@@ -92,20 +90,22 @@ model = st.sidebar.radio("Model", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.
                              "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
                              "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
                          ],
-                         help="Select the model you want to use.")
+                         help="Select the model you want to use.",
+                         disabled=is_api_key_provided)
 
-is_api_key_provided = False
 if not st.session_state['api_key']:
     if model == 'mistral-7b-instruct-v0.1':
-        api_key = st.sidebar.text_input('Huggingface API Key')
+        api_key = st.sidebar.text_input('Huggingface API Key') if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ['HUGGINGFACEHUB_API_TOKEN']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
-            st.session_state['rqa'] = init_qa(api_key)
+            os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
+            st.session_state['rqa'] = init_qa(model)
     elif model == 'chatgpt-3.5-turbo':
-        api_key = st.sidebar.text_input('OpenAI API Key')
+        api_key = st.sidebar.text_input('OpenAI API Key') if 'OPENAI_API_KEY' not in os.environ else os.environ['OPENAI_API_KEY']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
-            st.session_state['rqa'] = init_qa(api_key)
+            os.environ['OPENAI_API_KEY'] = api_key
+            st.session_state['rqa'] = init_qa(model)
 else:
     is_api_key_provided = st.session_state['api_key']
 
@@ -158,7 +158,7 @@ if uploaded_file and not st.session_state.loaded_embeddings:
         tmp_file = NamedTemporaryFile()
         tmp_file.write(bytearray(binary))
         # hash = get_file_hash(tmp_file.name)[:10]
-        st.session_state['doc_id'] = hash = st.session_state['rqa'].create_memory_embeddings(tmp_file.name)
+        st.session_state['doc_id'] = hash = st.session_state['rqa'].create_memory_embeddings(tmp_file.name, chunk_size=250, perc_overlap=0.1)
         st.session_state['loaded_embeddings'] = True
 
     # timestamp = datetime.utcnow()
