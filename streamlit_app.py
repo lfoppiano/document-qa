@@ -118,16 +118,14 @@ if not st.session_state['api_key']:
 else:
     is_api_key_provided = st.session_state['api_key']
 
-st.title("📝 Document insight Q&A")
-st.subheader("Upload a PDF document, ask questions, get insights.")
+st.title("📝 Scientific Document Insight Q&A")
+st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
 upload_col, radio_col, context_col = st.columns([7, 2, 2])
 with upload_col:
     uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
                                      disabled=not is_api_key_provided,
-                                     help="The file will be uploaded to Grobid, extracted the text and calculated "
-                                          "embeddings of each paragraph which are then stored to a Db for be picked "
-                                          "to answer specific questions. ")
+                                     help="The full-text is extracted using Grobid. ")
 with radio_col:
     mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0,
                     help="LLM will respond the question, Embedding will show the "
@@ -147,20 +145,17 @@ with st.sidebar:
     st.header("Documentation")
     st.markdown("https://github.com/lfoppiano/document-qa")
     st.markdown(
-        """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document, click on the designated button and select the file from your device.""")
-
-    st.markdown(
-        """After uploading, please wait for the PDF to be processed. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
+        """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
 
     st.markdown("**Revision number**: [" + st.session_state[
         'git_rev'] + "](https://github.com/lfoppiano/grobid-magneto/commit/" + st.session_state['git_rev'] + ")")
 
     st.header("Query mode (Advanced use)")
     st.markdown(
-        """By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the PDF content, and the system will provide relevant answers.""")
+        """By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.""")
 
     st.markdown(
-        """If you switch the mode to "Embedding," the system will return specific paragraphs from the document that are semantically similar to your query. This mode focuses on providing relevant excerpts rather than answering specific questions.""")
+        """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
 if uploaded_file and not st.session_state.loaded_embeddings:
     with st.spinner('Reading file, calling Grobid, and creating memory embeddings...'):

@@ -1,19 +1,26 @@
-# DocumentIQA: Scientific Document Insight Question/Answer
+# DocumentIQA: Scientific Document Insight QA
 
 ## Introduction
 
-Question/Answering on scientific documents.
-In our implementation we use [Grobid](https://github.com/kermitt2/grobid) for text extraction instead of the raw PDF2Text converter.
-Thanks to Grobid we are able to precisely extract abstract and full-text.
-This is just the beginning and publishing might help gathering more feedback. 
-
-**NOTE**: This project focus on scientific articles. Uploading books or other large document might not work as expected. 
+Question/Answering on scientific documents using LLMs (OpenAI, Mistral, LLama2).
+This application is the frontend for testing the RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS.
+Differently to most of the project, we focus on scientific articles and we are using [Grobid](https://github.com/kermitt2/grobid) for text extraction instead of the raw PDF2Text converter allow to extract only full-text.
 
 **Work in progress**
 
-https://document-insights.streamlit.app/
+- Select the model+embedding combination you want ot use. 
+- Enter your API Key (Open AI or Huggingface). 
+- Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. 
+- Once the spinner stops, you can proceed to ask your questions
 
-**OpenAI or HuggingFace API KEY required**
+### Query mode (LLm vs Embeddings)
+By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.
+If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete.
+
+## Demo
+The demo is deployed with streamlit and, depending on the model used, requires either OpenAI or HuggingFace **API KEYs**.
+
+https://document-insights.streamlit.app/
 
 
 ### Acknolwedgement 
