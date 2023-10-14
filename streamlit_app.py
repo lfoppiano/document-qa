@@ -84,7 +84,7 @@ def play_old_messages():
 
 is_api_key_provided = st.session_state['api_key']
 
-model = st.sidebar.radio("Model", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),
+model = st.sidebar.radio("Model (cannot be changed after selection or upload)", ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),
                          index=1,
                          captions=[
                              "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
