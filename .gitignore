@@ -2,6 +2,5 @@
 .env
 .env.docker
 **/**/.chroma
-grobid_magneto/reverse_qa/.chroma
-exploration_llm
 resources/db
+build
