@@ -147,8 +147,9 @@ with st.sidebar:
     st.markdown(
         """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
 
-    st.markdown("**Revision number**: [" + st.session_state[
-        'git_rev'] + "](https://github.com/lfoppiano/grobid-magneto/commit/" + st.session_state['git_rev'] + ")")
+    if st.session_state['git_rev'] != "unknown":
+        st.markdown("**Revision number**: [" + st.session_state[
+        'git_rev'] + "](https://github.com/lfoppiano/document-qa/commit/" + st.session_state['git_rev'] + ")")
 
     st.header("Query mode (Advanced use)")
     st.markdown(
