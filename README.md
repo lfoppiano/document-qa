@@ -30,7 +30,7 @@ If you switch the mode to "Embedding," the system will return specific chunks fr
 
 ## Acknolwedgement 
 
-This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan. 
+This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Lambard-ML-Team](https://github.com/Lambard-ML-Team). 
 
 
 
