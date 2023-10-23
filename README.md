@@ -1,3 +1,15 @@
+---
+title: Document Qa
+emoji: 🚀
+colorFrom: yellow
+colorTo: pink
+sdk: streamlit
+sdk_version: 1.27.2
+app_file: app.py
+pinned: false
+license: apache-2.0
+---
+
 # DocumentIQA: Scientific Document Insight QA
 
 ## Introduction
