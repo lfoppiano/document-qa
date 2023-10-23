@@ -20,7 +20,8 @@ Differently to most of the project, we focus on scientific articles and we are u
 
 **Work in progress**
 
-Demo: https://document-insights.streamlit.app/
+Demo (on HF spaces): https://lfoppiano-document-qa.hf.space/
+Demo (on streamlit.io): https://document-insights.streamlit.app/
 
 ## Getting started
 
