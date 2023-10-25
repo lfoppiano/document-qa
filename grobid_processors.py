@@ -412,7 +412,8 @@ class GrobidMaterialsProcessor(BaseProcessor):
         self.grobid_superconductors_client = grobid_superconductors_client
 
     def extract_materials(self, text):
-        status, result = self.grobid_superconductors_client.process_text(text.strip(), "processText_disable_linking")
+        preprocessed_text = text.strip()
+        status, result = self.grobid_superconductors_client.process_text(preprocessed_text, "processText_disable_linking")
 
         if status != 200:
             result = {}
@@ -420,10 +421,10 @@ class GrobidMaterialsProcessor(BaseProcessor):
         spans = []
 
         if 'passages' in result:
-            materials = self.parse_superconductors_output(result, text)
+            materials = self.parse_superconductors_output(result, preprocessed_text)
 
             for m in materials:
-                item = {"text": text[m['offset_start']:m['offset_end']]}
+                item = {"text": preprocessed_text[m['offset_start']:m['offset_end']]}
 
                 item['offset_start'] = m['offset_start']
                 item['offset_end'] = m['offset_end']
@@ -502,12 +503,12 @@ class GrobidMaterialsProcessor(BaseProcessor):
 class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, GrobidMaterialsProcessor):
     def __init__(self, grobid_client, grobid_quantities_client=None, grobid_superconductors_client=None):
         GrobidProcessor.__init__(self, grobid_client)
-        GrobidQuantitiesProcessor.__init__(self, grobid_quantities_client)
-        GrobidMaterialsProcessor.__init__(self, grobid_superconductors_client)
+        self.gqp = GrobidQuantitiesProcessor(grobid_quantities_client)
+        self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
 
     def process_single_text(self, text):
-        extracted_quantities_spans = extract_quantities(self.grobid_quantities_client, text)
-        extracted_materials_spans = extract_materials(self.grobid_superconductors_client, text)
+        extracted_quantities_spans = self.gqp.extract_quantities(text)
+        extracted_materials_spans = self.gmp.extract_materials(text)
         all_entities = extracted_quantities_spans + extracted_materials_spans
         entities = self.prune_overlapping_annotations(all_entities)
         return entities
