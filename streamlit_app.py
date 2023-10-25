@@ -177,6 +177,7 @@ with st.sidebar:
     st.markdown(
         """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
 
+    st.markdown('**NER on LLM responses**: The responses from the LLMs are post-processed to extract <span style="color:orange">physical quantities, measurements</span> and <span style="color:green">materials</span> mentions.', unsafe_allow_html=True)
     if st.session_state['git_rev'] != "unknown":
         st.markdown("**Revision number**: [" + st.session_state[
         'git_rev'] + "](https://github.com/lfoppiano/document-qa/commit/" + st.session_state['git_rev'] + ")")
@@ -231,8 +232,8 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
             # for entity in entities:
             #     entity
             decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
-            decorated_text = decorated_text.replace('class="label material"', 'style="color:blue"')
-            decorated_text = re.sub(r'class="label[^"]+"', 'style="color:yellow"', decorated_text)
+            decorated_text = decorated_text.replace('class="label material"', 'style="color:green"')
+            decorated_text = re.sub(r'class="label[^"]+"', 'style="color:orange"', decorated_text)
             st.markdown(decorated_text, unsafe_allow_html=True)
             text_response = decorated_text
         else:

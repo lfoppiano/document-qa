@@ -12,13 +12,15 @@ license: apache-2.0
 
 # DocumentIQA: Scientific Document Insight QA
 
+**Work in progress** :construction_worker: 
+
 ## Introduction
 
 Question/Answering on scientific documents using LLMs (OpenAI, Mistral, ~~LLama2,~~ etc..).
 This application is the frontend for testing the RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS.
-Differently to most of the project, we focus on scientific articles and we are using [Grobid](https://github.com/kermitt2/grobid) for text extraction instead of the raw PDF2Text converter (which is comparable with most of other solutions) allow to extract only full-text.
+Differently to most of the project, we focus on scientific articles. We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) that provide and cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
 
-**Work in progress**
+**NER in LLM response**: The responses from the LLMs are post-processed to extract <span stype="color:yellow">physical quantities, measurements</span> and <span stype="color:blue">materials</span> mentions.
 
 **Demos**: 
  - (on HuggingFace spaces): https://lfoppiano-document-qa.hf.space/
