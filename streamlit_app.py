@@ -134,13 +134,13 @@ model = st.sidebar.radio("Model (cannot be changed after selection or upload)",
 
 if not st.session_state['api_key']:
     if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
-        api_key = st.sidebar.text_input('Huggingface API Key')# if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ['HUGGINGFACEHUB_API_TOKEN']
+        api_key = st.sidebar.text_input('Huggingface API Key', type="password")# if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ['HUGGINGFACEHUB_API_TOKEN']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
             st.session_state['rqa'] = init_qa(model)
     elif model == 'chatgpt-3.5-turbo':
-        api_key = st.sidebar.text_input('OpenAI API Key') #if 'OPENAI_API_KEY' not in os.environ else os.environ['OPENAI_API_KEY']
+        api_key = st.sidebar.text_input('OpenAI API Key', type="password") #if 'OPENAI_API_KEY' not in os.environ else os.environ['OPENAI_API_KEY']
         if api_key:
             st.session_state['api_key'] = is_api_key_provided = True
             os.environ['OPENAI_API_KEY'] = api_key
@@ -211,31 +211,34 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
             elif message['mode'] == "Embeddings":
                 st.write(message["content"])
 
+    with st.chat_message("user"):
+        st.markdown(question)
+        st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
+
     text_response = None
     if mode == "Embeddings":
-        text_response = st.session_state['rqa'].query_storage(question, st.session_state.doc_id,
+        with st.spinner("Generating LLM response..."):
+            text_response = st.session_state['rqa'].query_storage(question, st.session_state.doc_id,
                                                               context_size=context_size)
     elif mode == "LLM":
-        _, text_response = st.session_state['rqa'].query_document(question, st.session_state.doc_id,
+        with st.spinner("Generating response..."):
+            _, text_response = st.session_state['rqa'].query_document(question, st.session_state.doc_id,
                                                                   context_size=context_size)
 
     if not text_response:
         st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
 
-    with st.chat_message("user"):
-        st.markdown(question)
-        st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
-
     with st.chat_message("assistant"):
         if mode == "LLM":
-            entities = gqa.process_single_text(text_response)
-            # for entity in entities:
-            #     entity
-            decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
-            decorated_text = decorated_text.replace('class="label material"', 'style="color:green"')
-            decorated_text = re.sub(r'class="label[^"]+"', 'style="color:orange"', decorated_text)
-            st.markdown(decorated_text, unsafe_allow_html=True)
-            text_response = decorated_text
+            with st.spinner("Processing NER on LLM response..."):
+                entities = gqa.process_single_text(text_response)
+                # for entity in entities:
+                #     entity
+                decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
+                decorated_text = decorated_text.replace('class="label material"', 'style="color:green"')
+                decorated_text = re.sub(r'class="label[^"]+"', 'style="color:orange"', decorated_text)
+                st.markdown(decorated_text, unsafe_allow_html=True)
+                text_response = decorated_text
         else:
             st.write(text_response)
         st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
