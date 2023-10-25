@@ -1,8 +1,10 @@
 import os
+import re
 from hashlib import blake2b
 from tempfile import NamedTemporaryFile
 
 import dotenv
+from grobid_quantities.quantities import QuantitiesAPI
 from langchain.llms.huggingface_hub import HuggingFaceHub
 
 dotenv.load_dotenv(override=True)
@@ -12,6 +14,8 @@ from langchain.chat_models import PromptLayerChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
 from document_qa_engine import DocumentQAEngine
+from grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
+from grobid_client_generic import GrobidClientGeneric
 
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = None
@@ -37,7 +41,6 @@ if 'git_rev' not in st.session_state:
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
-
 
 def new_file():
     st.session_state['loaded_embeddings'] = None
@@ -66,6 +69,33 @@ def init_qa(model):
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
+@st.cache_resource
+def init_ner():
+    quantities_client = QuantitiesAPI(os.environ['GROBID_QUANTITIES_URL'], check_server=True)
+
+    materials_client = GrobidClientGeneric(ping=True)
+    config_materials = {
+        'grobid': {
+            "server": os.environ['GROBID_MATERIALS_URL'],
+            'sleep_time': 5,
+            'timeout': 60,
+            'url_mapping': {
+                'processText_disable_linking': "/service/process/text?disableLinking=True",
+                # 'processText_disable_linking': "/service/process/text"
+            }
+        }
+    }
+
+    materials_client.set_config(config_materials)
+
+    gqa = GrobidAggregationProcessor(None,
+        grobid_quantities_client=quantities_client,
+        grobid_superconductors_client=materials_client
+    )
+
+    return gqa
+
+gqa = init_ner()
 
 def get_file_hash(fname):
     hash_md5 = blake2b()
@@ -84,7 +114,7 @@ def play_old_messages():
             elif message['role'] == 'assistant':
                 with st.chat_message("assistant"):
                     if mode == "LLM":
-                        st.markdown(message['content'])
+                        st.markdown(message['content'], unsafe_allow_html=True)
                     else:
                         st.write(message['content'])
 
@@ -168,6 +198,7 @@ if uploaded_file and not st.session_state.loaded_embeddings:
                                                                                              chunk_size=250,
                                                                                              perc_overlap=0.1)
         st.session_state['loaded_embeddings'] = True
+        st.session_state.messages = []
 
     # timestamp = datetime.utcnow()
 
@@ -175,7 +206,7 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
     for message in st.session_state.messages:
         with st.chat_message(message["role"]):
             if message['mode'] == "LLM":
-                st.markdown(message["content"])
+                st.markdown(message["content"], unsafe_allow_html=True)
             elif message['mode'] == "Embeddings":
                 st.write(message["content"])
 
@@ -196,7 +227,14 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
 
     with st.chat_message("assistant"):
         if mode == "LLM":
-            st.markdown(text_response)
+            entities = gqa.process_single_text(text_response)
+            # for entity in entities:
+            #     entity
+            decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
+            decorated_text = decorated_text.replace('class="label material"', 'style="color:blue"')
+            decorated_text = re.sub(r'class="label[^"]+"', 'style="color:yellow"', decorated_text)
+            st.markdown(decorated_text, unsafe_allow_html=True)
+            text_response = decorated_text
         else:
             st.write(text_response)
         st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
