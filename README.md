@@ -33,7 +33,7 @@ Differently to most of the project, we focus on scientific articles. We target o
 - Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner stops, you can proceed to ask your questions
 
- ![screenshot1.png](docs%2Fimages%2Fscreenshot1.png)
+ ![screenshot2.png](docs%2Fimages%2Fscreenshot2.png)
 
 ### Options
 #### Context size
