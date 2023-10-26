@@ -31,15 +31,3 @@ jobs:
 #    - name: Test with pytest
 #      run: |
 #        pytest
-
-  docker-build-documentqa:
-    needs: [build]
-
-    runs-on: ubuntu-latest
-
-    steps:
-      - uses: actions/checkout@v2
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag lfoppiano/documentqa:develop
-      - name: Cleanup older than 24h images and containers
-        run: docker system prune --filter "until=24h" --force
