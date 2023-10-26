@@ -3,8 +3,6 @@ name: Build release
 on:
   workflow_dispatch:
   push:
-    branches:
-      - setup-py-build-pipy
     tags:
       - 'v*'
 
