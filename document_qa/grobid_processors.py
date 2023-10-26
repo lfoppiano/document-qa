@@ -413,7 +413,8 @@ class GrobidMaterialsProcessor(BaseProcessor):
 
     def extract_materials(self, text):
         preprocessed_text = text.strip()
-        status, result = self.grobid_superconductors_client.process_text(preprocessed_text, "processText_disable_linking")
+        status, result = self.grobid_superconductors_client.process_text(preprocessed_text,
+                                                                         "processText_disable_linking")
 
         if status != 200:
             result = {}
@@ -679,6 +680,7 @@ class XmlProcessor(BaseProcessor):
 
         return output_data
 
+
 def get_children_list_supermat(soup, use_paragraphs=False, verbose=False):
     children = []
 
@@ -696,6 +698,7 @@ def get_children_list_supermat(soup, use_paragraphs=False, verbose=False):
         print(str(children))
 
     return children
+
 
 def get_children_list_grobid(soup: object, use_paragraphs: object = True, verbose: object = False) -> object:
     children = []
