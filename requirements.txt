@@ -12,6 +12,7 @@ lxml
 Beautifulsoup4
 python-dotenv
 watchdog
+dateparser
 
 # LLM
 chromadb==0.3.25
