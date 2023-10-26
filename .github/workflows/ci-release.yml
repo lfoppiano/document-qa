@@ -17,10 +17,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Cleanup more disk space
-        run: sudo rm -rf /usr/share/dotnet && sudo rm -rf /opt/ghc && sudo rm -rf "/usr/local/share/boost" && sudo rm -rf "$AGENT_TOOLSDIRECTORY"
       - name: Set up Python 3.9
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v2
         with:
           python-version: "3.9"
 #          cache: 'pip'
