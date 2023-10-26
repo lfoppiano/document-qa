@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[tool.bumpversion]
+current_version = "0.0.1"
+commit = "true"
+tag = "true"
+tag_name = "v{new_version}"
+
+#[[tool.bumpversion.files]]
+#filename = "version.txt"
+#search = "{current_version}"
+#replace = "{new_version}"
+
+[project]
+name = "document-qa-engine"
+license = { file = "LICENSE" }
+authors = [
+    { name = "Luca Foppiano", email = "lucanoro@duck.com" },
+]
+maintainers = [
+    { name = "Luca Foppiano", email = "lucanoro@duck.com" }
+]
+description = "Scientific Document Insight Q/A"
+readme = "README.md"
+
+dynamic = ['version']
+
+[tool.setuptools_scm]
+
+[project.urls]
+Homepage = "https://document-insights.streamlit.app"
+Repository = "https://github.com/lfoppiano/document-qa"
+Changelog = "https://github.com/lfoppiano/document-qa/blob/main/CHANGELOG.md"
