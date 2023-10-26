@@ -1,0 +1,17 @@
+[project]
+name = "document-qa-engine"
+version = "0.0.1"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Luca Foppiano", email = "lucanoro@duck.com"},
+]
+maintainers = [
+    {name = "Luca Foppiano", email = "lucanoro@duck.com"}
+]
+description = "Scientific Document Insight Q/A"
+readme = "README.md"
+
+[project.urls]
+Homepage = "https://document-insights.streamlit.app"
+Repository = "https://github.com/lfoppiano/document-qa"
+Changelog = "https://github.com/lfoppiano/document-qa/blob/main/CHANGELOG.md"
