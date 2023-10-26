@@ -15,7 +15,7 @@ watchdog
 dateparser
 
 # LLM
-chromadb==0.3.25
+chromadb==0.4.15
 tiktoken==0.4.0
 openai==0.27.7
 langchain==0.0.314
