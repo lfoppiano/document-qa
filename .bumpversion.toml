@@ -1,7 +1,0 @@
-[tool.bumpversion]
-current_version = "0.0.2"
-
-[[tool.bumpversion.files]]
-filename = "version.txt"
-search = "{current_version}"
-replace = "{new_version}"
