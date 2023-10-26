@@ -7,5 +7,6 @@ setup(
     license='Apache 2.0',
     author='lfoppiano',
     author_email='lucanoro@duck.com',
-    description=''
+    description='Scientific Document Insight Q/A',
+    long_description=open('README.md').read(),
 )
