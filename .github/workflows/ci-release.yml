@@ -42,14 +42,13 @@ jobs:
 
   docker-build-documentqa:
     needs: [build]
-
     runs-on: ubuntu-latest
 
     steps:
       - name: Set tags
         id: set_tags
         run: |
-          DOCKER_IMAGE=lfoppiano/grobid-superconductors
+          DOCKER_IMAGE=lfoppiano/document-insights-qa
           VERSION=""
           if [[ $GITHUB_REF == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
@@ -70,7 +69,7 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-          image: lfoppiano/grobid-superconductors
+          image: lfoppiano/document-insights-qa
           registry: docker.io
           pushImage: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.set_tags.outputs.tags }}
