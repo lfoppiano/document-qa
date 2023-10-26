@@ -43,6 +43,14 @@ Allow to change the number of embedding chunks that are considered for respondin
 By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.
 If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete.
 
+## Development notes
+
+To release a new version: 
+
+- `bump-my-version bump patch` 
+- `git push --tags`
+
+
 
 ## Acknolwedgement 
 
