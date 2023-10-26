@@ -5,9 +5,7 @@ grobid_tei_xml
 
 # Utils
 tqdm
-textdistance[extras]
 pyyaml
-dateparser
 pytest
 streamlit
 lxml
