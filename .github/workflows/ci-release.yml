@@ -3,6 +3,8 @@ name: Build release
 on:
   workflow_dispatch:
   push:
+    branches:
+      - setup-py-build-pipy
     tags:
       - 'v*'
 
@@ -40,7 +42,7 @@ jobs:
           pypi-token: ${{ secrets.PYPI_API_TOKEN }}
 
 
-  docker-build-documentqa:
+  docker-build:
     needs: [build]
     runs-on: ubuntu-latest
 
