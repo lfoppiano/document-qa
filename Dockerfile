@@ -14,7 +14,10 @@ COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 COPY .streamlit ./.streamlit
-COPY *.py .
+COPY document_qa ./document_qa
+COPY grobid_client_generic.py .
+COPY client.py .
+COPY streamlit_app.py .
 
 # extract version
 COPY .git ./.git
@@ -27,4 +30,4 @@ HEALTHCHECK CMD curl --fail http://localhost:8501/_stcore/health
 
 ENV PYTHONPATH "${PYTHONPATH}:."
 
-ENTRYPOINT ["streamlit", "run", "document_qa/streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+ENTRYPOINT ["streamlit", "run", "streamlit_app.py", "--server.port=8501", "--server.address=0.0.0.0"]
