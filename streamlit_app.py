@@ -20,8 +20,8 @@ from grobid_client_generic import GrobidClientGeneric
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = {}
 
-if 'api_key' not in st.session_state:
-    st.session_state['api_key'] = False
+if 'model' not in st.session_state:
+    st.session_state['model'] = None
 
 if 'api_keys' not in st.session_state:
     st.session_state['api_keys'] = {}
@@ -128,11 +128,10 @@ def play_old_messages():
                     else:
                         st.write(message['content'])
 
-
-is_api_key_provided = st.session_state['api_key']
+# is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
-    model = st.radio(
+    st.session_state['model'] = model = st.radio(
         "Model (cannot be changed after selection or upload)",
         ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),  # , "llama-2-70b-chat"),
         index=1,
@@ -141,7 +140,8 @@ with st.sidebar:
             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
             # "LLama2-70B-Chat + Sentence BERT (embeddings)",
         ],
-        help="Select the model you want to use.")
+        help="Select the model you want to use.",
+        disabled=st.session_state['doc_id'] is not None)
 
     if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
         api_key = st.text_input('Huggingface API Key',
@@ -151,23 +151,25 @@ with st.sidebar:
             "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
 
         if api_key:
-            st.session_state['api_key'] = is_api_key_provided = True
-            st.session_state['api_keys']['mistral-7b-instruct-v0.1'] = api_key
-            if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
-                os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
-            st.session_state['rqa'][model] = init_qa(model)
+            # st.session_state['api_key'] = is_api_key_provided = True
+            with st.spinner("Preparing environment"):
+                st.session_state['api_keys']['mistral-7b-instruct-v0.1'] = api_key
+                if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
+                    os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
+                st.session_state['rqa'][model] = init_qa(model)
 
     elif model == 'chatgpt-3.5-turbo':
         api_key = st.text_input('OpenAI API Key', type="password") if 'OPENAI_API_KEY' not in os.environ else \
-        os.environ['OPENAI_API_KEY']
+            os.environ['OPENAI_API_KEY']
         st.markdown(
             "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
         if api_key:
-            st.session_state['api_key'] = is_api_key_provided = True
-            st.session_state['api_keys']['chatgpt-3.5-turbo'] = api_key
-            if 'OPENAI_API_KEY' not in os.environ:
-                os.environ['OPENAI_API_KEY'] = api_key
-            st.session_state['rqa'][model] = init_qa(model)
+            # st.session_state['api_key'] = is_api_key_provided = True
+            with st.spinner("Preparing environment"):
+                st.session_state['api_keys']['chatgpt-3.5-turbo'] = api_key
+                if 'OPENAI_API_KEY' not in os.environ:
+                    os.environ['OPENAI_API_KEY'] = api_key
+                st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
 
@@ -175,7 +177,7 @@ st.title("📝 Scientific Document Insight Q&A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
 uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
-                                 disabled=not is_api_key_provided,
+                                 disabled=st.session_state['model'] is not None and st.session_state['model'] not in st.session_state['api_keys'],
                                  help="The full-text is extracted using Grobid. ")
 
 question = st.chat_input(
@@ -220,6 +222,9 @@ with st.sidebar:
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
 if uploaded_file and not st.session_state.loaded_embeddings:
+    if model not in st.session_state['api_keys']:
+        st.error("Before uploading a document, you must enter the API key. ")
+        st.stop()
     with st.spinner('Reading file, calling Grobid, and creating memory embeddings...'):
         binary = uploaded_file.getvalue()
         tmp_file = NamedTemporaryFile()
@@ -240,6 +245,9 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
                 st.markdown(message["content"], unsafe_allow_html=True)
             elif message['mode'] == "Embeddings":
                 st.write(message["content"])
+    if model not in st.session_state['rqa']:
+        st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
+        st.stop()
 
     with st.chat_message("user"):
         st.markdown(question)
