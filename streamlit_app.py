@@ -48,11 +48,13 @@ if "messages" not in st.session_state:
 if 'ner_processing' not in st.session_state:
     st.session_state['ner_processing'] = False
 
+if 'uploaded' not in st.session_state:
+    st.session_state['uploaded'] = False
 
 def new_file():
     st.session_state['loaded_embeddings'] = None
     st.session_state['doc_id'] = None
-
+    st.session_state['uploaded'] = True
 
 # @st.cache_resource
 def init_qa(model):
@@ -128,11 +130,15 @@ def play_old_messages():
                     else:
                         st.write(message['content'])
 
+
 # is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
+    st.markdown(
+        ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
+
     st.session_state['model'] = model = st.radio(
-        "Model (cannot be changed after selection or upload)",
+        "Model",
         ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),  # , "llama-2-70b-chat"),
         index=1,
         captions=[
@@ -140,15 +146,17 @@ with st.sidebar:
             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
             # "LLama2-70B-Chat + Sentence BERT (embeddings)",
         ],
-        help="Select the model you want to use.",
-        disabled=st.session_state['doc_id'] is not None)
+        help="Select the LLM model and embeddings you want to use.",
+        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
 
     if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
-        api_key = st.text_input('Huggingface API Key',
-                                type="password") if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ else os.environ[
-            'HUGGINGFACEHUB_API_TOKEN']
-        st.markdown(
-            "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+        if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
+            api_key = st.text_input('Huggingface API Key', type="password")
+
+            st.markdown(
+                "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+        else:
+            api_key = os.environ['HUGGINGFACEHUB_API_TOKEN']
 
         if api_key:
             # st.session_state['api_key'] = is_api_key_provided = True
@@ -159,10 +167,13 @@ with st.sidebar:
                 st.session_state['rqa'][model] = init_qa(model)
 
     elif model == 'chatgpt-3.5-turbo':
-        api_key = st.text_input('OpenAI API Key', type="password") if 'OPENAI_API_KEY' not in os.environ else \
-            os.environ['OPENAI_API_KEY']
-        st.markdown(
-            "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+        if 'OPENAI_API_KEY' not in os.environ:
+            api_key = st.text_input('OpenAI API Key', type="password")
+            st.markdown(
+                "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+        else:
+            api_key = os.environ['OPENAI_API_KEY']
+
         if api_key:
             # st.session_state['api_key'] = is_api_key_provided = True
             with st.spinner("Preparing environment"):
@@ -177,7 +188,8 @@ st.title("📝 Scientific Document Insight Q&A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
 uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
-                                 disabled=st.session_state['model'] is not None and st.session_state['model'] not in st.session_state['api_keys'],
+                                 disabled=st.session_state['model'] is not None and st.session_state['model'] not in
+                                          st.session_state['api_keys'],
                                  help="The full-text is extracted using Grobid. ")
 
 question = st.chat_input(
@@ -198,7 +210,7 @@ with st.sidebar:
                              help="Number of chunks to consider when answering a question",
                              disabled=not uploaded_file)
 
-    st.session_state['ner_processing'] = st.checkbox("NER processing on LLM response")
+    st.session_state['ner_processing'] = st.checkbox("Named Entities Recognition (NER) processing on LLM response")
     st.markdown(
         '**NER on LLM responses**: The responses from the LLMs are post-processed to extract <span style="color:orange">physical quantities, measurements</span> and <span style="color:green">materials</span> mentions.',
         unsafe_allow_html=True)
