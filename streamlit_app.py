@@ -193,7 +193,7 @@ with st.sidebar:
                          "paragraphs relevant to the question in the paper.")
     chunk_size = st.slider("Chunks size", 100, 2000, value=250,
                            help="Size of chunks in which the document is partitioned",
-                           disabled=not uploaded_file)
+                           disabled=uploaded_file is not None)
     context_size = st.slider("Context size", 3, 10, value=4,
                              help="Number of chunks to consider when answering a question",
                              disabled=not uploaded_file)
