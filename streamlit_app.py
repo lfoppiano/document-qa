@@ -52,7 +52,7 @@ if 'uploaded' not in st.session_state:
     st.session_state['uploaded'] = False
 
 st.set_page_config(
-    page_title="Document Insights QA",
+    page_title="Scientific Document Insights Q/A",
     page_icon="📝",
     initial_sidebar_state="expanded",
     menu_items={
@@ -199,7 +199,7 @@ with st.sidebar:
     # else:
     #     is_api_key_provided = st.session_state['api_key']
 
-st.title("📝 Scientific Document Insight QA")
+st.title("📝 Scientific Document Insights Q/A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
 st.markdown(":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
