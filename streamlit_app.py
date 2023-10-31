@@ -51,10 +51,23 @@ if 'ner_processing' not in st.session_state:
 if 'uploaded' not in st.session_state:
     st.session_state['uploaded'] = False
 
+st.set_page_config(
+    page_title="Document Insights QA",
+    page_icon="📝",
+    initial_sidebar_state="expanded",
+    menu_items={
+        'Get Help': 'https://github.com/lfoppiano/document-qa',
+        'Report a bug': "https://github.com/lfoppiano/document-qa/issues",
+        'About': "Upload a scientific article in PDF, ask questions, get insights."
+    }
+)
+
+
 def new_file():
     st.session_state['loaded_embeddings'] = None
     st.session_state['doc_id'] = None
     st.session_state['uploaded'] = True
+
 
 # @st.cache_resource
 def init_qa(model):
@@ -134,58 +147,62 @@ def play_old_messages():
 # is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
-    st.markdown(
-        ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
-
     st.session_state['model'] = model = st.radio(
         "Model",
         ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),  # , "llama-2-70b-chat"),
         index=1,
         captions=[
             "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings)"
-            # "LLama2-70B-Chat + Sentence BERT (embeddings)",
+            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:"
+            # "LLama2-70B-Chat + Sentence BERT (embeddings) :free:",
         ],
         help="Select the LLM model and embeddings you want to use.",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
+
+    st.markdown(
+        ":warning: Mistral is free to use, however requests might hit limits of the huggingface free API and fail. :warning: ")
 
     if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
 
             st.markdown(
-                "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+                "Get it [here](https://huggingface.co/docs/hub/security-tokens)")
         else:
             api_key = os.environ['HUGGINGFACEHUB_API_TOKEN']
 
         if api_key:
             # st.session_state['api_key'] = is_api_key_provided = True
-            with st.spinner("Preparing environment"):
-                st.session_state['api_keys']['mistral-7b-instruct-v0.1'] = api_key
-                if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
-                    os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
-                st.session_state['rqa'][model] = init_qa(model)
+            if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
+                with st.spinner("Preparing environment"):
+                    st.session_state['api_keys'][model] = api_key
+                    if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
+                        os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
+                    st.session_state['rqa'][model] = init_qa(model)
 
     elif model == 'chatgpt-3.5-turbo':
         if 'OPENAI_API_KEY' not in os.environ:
             api_key = st.text_input('OpenAI API Key', type="password")
             st.markdown(
-                "Get it for [Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)")
+                "Get it [here](https://platform.openai.com/account/api-keys)")
         else:
             api_key = os.environ['OPENAI_API_KEY']
 
         if api_key:
             # st.session_state['api_key'] = is_api_key_provided = True
-            with st.spinner("Preparing environment"):
-                st.session_state['api_keys']['chatgpt-3.5-turbo'] = api_key
-                if 'OPENAI_API_KEY' not in os.environ:
-                    os.environ['OPENAI_API_KEY'] = api_key
-                st.session_state['rqa'][model] = init_qa(model)
+            if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
+                with st.spinner("Preparing environment"):
+                    st.session_state['api_keys'][model] = api_key
+                    if 'OPENAI_API_KEY' not in os.environ:
+                        os.environ['OPENAI_API_KEY'] = api_key
+                    st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
 
 st.title("📝 Scientific Document Insight Q&A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
+
+st.markdown(":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
 uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
                                  disabled=st.session_state['model'] is not None and st.session_state['model'] not in
@@ -220,7 +237,7 @@ with st.sidebar:
     st.header("Documentation")
     st.markdown("https://github.com/lfoppiano/document-qa")
     st.markdown(
-        """After entering your API Key (Open AI or Huggingface). Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. Once the spinner stops, you can proceed to ask your questions.""")
+        """Upload a scientific article as PDF document. Once the spinner stops, you can proceed to ask your questions.""")
 
     if st.session_state['git_rev'] != "unknown":
         st.markdown("**Revision number**: [" + st.session_state[
