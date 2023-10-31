@@ -1,6 +1,6 @@
 ---
-title: DocumentIQA
-emoji: 🚀
+title: 📝 Scientific Document Insight QA
+emoji: 
 colorFrom: yellow
 colorTo: pink
 sdk: streamlit
