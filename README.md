@@ -48,7 +48,7 @@ If you switch the mode to "Embedding," the system will return specific chunks fr
 To release a new version: 
 
 - `bump-my-version bump patch` 
-- `git push --tags
+- `git push --tags`
 
 To use docker: 
 
