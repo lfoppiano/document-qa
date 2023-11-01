@@ -162,7 +162,7 @@ with st.sidebar:
     st.markdown(
         ":warning: Mistral is free to use, however requests might hit limits of the huggingface free API and fail. :warning: ")
 
-    if model == 'mistral-7b-instruct-v0.1' or model == 'llama-2-70b-chat':
+    if model == 'mistral-7b-instruct-v0.1' and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
 
@@ -176,11 +176,11 @@ with st.sidebar:
             if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
                 with st.spinner("Preparing environment"):
                     st.session_state['api_keys'][model] = api_key
-                    if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
-                        os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
+                    # if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
+                    #     os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
                     st.session_state['rqa'][model] = init_qa(model)
 
-    elif model == 'chatgpt-3.5-turbo':
+    elif model == 'chatgpt-3.5-turbo' and model not in st.session_state['api_keys']:
         if 'OPENAI_API_KEY' not in os.environ:
             api_key = st.text_input('OpenAI API Key', type="password")
             st.markdown(
@@ -193,8 +193,8 @@ with st.sidebar:
             if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
                 with st.spinner("Preparing environment"):
                     st.session_state['api_keys'][model] = api_key
-                    if 'OPENAI_API_KEY' not in os.environ:
-                        os.environ['OPENAI_API_KEY'] = api_key
+                    # if 'OPENAI_API_KEY' not in os.environ:
+                    #     os.environ['OPENAI_API_KEY'] = api_key
                     st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
