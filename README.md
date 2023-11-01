@@ -1,6 +1,6 @@
 ---
-title: 📝 Scientific Document Insight QA
-emoji: 
+title: Scientific Document Insights Q/A
+emoji: 📝
 colorFrom: yellow
 colorTo: pink
 sdk: streamlit
@@ -10,7 +10,7 @@ pinned: false
 license: apache-2.0
 ---
 
-# DocumentIQA: Scientific Document Insight QA
+# DocumentIQA: Scientific Document Insights Q/A
 
 **Work in progress** :construction_worker: 
 
