@@ -205,6 +205,7 @@ class DocumentQAEngine:
         if doc_id:
             hash = doc_id
         else:
+
             hash = metadata[0]['hash']
 
         if hash not in self.embeddings_dict.keys():

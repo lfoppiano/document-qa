@@ -10,7 +10,7 @@ from langchain.llms.huggingface_hub import HuggingFaceHub
 dotenv.load_dotenv(override=True)
 
 import streamlit as st
-from langchain.chat_models import PromptLayerChatOpenAI
+from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
 from document_qa.document_qa_engine import DocumentQAEngine
@@ -70,13 +70,21 @@ def new_file():
 
 
 # @st.cache_resource
-def init_qa(model):
+def init_qa(model, api_key=None):
     if model == 'chatgpt-3.5-turbo':
-        chat = PromptLayerChatOpenAI(model_name="gpt-3.5-turbo",
-                                     temperature=0,
-                                     return_pl_id=True,
-                                     pl_tags=["streamlit", "chatgpt"])
-        embeddings = OpenAIEmbeddings()
+        if api_key:
+            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+                              temperature=0,
+                              openai_api_key=api_key,
+                              frequency_penalty=0.1)
+            embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+        else:
+            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+                              temperature=0,
+                              frequency_penalty=0.1)
+            embeddings = OpenAIEmbeddings()
+
+
     elif model == 'mistral-7b-instruct-v0.1':
         chat = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.1",
                               model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
@@ -166,8 +174,7 @@ with st.sidebar:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
 
-            st.markdown(
-                "Get it [here](https://huggingface.co/docs/hub/security-tokens)")
+            st.markdown("Get it [here](https://huggingface.co/docs/hub/security-tokens)")
         else:
             api_key = os.environ['HUGGINGFACEHUB_API_TOKEN']
 
@@ -183,26 +190,26 @@ with st.sidebar:
     elif model == 'chatgpt-3.5-turbo' and model not in st.session_state['api_keys']:
         if 'OPENAI_API_KEY' not in os.environ:
             api_key = st.text_input('OpenAI API Key', type="password")
-            st.markdown(
-                "Get it [here](https://platform.openai.com/account/api-keys)")
+            st.markdown("Get it [here](https://platform.openai.com/account/api-keys)")
         else:
             api_key = os.environ['OPENAI_API_KEY']
 
         if api_key:
-            # st.session_state['api_key'] = is_api_key_provided = True
             if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
                 with st.spinner("Preparing environment"):
                     st.session_state['api_keys'][model] = api_key
-                    # if 'OPENAI_API_KEY' not in os.environ:
-                    #     os.environ['OPENAI_API_KEY'] = api_key
-                    st.session_state['rqa'][model] = init_qa(model)
+                    if 'OPENAI_API_KEY' not in os.environ:
+                        st.session_state['rqa'][model] = init_qa(model, api_key)
+                    else:
+                        st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
 
 st.title("📝 Scientific Document Insights Q/A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
-st.markdown(":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
+st.markdown(
+    ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
 uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
                                  disabled=st.session_state['model'] is not None and st.session_state['model'] not in
