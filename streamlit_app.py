@@ -84,14 +84,14 @@ def init_qa(model, api_key=None):
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings()
 
-
     elif model == 'mistral-7b-instruct-v0.1':
         chat = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.1",
                               model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
         embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2")
-    elif model == 'llama-2-70b-chat':
-        chat = HuggingFaceHub(repo_id="meta-llama/Llama-2-70b-chat-hf",
+
+    elif model == 'zephyr-7b-beta':
+        chat = HuggingFaceHub(repo_id="HuggingFaceH4/zephyr-7b-beta",
                               model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
         embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
     else:
@@ -157,20 +157,20 @@ def play_old_messages():
 with st.sidebar:
     st.session_state['model'] = model = st.radio(
         "Model",
-        ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1"),  # , "llama-2-70b-chat"),
+        ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1", "zephyr-7b-beta"),
         index=1,
         captions=[
             "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:"
-            # "LLama2-70B-Chat + Sentence BERT (embeddings) :free:",
+            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
+            "Zephyr-7B-beta + Sentence BERT (embeddings) :free:"
         ],
         help="Select the LLM model and embeddings you want to use.",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
 
     st.markdown(
-        ":warning: Mistral is free to use, however requests might hit limits of the huggingface free API and fail. :warning: ")
+        ":warning: Mistral and Zephyr are free to use, however requests might hit limits of the huggingface free API and fail. :warning: ")
 
-    if model == 'mistral-7b-instruct-v0.1' and model not in st.session_state['api_keys']:
+    if (model == 'mistral-7b-instruct-v0.1' or model == 'zephyr-7b-beta') and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
 
