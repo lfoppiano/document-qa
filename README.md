@@ -28,20 +28,39 @@ Differently to most of the project, we focus on scientific articles. We target o
 
 ## Getting started
 
-- Select the model+embedding combination you want ot use ~~(for LLama2 you must acknowledge their licence both on meta.com and on huggingface. See [here](https://huggingface.co/meta-llama/Llama-2-70b-chat-hf))~~(Llama2 was removed due to API limitations). 
+- Select the model+embedding combination you want ot use 
 - Enter your API Key ([Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)). 
 - Upload a scientific article as PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner stops, you can proceed to ask your questions
 
  ![screenshot2.png](docs%2Fimages%2Fscreenshot2.png)
 
-### Options
-#### Context size
-Allow to change the number of embedding chunks that are considered for responding. The text chunk are around 250 tokens, which uses around 1000 tokens for each question.
+## Documentation
 
-#### Query mode
-By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.
-If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete.
+### Context size
+Allow to change the number of blocks from the original document that are considered for responding. 
+The default size of each block is 250 tokens (which can be changed before uploading the first document). 
+With default settings, each question uses around 1000 tokens.
+
+**NOTE**: if the chat answers something like "the information is not provided in the given context", **changing the context size might be a solution**~~~~. 
+
+### Chunks size
+When uploaded, each document is split into blocks of a determined size (250 tokens by default). 
+This setting allow users to modify the size of such blocks. 
+Smaller blocks will result in smaller context, yielding more precise sections of the document. 
+Larger blocks will result in larger context less constrained around the question.
+
+### Query mode
+Indicates whether sending a question to the LLM (Language Model) or to the vector storage. 
+ - LLM (default) enables question/answering related to the document content.
+ - Embeddings: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
+
+### NER (Named Entities Recognition)
+
+This feature is specifically crafted for people working with scientific documents in materials science. 
+It enables to run NER on the response from the LLM, to identify materials mentions and properties (quantities, masurements).
+This feature leverages both [grobid-quantities](https://github.com/kermitt2/grobid-quanities) and [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors) external services. 
+
 
 ## Development notes
 
@@ -59,10 +78,9 @@ To install the library with Pypi:
 - `pip install document-qa-engine` 
 
 
-
 ## Acknolwedgement 
 
-This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Lambard-ML-Team](https://github.com/Lambard-ML-Team). 
+This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Lambard-ML-Team](https://github.com/Lambard-ML-Team).
 
 
 
