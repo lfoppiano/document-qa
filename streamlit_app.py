@@ -1,3 +1,4 @@
+import base64
 import os
 import re
 from hashlib import blake2b
@@ -55,6 +56,7 @@ st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
     initial_sidebar_state="expanded",
+    layout="wide",
     menu_items={
         'Get Help': 'https://github.com/lfoppiano/document-qa',
         'Report a bug': "https://github.com/lfoppiano/document-qa/issues",
@@ -204,17 +206,19 @@ with st.sidebar:
                         st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
+left_column, right_column = st.columns([1, 1])
 
-st.title("📝 Scientific Document Insights Q/A")
-st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
+with right_column:
+    st.title("📝 Scientific Document Insights Q/A")
+    st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
-st.markdown(
-    ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
+    st.markdown(
+        ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
-uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
-                                 disabled=st.session_state['model'] is not None and st.session_state['model'] not in
-                                          st.session_state['api_keys'],
-                                 help="The full-text is extracted using Grobid. ")
+    uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
+                                     disabled=st.session_state['model'] is not None and st.session_state['model'] not in
+                                              st.session_state['api_keys'],
+                                     help="The full-text is extracted using Grobid. ")
 
 question = st.chat_input(
     "Ask something about the article",
@@ -257,6 +261,13 @@ with st.sidebar:
     st.markdown(
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
+
+@st.cache_resource
+def get_pdf_display(binary):
+    base64_pdf = base64.b64encode(binary).decode('utf-8')
+    return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="950" type="application/pdf"></embed>'
+
+
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
         st.error("Before uploading a document, you must enter the API key. ")
@@ -265,7 +276,9 @@ if uploaded_file and not st.session_state.loaded_embeddings:
         binary = uploaded_file.getvalue()
         tmp_file = NamedTemporaryFile()
         tmp_file.write(bytearray(binary))
-        # hash = get_file_hash(tmp_file.name)[:10]
+
+        left_column.markdown(get_pdf_display(binary), unsafe_allow_html=True)
+
         st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
                                                                                                     chunk_size=chunk_size,
                                                                                                     perc_overlap=0.1)
@@ -274,47 +287,48 @@ if uploaded_file and not st.session_state.loaded_embeddings:
 
     # timestamp = datetime.utcnow()
 
-if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
-    for message in st.session_state.messages:
-        with st.chat_message(message["role"]):
-            if message['mode'] == "LLM":
-                st.markdown(message["content"], unsafe_allow_html=True)
-            elif message['mode'] == "Embeddings":
-                st.write(message["content"])
-    if model not in st.session_state['rqa']:
-        st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
-        st.stop()
+with right_column:
+    if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
+        for message in st.session_state.messages:
+            with st.chat_message(message["role"]):
+                if message['mode'] == "LLM":
+                    st.markdown(message["content"], unsafe_allow_html=True)
+                elif message['mode'] == "Embeddings":
+                    st.write(message["content"])
+        if model not in st.session_state['rqa']:
+            st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
+            st.stop()
 
-    with st.chat_message("user"):
-        st.markdown(question)
-        st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
+        with st.chat_message("user"):
+            st.markdown(question)
+            st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
 
-    text_response = None
-    if mode == "Embeddings":
-        with st.spinner("Generating LLM response..."):
-            text_response = st.session_state['rqa'][model].query_storage(question, st.session_state.doc_id,
-                                                                         context_size=context_size)
-    elif mode == "LLM":
-        with st.spinner("Generating response..."):
-            _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
+        text_response = None
+        if mode == "Embeddings":
+            with st.spinner("Generating LLM response..."):
+                text_response = st.session_state['rqa'][model].query_storage(question, st.session_state.doc_id,
                                                                              context_size=context_size)
+        elif mode == "LLM":
+            with st.spinner("Generating response..."):
+                _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
+                                                                                 context_size=context_size)
 
-    if not text_response:
-        st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
+        if not text_response:
+            st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
 
-    with st.chat_message("assistant"):
-        if mode == "LLM":
-            if st.session_state['ner_processing']:
-                with st.spinner("Processing NER on LLM response..."):
-                    entities = gqa.process_single_text(text_response)
-                    decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
-                    decorated_text = decorated_text.replace('class="label material"', 'style="color:green"')
-                    decorated_text = re.sub(r'class="label[^"]+"', 'style="color:orange"', decorated_text)
-                    text_response = decorated_text
-            st.markdown(text_response, unsafe_allow_html=True)
-        else:
-            st.write(text_response)
-        st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
+        with st.chat_message("assistant"):
+            if mode == "LLM":
+                if st.session_state['ner_processing']:
+                    with st.spinner("Processing NER on LLM response..."):
+                        entities = gqa.process_single_text(text_response)
+                        decorated_text = decorate_text_with_annotations(text_response.strip(), entities)
+                        decorated_text = decorated_text.replace('class="label material"', 'style="color:green"')
+                        decorated_text = re.sub(r'class="label[^"]+"', 'style="color:orange"', decorated_text)
+                        text_response = decorated_text
+                st.markdown(text_response, unsafe_allow_html=True)
+            else:
+                st.write(text_response)
+            st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
 
-elif st.session_state.loaded_embeddings and st.session_state.doc_id:
-    play_old_messages()
+    elif st.session_state.loaded_embeddings and st.session_state.doc_id:
+        play_old_messages()
