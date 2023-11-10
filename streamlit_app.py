@@ -52,6 +52,9 @@ if 'ner_processing' not in st.session_state:
 if 'uploaded' not in st.session_state:
     st.session_state['uploaded'] = False
 
+if 'binary' not in st.session_state:
+    st.session_state['binary'] = None
+
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
@@ -265,27 +268,32 @@ with st.sidebar:
 @st.cache_resource
 def get_pdf_display(binary):
     base64_pdf = base64.b64encode(binary).decode('utf-8')
-    return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="700" height="950" type="application/pdf"></embed>'
+    return F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="600" height="800" type="application/pdf"></embed>'
 
 
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
         st.error("Before uploading a document, you must enter the API key. ")
         st.stop()
-    with st.spinner('Reading file, calling Grobid, and creating memory embeddings...'):
-        binary = uploaded_file.getvalue()
-        tmp_file = NamedTemporaryFile()
-        tmp_file.write(bytearray(binary))
 
-        left_column.markdown(get_pdf_display(binary), unsafe_allow_html=True)
+    with right_column:
+        with st.spinner('Reading file, calling Grobid, and creating memory embeddings...'):
+            binary = uploaded_file.getvalue()
+            tmp_file = NamedTemporaryFile()
+            tmp_file.write(bytearray(binary))
+            st.session_state['binary'] = binary
 
-        st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
+            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
                                                                                                     chunk_size=chunk_size,
                                                                                                     perc_overlap=0.1)
-        st.session_state['loaded_embeddings'] = True
-        st.session_state.messages = []
+            st.session_state['loaded_embeddings'] = True
+            st.session_state.messages = []
 
     # timestamp = datetime.utcnow()
+
+with left_column:
+    if st.session_state['binary']:
+        left_column.markdown(get_pdf_display(st.session_state['binary']), unsafe_allow_html=True)
 
 with right_column:
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
