@@ -42,7 +42,7 @@ Allow to change the number of blocks from the original document that are conside
 The default size of each block is 250 tokens (which can be changed before uploading the first document). 
 With default settings, each question uses around 1000 tokens.
 
-**NOTE**: if the chat answers something like "the information is not provided in the given context", **changing the context size might be a solution**~~~~. 
+**NOTE**: if the chat answers something like "the information is not provided in the given context", **changing the context size will likely help**. 
 
 ### Chunks size
 When uploaded, each document is split into blocks of a determined size (250 tokens by default). 
