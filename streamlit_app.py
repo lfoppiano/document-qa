@@ -67,6 +67,16 @@ st.set_page_config(
     }
 )
 
+css = '''
+<style>
+    [data-testid="ScrollToBottomContainer"] {
+        overflow: hidden;
+    }
+</style>
+'''
+
+st.markdown(css, unsafe_allow_html=True)
+
 
 def new_file():
     st.session_state['loaded_embeddings'] = None
@@ -283,7 +293,8 @@ if uploaded_file and not st.session_state.loaded_embeddings:
             tmp_file.write(bytearray(binary))
             st.session_state['binary'] = binary
 
-            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,                                                                                                  perc_overlap=0.1)
+            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
+                                                                                                        perc_overlap=0.1)
             st.session_state['loaded_embeddings'] = True
             st.session_state.messages = []
 
@@ -302,8 +313,18 @@ with right_column:
             }
         </style>
         '''
-
     st.markdown(css, unsafe_allow_html=True)
+
+    # st.markdown(
+    #     """
+    #     <script>
+    #     document.querySelectorAll('[data-testid="column"]').scrollIntoView({behavior: "smooth"});
+    #     </script>
+    #     """,
+    #     unsafe_allow_html=True,
+    # )
+
+
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
