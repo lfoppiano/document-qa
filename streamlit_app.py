@@ -163,7 +163,7 @@ with st.sidebar:
     st.session_state['model'] = model = st.radio(
         "Model",
         ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1", "zephyr-7b-beta"),
-        index=1,
+        index=2,
         captions=[
             "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
             "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
