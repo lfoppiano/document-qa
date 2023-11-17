@@ -283,9 +283,7 @@ if uploaded_file and not st.session_state.loaded_embeddings:
             tmp_file.write(bytearray(binary))
             st.session_state['binary'] = binary
 
-            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
-                                                                                                    chunk_size=chunk_size,
-                                                                                                    perc_overlap=0.1)
+            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,                                                                                                  perc_overlap=0.1)
             st.session_state['loaded_embeddings'] = True
             st.session_state.messages = []
 
@@ -296,6 +294,16 @@ with left_column:
         left_column.markdown(get_pdf_display(st.session_state['binary']), unsafe_allow_html=True)
 
 with right_column:
+    css = '''
+        <style>
+            [data-testid="column"] {
+                overflow: auto;
+                height: 70vh;
+            }
+        </style>
+        '''
+
+    st.markdown(css, unsafe_allow_html=True)
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
