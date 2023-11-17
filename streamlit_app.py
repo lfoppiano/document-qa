@@ -268,7 +268,7 @@ with st.sidebar:
 @st.cache_resource
 def get_pdf_display(binary):
     base64_pdf = base64.b64encode(binary).decode('utf-8')
-    return F'<iframe src="data:application/pdf;base64,{base64_pdf}" width="600" height="800" type="application/pdf"></embed>'
+    return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></embed>'
 
 
 if uploaded_file and not st.session_state.loaded_embeddings:
