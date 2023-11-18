@@ -205,11 +205,16 @@ class DocumentQAEngine:
         if doc_id:
             hash = doc_id
         else:
-
             hash = metadata[0]['hash']
 
         if hash not in self.embeddings_dict.keys():
-            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata, collection_name=hash)
+            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+                                                           collection_name=hash)
+        else:
+            self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
+            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+                                                           collection_name=hash)
+
 
         self.embeddings_root_path = None
 
