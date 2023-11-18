@@ -6,6 +6,7 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.llms.huggingface_hub import HuggingFaceHub
+from langchain.memory import ConversationBufferWindowMemory
 
 dotenv.load_dotenv(override=True)
 
@@ -51,6 +52,9 @@ if 'ner_processing' not in st.session_state:
 if 'uploaded' not in st.session_state:
     st.session_state['uploaded'] = False
 
+if 'memory' not in st.session_state:
+    st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
+
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
@@ -67,6 +71,11 @@ def new_file():
     st.session_state['loaded_embeddings'] = None
     st.session_state['doc_id'] = None
     st.session_state['uploaded'] = True
+    st.session_state['memory'].clear()
+
+
+def clear_memory():
+    st.session_state['memory'].clear()
 
 
 # @st.cache_resource
@@ -97,6 +106,7 @@ def init_qa(model, api_key=None):
     else:
         st.error("The model was not loaded properly. Try reloading. ")
         st.stop()
+        return
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
@@ -168,7 +178,7 @@ with st.sidebar:
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
 
     st.markdown(
-        ":warning: Mistral and Zephyr are free to use, however requests might hit limits of the huggingface free API and fail. :warning: ")
+        ":warning: Mistral and Zephyr are **FREE** to use. Requests might fail anytime. Use at your own risk. :warning: ")
 
     if (model == 'mistral-7b-instruct-v0.1' or model == 'zephyr-7b-beta') and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
@@ -204,6 +214,11 @@ with st.sidebar:
                         st.session_state['rqa'][model] = init_qa(model)
     # else:
     #     is_api_key_provided = st.session_state['api_key']
+
+    st.button(
+        'Reset chat memory.',
+        on_click=clear_memory(),
+        help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.")
 
 st.title("📝 Scientific Document Insights Q/A")
 st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
@@ -297,7 +312,8 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
     elif mode == "LLM":
         with st.spinner("Generating response..."):
             _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                             context_size=context_size)
+                                                                             context_size=context_size,
+                                                                             memory=st.session_state.memory)
 
     if not text_response:
         st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -315,6 +331,12 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
         else:
             st.write(text_response)
         st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
+
+        for id in range(0, len(st.session_state.messages), 2):
+            question = st.session_state.messages[id]['content']
+            if len(st.session_state.messages) > id + 1:
+                answer = st.session_state.messages[id + 1]['content']
+                st.session_state.memory.save_context({"input": question}, {"output": answer})
 
 elif st.session_state.loaded_embeddings and st.session_state.doc_id:
     play_old_messages()
