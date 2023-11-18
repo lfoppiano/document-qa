@@ -97,6 +97,7 @@ def init_qa(model, api_key=None):
     else:
         st.error("The model was not loaded properly. Try reloading. ")
         st.stop()
+        return
 
     return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
 
