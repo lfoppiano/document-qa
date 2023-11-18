@@ -334,8 +334,9 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
 
         for id in range(0, len(st.session_state.messages), 2):
             question = st.session_state.messages[id]['content']
-            answer = st.session_state.messages[id + 1]['content']
-            st.session_state.memory.save_context({"input": question}, {"output": answer})
+            if len(st.session_state.messages) > id + 1:
+                answer = st.session_state.messages[id + 1]['content']
+                st.session_state.memory.save_context({"input": question}, {"output": answer})
 
 elif st.session_state.loaded_embeddings and st.session_state.doc_id:
     play_old_messages()
