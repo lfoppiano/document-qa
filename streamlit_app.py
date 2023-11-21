@@ -71,15 +71,35 @@ st.set_page_config(
     }
 )
 
-# css = '''
-# <style>
-#     [data-testid="ScrollToBottomContainer"] {
-#         overflow: hidden;
-#     }
-# </style>
-# '''
-#
-# st.markdown(css, unsafe_allow_html=True)
+css_modify_left_column = '''
+<style>                 
+    [data-testid="stHorizontalBlock"] > div:nth-child(1) {
+        overflow: hidden;
+        background-color: red;
+        height: 70vh;
+    }
+</style>
+'''
+css_modify_right_column = '''
+<style>                 
+    [data-testid="stHorizontalBlock"]> div:first-child {
+        background-color: red;
+        position: fixed
+        height: 70vh;
+    }
+</style>
+'''
+css_disable_scrolling_container = '''
+<style>
+    [data-testid="ScrollToBottomContainer"] {
+        overflow: hidden;
+    }
+</style>
+'''
+
+
+# st.markdown(css_lock_column_fixed, unsafe_allow_html=True)
+# st.markdown(css2, unsafe_allow_html=True)
 
 
 def new_file():
@@ -231,9 +251,9 @@ with st.sidebar:
     #     is_api_key_provided = st.session_state['api_key']
 
     st.button(
-            'Reset chat memory.',
-            on_click=clear_memory(),
-            help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.")
+        'Reset chat memory.',
+        on_click=clear_memory(),
+        help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.")
 
 left_column, right_column = st.columns([1, 1])
 
@@ -322,15 +342,15 @@ with left_column:
         left_column.markdown(get_pdf_display(st.session_state['binary']), unsafe_allow_html=True)
 
 with right_column:
-    css = '''
-        <style>
-            [data-testid="column"] {
-                overflow: auto;
-                height: 70vh;
-            }
-        </style>
-        '''
-    st.markdown(css, unsafe_allow_html=True)
+    # css = '''
+    #     <style>
+    #         [data-testid="column"] {
+    #             overflow: auto;
+    #             height: 70vh;
+    #         }
+    #     </style>
+    #     '''
+    # st.markdown(css, unsafe_allow_html=True)
 
     # st.markdown(
     #     """
@@ -340,7 +360,6 @@ with right_column:
     #     """,
     #     unsafe_allow_html=True,
     # )
-
 
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
         for message in st.session_state.messages:
@@ -365,8 +384,8 @@ with right_column:
         elif mode == "LLM":
             with st.spinner("Generating response..."):
                 _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                             context_size=context_size,
-                                                                             memory=st.session_state.memory)
+                                                                                 context_size=context_size,
+                                                                                 memory=st.session_state.memory)
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
