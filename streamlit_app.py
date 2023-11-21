@@ -71,15 +71,15 @@ st.set_page_config(
     }
 )
 
-css = '''
-<style>
-    [data-testid="ScrollToBottomContainer"] {
-        overflow: hidden;
-    }
-</style>
-'''
-
-st.markdown(css, unsafe_allow_html=True)
+# css = '''
+# <style>
+#     [data-testid="ScrollToBottomContainer"] {
+#         overflow: hidden;
+#     }
+# </style>
+# '''
+#
+# st.markdown(css, unsafe_allow_html=True)
 
 
 def new_file():
