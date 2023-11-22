@@ -5,10 +5,12 @@ from typing import Union, Any
 
 from document_qa.grobid_processors import GrobidProcessor
 from grobid_client.grobid_client import GrobidClient
-from langchain.chains import create_extraction_chain
-from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import create_extraction_chain, ConversationChain, ConversationalRetrievalChain
+from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
+    map_rerank_prompt
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
+from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
@@ -22,15 +24,28 @@ class DocumentQAEngine:
     embeddings_map_from_md5 = {}
     embeddings_map_to_md5 = {}
 
+    default_prompts = {
+        'stuff': stuff_prompt,
+        'refine': refine_prompts,
+        "map_reduce": map_reduce_prompt,
+        "map_rerank": map_rerank_prompt
+    }
+
     def __init__(self,
                  llm,
                  embedding_function,
                  qa_chain_type="stuff",
                  embeddings_root_path=None,
                  grobid_url=None,
+                 memory=None
                  ):
         self.embedding_function = embedding_function
         self.llm = llm
+        # if memory:
+        #     prompt = self.default_prompts[qa_chain_type].PROMPT_SELECTOR.get_prompt(llm)
+        #     self.chain = load_qa_chain(llm, chain_type=qa_chain_type, prompt=prompt, memory=memory)
+        # else:
+        self.memory = memory
         self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
 
         if embeddings_root_path is not None:
@@ -86,14 +101,14 @@ class DocumentQAEngine:
         return self.embeddings_map_from_md5[md5]
 
     def query_document(self, query: str, doc_id, output_parser=None, context_size=4, extraction_schema=None,
-                       verbose=False, memory=None) -> (
+                       verbose=False) -> (
             Any, str):
         # self.load_embeddings(self.embeddings_root_path)
 
         if verbose:
             print(query)
 
-        response = self._run_query(doc_id, query, context_size=context_size, memory=memory)
+        response = self._run_query(doc_id, query, context_size=context_size)
         response = response['output_text'] if 'output_text' in response else response
 
         if verbose:
@@ -143,21 +158,21 @@ class DocumentQAEngine:
 
         return parsed_output
 
-    def _run_query(self, doc_id, query, context_size=4, memory=None):
+    def _run_query(self, doc_id, query, context_size=4):
         relevant_documents = self._get_context(doc_id, query, context_size)
-        if memory:
-            return self.chain.run(input_documents=relevant_documents,
-                                  question=query)
-        else:
-            return self.chain.run(input_documents=relevant_documents,
-                                  question=query,
-                                  memory=memory)
-        # return self.chain({"input_documents": relevant_documents, "question": prompt_chat_template}, return_only_outputs=True)
+        response = self.chain.run(input_documents=relevant_documents,
+                              question=query)
+
+        if self.memory:
+            self.memory.save_context({"input": query}, {"output": response})
+        return response
 
     def _get_context(self, doc_id, query, context_size=4):
         db = self.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size})
         relevant_documents = retriever.get_relevant_documents(query)
+        if self.memory and len(self.memory.buffer_as_messages) > 0:
+            relevant_documents.append(Document(page_content="Previous conversation:\n{}\n\n".format(self.memory.buffer_as_str)))
         return relevant_documents
 
     def get_all_context_by_document(self, doc_id):
@@ -239,11 +254,15 @@ class DocumentQAEngine:
             hash = metadata[0]['hash']
 
         if hash not in self.embeddings_dict.keys():
-            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+            self.embeddings_dict[hash] = Chroma.from_texts(texts,
+                                                           embedding=self.embedding_function,
+                                                           metadatas=metadata,
                                                            collection_name=hash)
         else:
             self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
-            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+            self.embeddings_dict[hash] = Chroma.from_texts(texts,
+                                                           embedding=self.embedding_function,
+                                                           metadatas=metadata,
                                                            collection_name=hash)
 
         self.embeddings_root_path = None

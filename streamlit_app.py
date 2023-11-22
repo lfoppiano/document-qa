@@ -5,6 +5,7 @@ from tempfile import NamedTemporaryFile
 
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
+from langchain.callbacks import PromptLayerCallbackHandler
 from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
 
@@ -80,6 +81,7 @@ def clear_memory():
 
 # @st.cache_resource
 def init_qa(model, api_key=None):
+    ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
     if model == 'chatgpt-3.5-turbo':
         if api_key:
             chat = ChatOpenAI(model_name="gpt-3.5-turbo",
@@ -108,7 +110,7 @@ def init_qa(model, api_key=None):
         st.stop()
         return
 
-    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
+    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
 
 
 @st.cache_resource
@@ -316,8 +318,7 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
     elif mode == "LLM":
         with st.spinner("Generating response..."):
             _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                             context_size=context_size,
-                                                                             memory=st.session_state.memory)
+                                                                             context_size=context_size)
 
     if not text_response:
         st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -336,11 +337,11 @@ if st.session_state.loaded_embeddings and question and len(question) > 0 and st.
             st.write(text_response)
         st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
 
-        for id in range(0, len(st.session_state.messages), 2):
-            question = st.session_state.messages[id]['content']
-            if len(st.session_state.messages) > id + 1:
-                answer = st.session_state.messages[id + 1]['content']
-                st.session_state.memory.save_context({"input": question}, {"output": answer})
+        # if len(st.session_state.messages) > 1:
+        #     last_answer = st.session_state.messages[len(st.session_state.messages)-1]
+        #     if last_answer['role'] == "assistant":
+        #         last_question = st.session_state.messages[len(st.session_state.messages)-2]
+        #         st.session_state.memory.save_context({"input": last_question['content']}, {"output": last_answer['content']})
 
 elif st.session_state.loaded_embeddings and st.session_state.doc_id:
     play_old_messages()
