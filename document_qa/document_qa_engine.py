@@ -169,7 +169,7 @@ class DocumentQAEngine:
         relevant_documents = retriever.get_relevant_documents(query)
         if self.memory and len(self.memory.buffer_as_messages) > 0:
             relevant_documents.append(
-                Document(page_content="Previous conversation:\n{}\n\n".format(self.memory.buffer_as_str))
+                Document(page_content="Following, the previous question and answers, use these information with care:\n{}\n\n".format(self.memory.buffer_as_str))
             )
         return relevant_documents
 
