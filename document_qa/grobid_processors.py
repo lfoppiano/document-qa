@@ -171,7 +171,7 @@ class GrobidProcessor(BaseProcessor):
         }
         try:
             year = dateparser.parse(doc_biblio.header.date).year
-            biblio["year"] = year
+            biblio["publication_year"] = year
         except:
             pass
 

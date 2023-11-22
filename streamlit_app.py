@@ -283,7 +283,8 @@ if uploaded_file and not st.session_state.loaded_embeddings:
         # hash = get_file_hash(tmp_file.name)[:10]
         st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
                                                                                                     chunk_size=chunk_size,
-                                                                                                    perc_overlap=0.1)
+                                                                                                    perc_overlap=0.1,
+                                                                                                    include_biblio=True)
         st.session_state['loaded_embeddings'] = True
         st.session_state.messages = []
 
