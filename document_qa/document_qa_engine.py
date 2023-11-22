@@ -41,10 +41,6 @@ class DocumentQAEngine:
                  ):
         self.embedding_function = embedding_function
         self.llm = llm
-        # if memory:
-        #     prompt = self.default_prompts[qa_chain_type].PROMPT_SELECTOR.get_prompt(llm)
-        #     self.chain = load_qa_chain(llm, chain_type=qa_chain_type, prompt=prompt, memory=memory)
-        # else:
         self.memory = memory
         self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
 
@@ -161,7 +157,7 @@ class DocumentQAEngine:
     def _run_query(self, doc_id, query, context_size=4):
         relevant_documents = self._get_context(doc_id, query, context_size)
         response = self.chain.run(input_documents=relevant_documents,
-                              question=query)
+                                  question=query)
 
         if self.memory:
             self.memory.save_context({"input": query}, {"output": response})
@@ -172,7 +168,9 @@ class DocumentQAEngine:
         retriever = db.as_retriever(search_kwargs={"k": context_size})
         relevant_documents = retriever.get_relevant_documents(query)
         if self.memory and len(self.memory.buffer_as_messages) > 0:
-            relevant_documents.append(Document(page_content="Previous conversation:\n{}\n\n".format(self.memory.buffer_as_str)))
+            relevant_documents.append(
+                Document(page_content="Previous conversation:\n{}\n\n".format(self.memory.buffer_as_str))
+            )
         return relevant_documents
 
     def get_all_context_by_document(self, doc_id):

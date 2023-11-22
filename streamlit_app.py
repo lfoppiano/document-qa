@@ -5,7 +5,6 @@ from tempfile import NamedTemporaryFile
 
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
-from langchain.callbacks import PromptLayerCallbackHandler
 from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
 

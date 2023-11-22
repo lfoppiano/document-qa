@@ -23,7 +23,7 @@ We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) 
 
 Additionally, this frontend provides the visualisation of named entities on LLM responses to extract <span stype="color:yellow">physical quantities, measurements</span> (with [grobid-quantities](https://github.com/kermitt2/grobid-quantities)) and <span stype="color:blue">materials</span> mentions (with [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors)).
 
-The conversation is backed up by a sliding window memory (top 4 more recent messages) that help refers to information previously discussed in the chat.  
+The conversation is kept in memory up by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
 
 **Demos**: 
  - (on HuggingFace spaces): https://lfoppiano-document-qa.hf.space/
