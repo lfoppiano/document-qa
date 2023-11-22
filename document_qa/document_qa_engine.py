@@ -3,6 +3,7 @@ import os
 from pathlib import Path
 from typing import Union, Any
 
+from document_qa.grobid_processors import GrobidProcessor
 from grobid_client.grobid_client import GrobidClient
 from langchain.chains import create_extraction_chain, ConversationChain, ConversationalRetrievalChain
 from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
@@ -13,8 +14,6 @@ from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
-
-from document_qa.grobid_processors import GrobidProcessor
 
 
 class DocumentQAEngine:
@@ -188,8 +187,10 @@ class DocumentQAEngine:
         relevant_documents = multi_query_retriever.get_relevant_documents(query)
         return relevant_documents
 
-    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, verbose=False):
-        """Extract text from documents using Grobid, if chunk_size is < 0 it keep each paragraph separately"""
+    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, include=(), verbose=False):
+        """
+        Extract text from documents using Grobid, if chunk_size is < 0 it keeps each paragraph separately
+        """
         if verbose:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
@@ -204,6 +205,7 @@ class DocumentQAEngine:
         texts = []
         metadatas = []
         ids = []
+
         if chunk_size < 0:
             for passage in structure['passages']:
                 biblio_copy = copy.copy(biblio)
@@ -227,10 +229,25 @@ class DocumentQAEngine:
             metadatas = [biblio for _ in range(len(texts))]
             ids = [id for id, t in enumerate(texts)]
 
+        if "biblio" in include:
+            biblio_metadata = copy.copy(biblio)
+            biblio_metadata['type'] = "biblio"
+            biblio_metadata['section'] = "header"
+            for key in ['title', 'authors', 'publication_year']:
+                if key in biblio_metadata:
+                    texts.append("{}: {}".format(key, biblio_metadata[key]))
+                    metadatas.append(biblio_metadata)
+                    ids.append(key)
+
         return texts, metadatas, ids
 
-    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1):
-        texts, metadata, ids = self.get_text_from_document(pdf_path, chunk_size=chunk_size, perc_overlap=perc_overlap)
+    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1, include_biblio=False):
+        include = ["biblio"] if include_biblio else []
+        texts, metadata, ids = self.get_text_from_document(
+            pdf_path,
+            chunk_size=chunk_size,
+            perc_overlap=perc_overlap,
+            include=include)
         if doc_id:
             hash = doc_id
         else:
@@ -252,7 +269,7 @@ class DocumentQAEngine:
 
         return hash
 
-    def create_embeddings(self, pdfs_dir_path: Path, chunk_size=500, perc_overlap=0.1):
+    def create_embeddings(self, pdfs_dir_path: Path, chunk_size=500, perc_overlap=0.1, include_biblio=False):
         input_files = []
         for root, dirs, files in os.walk(pdfs_dir_path, followlinks=False):
             for file_ in files:
@@ -269,9 +286,12 @@ class DocumentQAEngine:
             if os.path.exists(data_path):
                 print(data_path, "exists. Skipping it ")
                 continue
-
-            texts, metadata, ids = self.get_text_from_document(input_file, chunk_size=chunk_size,
-                                                               perc_overlap=perc_overlap)
+            include = ["biblio"] if include_biblio else []
+            texts, metadata, ids = self.get_text_from_document(
+                input_file,
+                chunk_size=chunk_size,
+                perc_overlap=perc_overlap,
+                include=include)
             filename = metadata[0]['filename']
 
             vector_db_document = Chroma.from_texts(texts,
