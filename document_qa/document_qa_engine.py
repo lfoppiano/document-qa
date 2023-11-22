@@ -1,9 +1,9 @@
 import copy
-import json
 import os
 from pathlib import Path
 from typing import Union, Any
 
+from document_qa.grobid_processors import GrobidProcessor
 from grobid_client.grobid_client import GrobidClient
 from langchain.chains import create_extraction_chain
 from langchain.chains.question_answering import load_qa_chain
@@ -12,8 +12,6 @@ from langchain.retrievers import MultiQueryRetriever
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
-
-from document_qa.grobid_processors import GrobidProcessor
 
 
 class DocumentQAEngine:
@@ -220,7 +218,7 @@ class DocumentQAEngine:
             biblio_metadata = copy.copy(biblio)
             biblio_metadata['type'] = "biblio"
             biblio_metadata['section'] = "header"
-            for key in ['title', 'authors', 'year']:
+            for key in ['title', 'authors', 'publication_year']:
                 if key in biblio_metadata:
                     texts.append("{}: {}".format(key, biblio_metadata[key]))
                     metadatas.append(biblio_metadata)
