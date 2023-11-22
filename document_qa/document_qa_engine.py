@@ -143,7 +143,7 @@ class DocumentQAEngine:
 
         return parsed_output
 
-    def _run_query(self, doc_id, query, memory=None, context_size=4):
+    def _run_query(self, doc_id, query, context_size=4, memory=None):
         relevant_documents = self._get_context(doc_id, query, context_size)
         if memory:
             return self.chain.run(input_documents=relevant_documents,
