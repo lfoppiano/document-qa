@@ -217,7 +217,8 @@ with st.sidebar:
 
     st.button(
         'Reset chat memory.',
-        on_click=clear_memory(),
+        key="reset-memory-button",
+        on_click=clear_memory,
         help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.")
 
 st.title("📝 Scientific Document Insights Q/A")
@@ -226,7 +227,9 @@ st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 st.markdown(
     ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
-uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
+uploaded_file = st.file_uploader("Upload an article",
+                                 type=("pdf", "txt"),
+                                 on_change=new_file,
                                  disabled=st.session_state['model'] is not None and st.session_state['model'] not in
                                           st.session_state['api_keys'],
                                  help="The full-text is extracted using Grobid. ")
