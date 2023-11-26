@@ -14,8 +14,7 @@ license: apache-2.0
 
 **Work in progress** :construction_worker: 
 
-<img align="right" src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300/>
-
+<img src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300 align="right" />
 
 ## Introduction
 
@@ -27,6 +26,8 @@ We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) 
 Additionally, this frontend provides the visualisation of named entities on LLM responses to extract <span stype="color:yellow">physical quantities, measurements</span> (with [grobid-quantities](https://github.com/kermitt2/grobid-quantities)) and <span stype="color:blue">materials</span> mentions (with [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors)).
 
 The conversation is kept in memory up by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
+
+(The image on the right was generated with https://huggingface.co/spaces/stabilityai/stable-diffusion)
 
 **Demos**: 
  - (stable version): https://lfoppiano-document-qa.hf.space/
