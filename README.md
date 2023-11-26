@@ -26,8 +26,8 @@ Additionally, this frontend provides the visualisation of named entities on LLM 
 The conversation is kept in memory up by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
 
 **Demos**: 
- - (on HuggingFace spaces): https://lfoppiano-document-qa.hf.space/
- - (on the Streamlit cloud): https://document-insights.streamlit.app/
+ - (stable version): https://lfoppiano-document-qa.hf.space/
+ - (unstable version): https://document-insights.streamlit.app/
 
 ## Getting started
 
