@@ -14,6 +14,9 @@ license: apache-2.0
 
 **Work in progress** :construction_worker: 
 
+<img align="right" src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300/>
+
+
 ## Introduction
 
 Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, Mistral-7b-instruct and Zephyr-7b-beta.
