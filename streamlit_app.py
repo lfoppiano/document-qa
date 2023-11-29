@@ -115,6 +115,7 @@ def clear_memory():
 
 # @st.cache_resource
 def init_qa(model, api_key=None):
+    ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
     if model == 'chatgpt-3.5-turbo':
         if api_key:
             chat = ChatOpenAI(model_name="gpt-3.5-turbo",
@@ -143,7 +144,7 @@ def init_qa(model, api_key=None):
         st.stop()
         return
 
-    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'])
+    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
 
 
 @st.cache_resource
@@ -252,7 +253,8 @@ with st.sidebar:
 
     st.button(
         'Reset chat memory.',
-        on_click=clear_memory(),
+        key="reset-memory-button",
+        on_click=clear_memory,
         help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.")
 
 left_column, right_column = st.columns([1, 1])
@@ -264,7 +266,9 @@ with right_column:
     st.markdown(
         ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
-    uploaded_file = st.file_uploader("Upload an article", type=("pdf", "txt"), on_change=new_file,
+uploaded_file = st.file_uploader("Upload an article",
+                                 type=("pdf", "txt"),
+                                 on_change=new_file,
                                      disabled=st.session_state['model'] is not None and st.session_state['model'] not in
                                               st.session_state['api_keys'],
                                      help="The full-text is extracted using Grobid. ")
@@ -331,7 +335,8 @@ if uploaded_file and not st.session_state.loaded_embeddings:
 
             st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
                                                                                                         chunk_size=chunk_size,
-                                                                                                        perc_overlap=0.1)
+                                                                                                    perc_overlap=0.1,
+                                                                                                    include_biblio=True)
             st.session_state['loaded_embeddings'] = True
             st.session_state.messages = []
 
@@ -384,8 +389,7 @@ with right_column:
         elif mode == "LLM":
             with st.spinner("Generating response..."):
                 _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                                 context_size=context_size,
-                                                                                 memory=st.session_state.memory)
+                                                                             context_size=context_size)
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -404,11 +408,11 @@ with right_column:
                 st.write(text_response)
             st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
 
-        for id in range(0, len(st.session_state.messages), 2):
-            question = st.session_state.messages[id]['content']
-            if len(st.session_state.messages) > id + 1:
-                answer = st.session_state.messages[id + 1]['content']
-                st.session_state.memory.save_context({"input": question}, {"output": answer})
+        # if len(st.session_state.messages) > 1:
+        #     last_answer = st.session_state.messages[len(st.session_state.messages)-1]
+        #     if last_answer['role'] == "assistant":
+        #         last_question = st.session_state.messages[len(st.session_state.messages)-2]
+        #         st.session_state.memory.save_context({"input": last_question['content']}, {"output": last_answer['content']})
 
     elif st.session_state.loaded_embeddings and st.session_state.doc_id:
         play_old_messages()

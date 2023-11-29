@@ -3,16 +3,17 @@ import os
 from pathlib import Path
 from typing import Union, Any
 
+from document_qa.grobid_processors import GrobidProcessor
 from grobid_client.grobid_client import GrobidClient
-from langchain.chains import create_extraction_chain
-from langchain.chains.question_answering import load_qa_chain
+from langchain.chains import create_extraction_chain, ConversationChain, ConversationalRetrievalChain
+from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
+    map_rerank_prompt
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
+from langchain.schema import Document
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
-
-from document_qa.grobid_processors import GrobidProcessor
 
 
 class DocumentQAEngine:
@@ -23,15 +24,24 @@ class DocumentQAEngine:
     embeddings_map_from_md5 = {}
     embeddings_map_to_md5 = {}
 
+    default_prompts = {
+        'stuff': stuff_prompt,
+        'refine': refine_prompts,
+        "map_reduce": map_reduce_prompt,
+        "map_rerank": map_rerank_prompt
+    }
+
     def __init__(self,
                  llm,
                  embedding_function,
                  qa_chain_type="stuff",
                  embeddings_root_path=None,
                  grobid_url=None,
+                 memory=None
                  ):
         self.embedding_function = embedding_function
         self.llm = llm
+        self.memory = memory
         self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
 
         if embeddings_root_path is not None:
@@ -87,14 +97,14 @@ class DocumentQAEngine:
         return self.embeddings_map_from_md5[md5]
 
     def query_document(self, query: str, doc_id, output_parser=None, context_size=4, extraction_schema=None,
-                       verbose=False, memory=None) -> (
+                       verbose=False) -> (
             Any, str):
         # self.load_embeddings(self.embeddings_root_path)
 
         if verbose:
             print(query)
 
-        response = self._run_query(doc_id, query, context_size=context_size, memory=memory)
+        response = self._run_query(doc_id, query, context_size=context_size)
         response = response['output_text'] if 'output_text' in response else response
 
         if verbose:
@@ -144,21 +154,25 @@ class DocumentQAEngine:
 
         return parsed_output
 
-    def _run_query(self, doc_id, query, memory=None, context_size=4):
+    def _run_query(self, doc_id, query, context_size=4):
         relevant_documents = self._get_context(doc_id, query, context_size)
-        if memory:
-            return self.chain.run(input_documents=relevant_documents,
+        response = self.chain.run(input_documents=relevant_documents,
                                   question=query)
-        else:
-            return self.chain.run(input_documents=relevant_documents,
-                                  question=query,
-                                  memory=memory)
-        # return self.chain({"input_documents": relevant_documents, "question": prompt_chat_template}, return_only_outputs=True)
+
+        if self.memory:
+            self.memory.save_context({"input": query}, {"output": response})
+        return response
 
     def _get_context(self, doc_id, query, context_size=4):
         db = self.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size})
         relevant_documents = retriever.get_relevant_documents(query)
+        if self.memory and len(self.memory.buffer_as_messages) > 0:
+            relevant_documents.append(
+                Document(
+                    page_content="""Following, the previous question and answers. Use these information only when in the question there are unspecified references:\n{}\n\n""".format(
+                        self.memory.buffer_as_str))
+            )
         return relevant_documents
 
     def get_all_context_by_document(self, doc_id):
@@ -173,8 +187,10 @@ class DocumentQAEngine:
         relevant_documents = multi_query_retriever.get_relevant_documents(query)
         return relevant_documents
 
-    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, verbose=False):
-        """Extract text from documents using Grobid, if chunk_size is < 0 it keep each paragraph separately"""
+    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, include=(), verbose=False):
+        """
+        Extract text from documents using Grobid, if chunk_size is < 0 it keeps each paragraph separately
+        """
         if verbose:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
@@ -189,6 +205,7 @@ class DocumentQAEngine:
         texts = []
         metadatas = []
         ids = []
+
         if chunk_size < 0:
             for passage in structure['passages']:
                 biblio_copy = copy.copy(biblio)
@@ -212,28 +229,49 @@ class DocumentQAEngine:
             metadatas = [biblio for _ in range(len(texts))]
             ids = [id for id, t in enumerate(texts)]
 
+        if "biblio" in include:
+            biblio_metadata = copy.copy(biblio)
+            biblio_metadata['type'] = "biblio"
+            biblio_metadata['section'] = "header"
+            for key in ['title', 'authors', 'publication_year']:
+                if key in biblio_metadata:
+                    texts.append("{}: {}".format(key, biblio_metadata[key]))
+                    metadatas.append(biblio_metadata)
+                    ids.append(key)
+
         return texts, metadatas, ids
 
-    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1):
-        texts, metadata, ids = self.get_text_from_document(pdf_path, chunk_size=chunk_size, perc_overlap=perc_overlap)
+    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1, include_biblio=False):
+        include = ["biblio"] if include_biblio else []
+        texts, metadata, ids = self.get_text_from_document(
+            pdf_path,
+            chunk_size=chunk_size,
+            perc_overlap=perc_overlap,
+            include=include)
         if doc_id:
             hash = doc_id
         else:
             hash = metadata[0]['hash']
 
         if hash not in self.embeddings_dict.keys():
-            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+            self.embeddings_dict[hash] = Chroma.from_texts(texts,
+                                                           embedding=self.embedding_function,
+                                                           metadatas=metadata,
                                                           collection_name=hash)
         else:
-            self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
-            self.embeddings_dict[hash] = Chroma.from_texts(texts, embedding=self.embedding_function, metadatas=metadata,
+            # if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
+            #     self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
+            self.embeddings_dict[hash].delete_collection()
+            self.embeddings_dict[hash] = Chroma.from_texts(texts,
+                                                           embedding=self.embedding_function,
+                                                           metadatas=metadata,
                                                            collection_name=hash)
 
         self.embeddings_root_path = None
 
         return hash
 
-    def create_embeddings(self, pdfs_dir_path: Path, chunk_size=500, perc_overlap=0.1):
+    def create_embeddings(self, pdfs_dir_path: Path, chunk_size=500, perc_overlap=0.1, include_biblio=False):
         input_files = []
         for root, dirs, files in os.walk(pdfs_dir_path, followlinks=False):
             for file_ in files:
@@ -250,9 +288,12 @@ class DocumentQAEngine:
             if os.path.exists(data_path):
                 print(data_path, "exists. Skipping it ")
                 continue
-
-            texts, metadata, ids = self.get_text_from_document(input_file, chunk_size=chunk_size,
-                                                               perc_overlap=perc_overlap)
+            include = ["biblio"] if include_biblio else []
+            texts, metadata, ids = self.get_text_from_document(
+                input_file,
+                chunk_size=chunk_size,
+                perc_overlap=perc_overlap,
+                include=include)
             filename = metadata[0]['filename']
 
             vector_db_document = Chroma.from_texts(texts,
