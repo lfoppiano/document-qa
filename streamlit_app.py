@@ -266,7 +266,7 @@ with right_column:
     st.markdown(
         ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
-uploaded_file = st.file_uploader("Upload an article",
+    uploaded_file = st.file_uploader("Upload an article",
                                  type=("pdf", "txt"),
                                  on_change=new_file,
                                      disabled=st.session_state['model'] is not None and st.session_state['model'] not in
