@@ -106,7 +106,8 @@ def new_file():
     st.session_state['loaded_embeddings'] = None
     st.session_state['doc_id'] = None
     st.session_state['uploaded'] = True
-    st.session_state['memory'].clear()
+    if st.session_state['memory']:
+        st.session_state['memory'].clear()
 
 
 def clear_memory():
