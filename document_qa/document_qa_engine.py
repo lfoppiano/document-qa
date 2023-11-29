@@ -251,7 +251,8 @@ class DocumentQAEngine:
         else:
             hash = metadata[0]['hash']
 
-        if hash not in self.embeddings_dict.keys():
+        if hash not in self.embeddings_dict.keys() and (
+                'documents' in self.embeddings_dict.get() and len(self.embeddings_dict.get()['documents']) == 0):
             self.embeddings_dict[hash] = Chroma.from_texts(texts,
                                                            embedding=self.embedding_function,
                                                            metadatas=metadata,
