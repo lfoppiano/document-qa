@@ -89,8 +89,8 @@ To install the library with Pypi:
 
 ## Acknolwedgement 
 
-This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Lambard-ML-Team](https://github.com/Lambard-ML-Team).
-Contributed by Pedro Ortiz Suarez (@pjox), Tomoya Mato (@t29mato). 
+This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Guillaume Lambard](https://github.com/GLambard) and the [Lambard-ML-Team](https://github.com/Lambard-ML-Team).
+Contributed by [Pedro Ortiz Suarez](https://github.com/pjox), [Tomoya Mato](https://github.com/t29mato). 
 Thanks also to [Patrice Lopez](https://www.science-miner.com), the author of [Grobid](https://github.com/kermitt2/grobid).
 
 
