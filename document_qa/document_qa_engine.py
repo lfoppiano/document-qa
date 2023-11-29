@@ -253,14 +253,14 @@ class DocumentQAEngine:
         else:
             hash = metadata[0]['hash']
 
-        if hash not in self.embeddings_dict.keys() and (
-                'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0):
+        if hash not in self.embeddings_dict.keys():
             self.embeddings_dict[hash] = Chroma.from_texts(texts,
                                                            embedding=self.embedding_function,
                                                            metadatas=metadata,
                                                            collection_name=hash)
         else:
-            self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
+            if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
+                self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
             self.embeddings_dict[hash] = Chroma.from_texts(texts,
                                                            embedding=self.embedding_function,
                                                            metadatas=metadata,
