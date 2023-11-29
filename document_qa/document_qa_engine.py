@@ -169,7 +169,9 @@ class DocumentQAEngine:
         relevant_documents = retriever.get_relevant_documents(query)
         if self.memory and len(self.memory.buffer_as_messages) > 0:
             relevant_documents.append(
-                Document(page_content="Previous conversation:\n{}\n\n".format(self.memory.buffer_as_str))
+                Document(
+                    page_content="""Following, the previous question and answers. Use these information only when in the question there are unspecified references:\n{}\n\n""".format(
+                        self.memory.buffer_as_str))
             )
         return relevant_documents
 
@@ -257,8 +259,9 @@ class DocumentQAEngine:
                                                            metadatas=metadata,
                                                            collection_name=hash)
         else:
-            if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
-                self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
+            # if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
+            #     self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
+            self.embeddings_dict[hash].delete_collection()
             self.embeddings_dict[hash] = Chroma.from_texts(texts,
                                                            embedding=self.embedding_function,
                                                            metadatas=metadata,
