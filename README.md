@@ -14,6 +14,8 @@ license: apache-2.0
 
 **Work in progress** :construction_worker: 
 
+<img src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300 align="right" />
+
 ## Introduction
 
 Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, Mistral-7b-instruct and Zephyr-7b-beta.
@@ -25,9 +27,11 @@ Additionally, this frontend provides the visualisation of named entities on LLM 
 
 The conversation is kept in memory up by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
 
+(The image on the right was generated with https://huggingface.co/spaces/stabilityai/stable-diffusion)
+
 **Demos**: 
- - (on HuggingFace spaces): https://lfoppiano-document-qa.hf.space/
- - (on the Streamlit cloud): https://document-insights.streamlit.app/
+ - (stable version): https://lfoppiano-document-qa.hf.space/
+ - (unstable version): https://document-insights.streamlit.app/
 
 ## Getting started
 
