@@ -2,4 +2,7 @@
 level = "info"
 
 [browser]
-gatherUsageStats = false
+gatherUsageStats = true
+
+[ui]
+hideTopBar = true

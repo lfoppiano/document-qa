@@ -257,7 +257,7 @@ class DocumentQAEngine:
             self.embeddings_dict[hash] = Chroma.from_texts(texts,
                                                            embedding=self.embedding_function,
                                                            metadatas=metadata,
-                                                           collection_name=hash)
+                                                          collection_name=hash)
         else:
             # if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
             #     self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
