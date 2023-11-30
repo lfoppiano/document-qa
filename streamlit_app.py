@@ -1,4 +1,3 @@
-import base64
 import os
 import re
 from hashlib import blake2b
@@ -322,11 +321,6 @@ with st.sidebar:
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
 
-# @st.cache_resource
-def get_pdf_display(binary):
-    pdf_viewer(binary)
-    # return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></embed>'
-
 
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
@@ -351,7 +345,7 @@ if uploaded_file and not st.session_state.loaded_embeddings:
 
 with left_column:
     if st.session_state['binary']:
-        left_column.markdown(get_pdf_display(st.session_state['binary']), unsafe_allow_html=True)
+        pdf_viewer(st.session_state['binary'])
 
 with right_column:
     # css = '''
