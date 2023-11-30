@@ -8,6 +8,7 @@ import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
+from streamlit_pdf_viewer import pdf_viewer
 
 dotenv.load_dotenv(override=True)
 
@@ -321,10 +322,10 @@ with st.sidebar:
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
 
-@st.cache_resource
+# @st.cache_resource
 def get_pdf_display(binary):
-    base64_pdf = base64.b64encode(binary).decode('utf-8')
-    return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></embed>'
+    pdf_viewer(binary)
+    # return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></embed>'
 
 
 if uploaded_file and not st.session_state.loaded_embeddings:
