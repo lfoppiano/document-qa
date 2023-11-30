@@ -87,7 +87,7 @@ To install the library with Pypi:
 - `pip install document-qa-engine` 
 
 
-## Acknolwedgement 
+## Acknowledgement 
 
 This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with the [Guillaume Lambard](https://github.com/GLambard) and the [Lambard-ML-Team](https://github.com/Lambard-ML-Team).
 Contributed by [Pedro Ortiz Suarez](https://github.com/pjox), [Tomoya Mato](https://github.com/t29mato). 
