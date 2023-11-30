@@ -33,12 +33,17 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
  - (stable version): https://lfoppiano-document-qa.hf.space/
  - (unstable version): https://document-insights.streamlit.app/
 
+
+
+[<img src="https://img.youtube.com/vi/M4UaYs5WKGs/hqdefault.jpg" height="300" align="right" 
+/>](https://www.youtube.com/embed/M4UaYs5WKGs)
+
 ## Getting started
 
 - Select the model+embedding combination you want to use 
-- Enter your API Key ([Open AI](https://platform.openai.com/account/api-keys) or [Huggingface](https://huggingface.co/docs/hub/security-tokens)). 
+- If using OpenAI, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)~~ or [Huggingface](https://huggingface.co/docs/hub/security-tokens))~~. 
 - Upload a scientific article as a PDF document. You will see a spinner or loading indicator while the processing is in progress. 
-- Once the spinner stops, you can proceed to ask your questions
+- Once the spinner disappears, you can proceed to ask your questions
 
  ![screenshot2.png](docs%2Fimages%2Fscreenshot2.png)
 
