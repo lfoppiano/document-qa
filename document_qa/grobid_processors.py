@@ -514,6 +514,12 @@ class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, Gro
         entities = self.prune_overlapping_annotations(all_entities)
         return entities
 
+    def extract_quantities(self, text):
+        return self.gqp.extract_quantities(text)
+
+    def extract_materials(self, text):
+        return self.gmp.extract_materials(text)
+
     @staticmethod
     def prune_overlapping_annotations(entities: list) -> list:
         # Sorting by offsets
