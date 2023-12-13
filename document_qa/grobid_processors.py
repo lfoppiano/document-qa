@@ -467,6 +467,11 @@ class GrobidMaterialsProcessor(BaseProcessor):
         if status != 200:
             result = []
 
+        compositions = self.output_info(result)
+
+        return compositions
+
+    def output_info(self, result):
         compositions = []
         for material in result:
             if 'resolvedFormulas' in material:
@@ -476,7 +481,8 @@ class GrobidMaterialsProcessor(BaseProcessor):
             elif 'formula' in material:
                 if 'formulaComposition' in material['formula']:
                     compositions.append(material['formula']['formulaComposition'])
-
+            if 'name' in material:
+                compositions.append(material['name'])
         return compositions
 
     @staticmethod
@@ -513,6 +519,12 @@ class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, Gro
         all_entities = extracted_quantities_spans + extracted_materials_spans
         entities = self.prune_overlapping_annotations(all_entities)
         return entities
+
+    def extract_quantities(self, text):
+        return self.gqp.extract_quantities(text)
+
+    def extract_materials(self, text):
+        return self.gmp.extract_materials(text)
 
     @staticmethod
     def prune_overlapping_annotations(entities: list) -> list:
