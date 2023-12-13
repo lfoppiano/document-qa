@@ -56,7 +56,7 @@ class DocumentQAEngine:
             grobid_client = GrobidClient(
                 grobid_server=self.grobid_url,
                 batch_size=1000,
-                coordinates=["p"],
+                coordinates=["s"],
                 sleep_time=5,
                 timeout=60,
                 check_server=True
@@ -104,7 +104,7 @@ class DocumentQAEngine:
         if verbose:
             print(query)
 
-        response = self._run_query(doc_id, query, context_size=context_size)
+        response, coordinates = self._run_query(doc_id, query, context_size=context_size)
         response = response['output_text'] if 'output_text' in response else response
 
         if verbose:
@@ -115,17 +115,17 @@ class DocumentQAEngine:
                 return self._parse_json(response, output_parser), response
             except Exception as oe:
                 print("Failing to parse the response", oe)
-                return None, response
+                return None, response, coordinates
         elif extraction_schema:
             try:
                 chain = create_extraction_chain(extraction_schema, self.llm)
                 parsed = chain.run(response)
-                return parsed, response
+                return parsed, response, coordinates
             except Exception as oe:
                 print("Failing to parse the response", oe)
-                return None, response
+                return None, response, coordinates
         else:
-            return None, response
+            return None, response, coordinates
 
     def query_storage(self, query: str, doc_id, context_size=4):
         documents = self._get_context(doc_id, query, context_size)
@@ -156,12 +156,13 @@ class DocumentQAEngine:
 
     def _run_query(self, doc_id, query, context_size=4):
         relevant_documents = self._get_context(doc_id, query, context_size)
+        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else [] for doc in relevant_documents] #filter(lambda d: d['type'] == "sentence", relevant_documents)]
         response = self.chain.run(input_documents=relevant_documents,
                                   question=query)
 
         if self.memory:
             self.memory.save_context({"input": query}, {"output": response})
-        return response
+        return response, relevant_document_coordinates
 
     def _get_context(self, doc_id, query, context_size=4):
         db = self.embeddings_dict[doc_id]
@@ -194,7 +195,8 @@ class DocumentQAEngine:
         if verbose:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
-        structure = self.grobid_processor.process_structure(pdf_file_path)
+        coordinates = True if chunk_size == -1 else False
+        structure = self.grobid_processor.process_structure(pdf_file_path, coordinates=coordinates)
 
         biblio = structure['biblio']
         biblio['filename'] = filename.replace(" ", "_")
@@ -215,6 +217,7 @@ class DocumentQAEngine:
                     biblio_copy['type'] = passage['type']
                     biblio_copy['section'] = passage['section']
                     biblio_copy['subSection'] = passage['subSection']
+                    biblio_copy['coordinates'] = passage['coordinates']
                     metadatas.append(biblio_copy)
 
                     ids.append(passage['passage_id'])

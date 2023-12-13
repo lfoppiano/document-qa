@@ -59,6 +59,12 @@ if 'memory' not in st.session_state:
 if 'binary' not in st.session_state:
     st.session_state['binary'] = None
 
+if 'annotations' not in st.session_state:
+    st.session_state['annotations'] = None
+
+if 'pdf' not in st.session_state:
+    st.session_state['pdf'] = None
+
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
@@ -290,7 +296,7 @@ with st.sidebar:
     mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0, horizontal=True,
                     help="LLM will respond the question, Embedding will show the "
                          "paragraphs relevant to the question in the paper.")
-    chunk_size = st.slider("Chunks size", 100, 2000, value=250,
+    chunk_size = st.slider("Chunks size", -1, 2000, value=250,
                            help="Size of chunks in which the document is partitioned",
                            disabled=uploaded_file is not None)
     context_size = st.slider("Context size", 3, 10, value=4,
@@ -320,8 +326,6 @@ with st.sidebar:
     st.markdown(
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
-
-
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
         st.error("Before uploading a document, you must enter the API key. ")
@@ -344,8 +348,8 @@ if uploaded_file and not st.session_state.loaded_embeddings:
     # timestamp = datetime.utcnow()
 
 with left_column:
-    if st.session_state['binary']:
-        pdf_viewer(st.session_state['binary'])
+    if st.session_state['annotations']:
+        pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'])
 
 with right_column:
     # css = '''
@@ -389,8 +393,14 @@ with right_column:
                                                                              context_size=context_size)
         elif mode == "LLM":
             with st.spinner("Generating response..."):
-                _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                                 context_size=context_size)
+                _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
+                                                                                              st.session_state.doc_id,
+                                                                                              context_size=context_size)
+                st.session_state['annotations'] = [
+                    {"page": coo[0], "x": coo[1], "y": coo[2], "width": coo[3], "height": coo[4], "color": "blue"} for coo in [c.split(",") for coord in
+                    coordinates for c in coord]]
+                # with left_column:
+                #     pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'], key=1)
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")

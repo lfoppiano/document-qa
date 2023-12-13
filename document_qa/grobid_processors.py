@@ -131,13 +131,13 @@ class GrobidProcessor(BaseProcessor):
         # super().__init__()
         self.grobid_client = grobid_client
 
-    def process_structure(self, input_path):
+    def process_structure(self, input_path, coordinates=False):
         pdf_file, status, text = self.grobid_client.process_pdf("processFulltextDocument",
                                                                 input_path,
                                                                 consolidate_header=True,
                                                                 consolidate_citations=False,
-                                                                segment_sentences=False,
-                                                                tei_coordinates=False,
+                                                                segment_sentences=True,
+                                                                tei_coordinates=coordinates,
                                                                 include_raw_citations=False,
                                                                 include_raw_affiliations=False,
                                                                 generateIDs=True)
@@ -145,7 +145,7 @@ class GrobidProcessor(BaseProcessor):
         if status != 200:
             return
 
-        output_data = self.parse_grobid_xml(text)
+        output_data = self.parse_grobid_xml(text, coordinates=coordinates)
         output_data['filename'] = Path(pdf_file).stem.replace(".tei", "")
 
         return output_data
@@ -159,7 +159,7 @@ class GrobidProcessor(BaseProcessor):
 
         return doc
 
-    def parse_grobid_xml(self, text):
+    def parse_grobid_xml(self, text, coordinates=False):
         output_data = OrderedDict()
 
         doc_biblio = grobid_tei_xml.parse_document_xml(text)
@@ -188,17 +188,20 @@ class GrobidProcessor(BaseProcessor):
         #         "passage_id": "title0"
         #     })
 
+        passage_type = "sentence" if coordinates else "paragraph"
+
         if doc_biblio.abstract is not None and len(doc_biblio.abstract) > 0:
             passages.append({
                 "text": self.post_process(doc_biblio.abstract),
-                "type": "paragraph",
+                "type": passage_type,
                 "section": "<header>",
                 "subSection": "<abstract>",
-                "passage_id": "abstract0"
+                "passage_id": "abstract0",
+                "coordinates": ""
             })
 
         soup = BeautifulSoup(text, 'xml')
-        text_blocks_body = get_children_body(soup, verbose=False)
+        text_blocks_body = get_children_body(soup, verbose=False, use_paragraphs=False)
 
         passages.extend([
             {
@@ -206,10 +209,12 @@ class GrobidProcessor(BaseProcessor):
                                                   text.parent.name != "ref" or (
                                                           text.parent.name == "ref" and text.parent.attrs[
                                                       'type'] != 'bibr'))),
-                "type": "paragraph",
+                "type": passage_type,
                 "section": "<body>",
-                "subSection": "<paragraph>",
-                "passage_id": str(paragraph_id) + str(sentence_id)
+                "subSection": "<sentence>",
+                "passage_id": str(paragraph_id) + str(sentence_id),
+                # "coordinates": sentence['coords'].split(";") if coordinates else []
+                "coordinates": sentence['coords'] if coordinates else ""
             }
             for paragraph_id, paragraph in enumerate(text_blocks_body) for
             sentence_id, sentence in enumerate(paragraph)
@@ -223,10 +228,11 @@ class GrobidProcessor(BaseProcessor):
                                                   text.parent.name != "ref" or (
                                                           text.parent.name == "ref" and text.parent.attrs[
                                                       'type'] != 'bibr'))),
-                "type": "paragraph",
+                "type": passage_type,
                 "section": "<body>",
                 "subSection": "<figure>",
-                "passage_id": str(paragraph_id) + str(sentence_id)
+                "passage_id": str(paragraph_id) + str(sentence_id),
+                "coordinates": sentence['coords'] if coordinates and 'coords' in sentence else ""
             }
             for paragraph_id, paragraph in enumerate(text_blocks_figures) for
             sentence_id, sentence in enumerate(paragraph)
