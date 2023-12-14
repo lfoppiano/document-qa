@@ -16,7 +16,6 @@ dateparser
 
 # LLM
 chromadb==0.4.19
-pysqlite3-binary
 tiktoken==0.4.0
 openai==0.27.7
 langchain==0.0.350
