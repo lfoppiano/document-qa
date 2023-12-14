@@ -68,11 +68,14 @@ Indicates whether sending a question to the LLM (Language Model) or to the vecto
  - Embeddings: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
 
 ### NER (Named Entities Recognition)
-
 This feature is specifically crafted for people working with scientific documents in materials science. 
 It enables to run NER on the response from the LLM, to identify materials mentions and properties (quantities, measurements).
 This feature leverages both [grobid-quantities](https://github.com/kermitt2/grobid-quanities) and [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors) external services. 
 
+### Troubleshooting
+Error: `streamlit: Your system has an unsupported version of sqlite3. Chroma requires sqlite3 >= 3.35.0`.
+Here the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
+For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on Chroma website.
 
 ## Development notes
 
