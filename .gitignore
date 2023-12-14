@@ -4,3 +4,7 @@
 **/**/.chroma
 resources/db
 build
+dist
+__pycache__
+document_qa/__pycache__
+document_qa_engine.egg-info/
