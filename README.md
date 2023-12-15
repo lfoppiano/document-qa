@@ -77,6 +77,14 @@ Error: `streamlit: Your system has an unsupported version of sqlite3. Chroma req
 Here the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
 For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on Chroma website.
 
+## Disclaimer on Data, Security, and Privacy ⚠️
+
+Please read carefully:
+
+- Avoid uploading sensitive data. We temporarily store text from the uploaded PDF documents only for processing your request, and we disclaim any responsibility for subsequent use or handling of the submitted data by third-party LLMs.
+- Mistral and Zephyr are FREE to use and do not require any API, but as we leverage the free API entrypoint, there is no guarantee that all requests will go through. Use at your own risk.
+- We do not assume responsibility for how the data is utilized by the LLM end-points API.
+
 ## Development notes
 
 To release a new version: 
