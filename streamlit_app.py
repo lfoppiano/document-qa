@@ -219,7 +219,7 @@ with st.sidebar:
     )
 
     st.markdown(
-        ":warning: Mistral and Zephyr are **FREE** to use. Requests might fail anytime. Use at your own risk. :warning: ")
+        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa/tree/review-interface#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
     if (model == 'mistral-7b-instruct-v0.1' or model == 'zephyr-7b-beta') and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
@@ -297,9 +297,9 @@ with st.sidebar:
                              help="Number of chunks to consider when answering a question",
                              disabled=not uploaded_file)
 
-    st.session_state['ner_processing'] = st.checkbox("Named Entities Recognition (NER) processing on LLM response")
+    st.session_state['ner_processing'] = st.checkbox("Identify materials and properties.")
     st.markdown(
-        '**NER on LLM responses**: The responses from the LLMs are post-processed to extract <span style="color:orange">physical quantities, measurements</span> and <span style="color:green">materials</span> mentions.',
+        'The LLM responses undergo post-processing to extract <span style="color:orange">physical quantities, measurements</span>, and <span style="color:green">materials</span> mentions.',
         unsafe_allow_html=True)
 
     st.divider()
