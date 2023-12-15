@@ -206,17 +206,17 @@ def play_old_messages():
 # is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
-    st.session_state['model'] = model = st.radio(
-        "Model",
-        ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1", "zephyr-7b-beta"),
+    st.session_state['model'] = model = st.selectbox(
+        "Model:",
+        options={
+            "chatgpt-3.5-turbo": "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
+            "mistral-7b-instruct-v0.1": "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
+            "zephyr-7b-beta": "Zephyr-7B-beta + Sentence BERT (embeddings) :free:"},
         index=2,
-        captions=[
-            "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
-            "Zephyr-7B-beta + Sentence BERT (embeddings) :free:"
-        ],
-        help="Select the LLM model and embeddings you want to use.",
-        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
+        placeholder="Select model",
+        help="Select the LLM model:",
+        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
+    )
 
     st.markdown(
         ":warning: Mistral and Zephyr are **FREE** to use. Requests might fail anytime. Use at your own risk. :warning: ")
