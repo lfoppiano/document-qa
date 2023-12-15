@@ -19,6 +19,10 @@ from document_qa.document_qa_engine import DocumentQAEngine
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 from grobid_client_generic import GrobidClientGeneric
 
+OPENAI_MODELS = ['chatgpt-3.5-turbo',
+                 "gpt-4",
+                 "gpt-4-1106-preview"]
+
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = {}
 
@@ -117,17 +121,17 @@ def clear_memory():
 # @st.cache_resource
 def init_qa(model, api_key=None):
     ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
-    if model == 'chatgpt-3.5-turbo':
+    if model in OPENAI_MODELS:
         st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
         if api_key:
-            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+            chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               openai_api_key=api_key,
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings(openai_api_key=api_key)
 
         else:
-            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+            chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings()
@@ -241,7 +245,7 @@ with st.sidebar:
                     #     os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
                     st.session_state['rqa'][model] = init_qa(model)
 
-    elif model == 'chatgpt-3.5-turbo' and model not in st.session_state['api_keys']:
+    elif model in OPENAI_MODELS and model not in st.session_state['api_keys']:
         if 'OPENAI_API_KEY' not in os.environ:
             api_key = st.text_input('OpenAI API Key', type="password")
             st.markdown("Get it [here](https://platform.openai.com/account/api-keys)")
