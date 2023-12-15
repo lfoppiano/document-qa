@@ -41,7 +41,7 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
 ## Getting started
 
 - Select the model+embedding combination you want to use 
-- If using OpenAI, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)~~ or [Huggingface](https://huggingface.co/docs/hub/security-tokens))~~. 
+- If using gpt3.5-turbo, gpt4 or gpt4-turbo, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)). 
 - Upload a scientific article as a PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner disappears, you can proceed to ask your questions
 

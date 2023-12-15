@@ -208,10 +208,13 @@ def play_old_messages():
 with st.sidebar:
     st.session_state['model'] = model = st.selectbox(
         "Model:",
-        options={
-            "chatgpt-3.5-turbo": "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-            "mistral-7b-instruct-v0.1": "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
-            "zephyr-7b-beta": "Zephyr-7B-beta + Sentence BERT (embeddings) :free:"},
+        options=[
+            "chatgpt-3.5-turbo",
+            "mistral-7b-instruct-v0.1",
+            "zephyr-7b-beta",
+            "gpt-4",
+            "gpt-4-1106-preview"
+        ],
         index=2,
         placeholder="Select model",
         help="Select the LLM model:",
