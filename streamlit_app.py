@@ -347,9 +347,22 @@ if uploaded_file and not st.session_state.loaded_embeddings:
 
     # timestamp = datetime.utcnow()
 
-with left_column:
-    if st.session_state['annotations']:
-        pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'])
+def rgb_to_hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
+
+def generate_color_gradient(num_elements):
+    # Define warm and cold colors in RGB format
+    warm_color = (255, 165, 0)  # Orange
+    cold_color = (0, 0, 255)    # Blue
+
+    # Generate a linear gradient of colors
+    color_gradient = [
+        rgb_to_hex(tuple(int(warm * (1 - i/num_elements) + cold * (i/num_elements)) for warm, cold in zip(warm_color, cold_color)))
+        for i in range(num_elements)
+    ]
+
+    return color_gradient
+
 
 with right_column:
     # css = '''
@@ -396,9 +409,13 @@ with right_column:
                 _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
                                                                                               st.session_state.doc_id,
                                                                                               context_size=context_size)
-                st.session_state['annotations'] = [
-                    {"page": coo[0], "x": coo[1], "y": coo[2], "width": coo[3], "height": coo[4], "color": "blue"} for coo in [c.split(",") for coord in
+                annotations = [
+                    {"page": coo[0], "x": coo[1], "y": coo[2], "width": coo[3], "height": coo[4], "color": "grey"} for coo in [c.split(",") for coord in
                     coordinates for c in coord]]
+                gradients = generate_color_gradient(len(annotations))
+                for i, color in enumerate(gradients):
+                    annotations[i]['color'] = color
+                st.session_state['annotations'] = annotations
                 # with left_column:
                 #     pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'], key=1)
 
@@ -427,3 +444,7 @@ with right_column:
 
     elif st.session_state.loaded_embeddings and st.session_state.doc_id:
         play_old_messages()
+
+with left_column:
+    if st.session_state['binary']:
+        pdf_viewer(input=st.session_state['binary'], width=600, height=800, annotations=st.session_state['annotations'])
