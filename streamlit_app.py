@@ -19,6 +19,10 @@ from document_qa.document_qa_engine import DocumentQAEngine
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 from grobid_client_generic import GrobidClientGeneric
 
+OPENAI_MODELS = ['chatgpt-3.5-turbo',
+                 "gpt-4",
+                 "gpt-4-1106-preview"]
+
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = {}
 
@@ -117,17 +121,17 @@ def clear_memory():
 # @st.cache_resource
 def init_qa(model, api_key=None):
     ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
-    if model == 'chatgpt-3.5-turbo':
+    if model in OPENAI_MODELS:
         st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
         if api_key:
-            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+            chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               openai_api_key=api_key,
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings(openai_api_key=api_key)
 
         else:
-            chat = ChatOpenAI(model_name="gpt-3.5-turbo",
+            chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings()
@@ -206,20 +210,23 @@ def play_old_messages():
 # is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
-    st.session_state['model'] = model = st.radio(
-        "Model",
-        ("chatgpt-3.5-turbo", "mistral-7b-instruct-v0.1", "zephyr-7b-beta"),
-        index=2,
-        captions=[
-            "ChatGPT 3.5 Turbo + Ada-002-text (embeddings)",
-            "Mistral-7B-Instruct-V0.1 + Sentence BERT (embeddings) :free:",
-            "Zephyr-7B-beta + Sentence BERT (embeddings) :free:"
+    st.session_state['model'] = model = st.selectbox(
+        "Model:",
+        options=[
+            "chatgpt-3.5-turbo",
+            "mistral-7b-instruct-v0.1",
+            "zephyr-7b-beta",
+            "gpt-4",
+            "gpt-4-1106-preview"
         ],
-        help="Select the LLM model and embeddings you want to use.",
-        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded'])
+        index=2,
+        placeholder="Select model",
+        help="Select the LLM model:",
+        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
+    )
 
     st.markdown(
-        ":warning: Mistral and Zephyr are **FREE** to use. Requests might fail anytime. Use at your own risk. :warning: ")
+        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa/tree/review-interface#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
     if (model == 'mistral-7b-instruct-v0.1' or model == 'zephyr-7b-beta') and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
@@ -238,7 +245,7 @@ with st.sidebar:
                     #     os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
                     st.session_state['rqa'][model] = init_qa(model)
 
-    elif model == 'chatgpt-3.5-turbo' and model not in st.session_state['api_keys']:
+    elif model in OPENAI_MODELS and model not in st.session_state['api_keys']:
         if 'OPENAI_API_KEY' not in os.environ:
             api_key = st.text_input('OpenAI API Key', type="password")
             st.markdown("Get it [here](https://platform.openai.com/account/api-keys)")
@@ -297,9 +304,9 @@ with st.sidebar:
                              help="Number of chunks to consider when answering a question",
                              disabled=not uploaded_file)
 
-    st.session_state['ner_processing'] = st.checkbox("Named Entities Recognition (NER) processing on LLM response")
+    st.session_state['ner_processing'] = st.checkbox("Identify materials and properties.")
     st.markdown(
-        '**NER on LLM responses**: The responses from the LLMs are post-processed to extract <span style="color:orange">physical quantities, measurements</span> and <span style="color:green">materials</span> mentions.',
+        'The LLM responses undergo post-processing to extract <span style="color:orange">physical quantities, measurements</span>, and <span style="color:green">materials</span> mentions.',
         unsafe_allow_html=True)
 
     st.divider()

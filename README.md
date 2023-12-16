@@ -41,7 +41,7 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
 ## Getting started
 
 - Select the model+embedding combination you want to use 
-- If using OpenAI, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)~~ or [Huggingface](https://huggingface.co/docs/hub/security-tokens))~~. 
+- If using gpt3.5-turbo, gpt4 or gpt4-turbo, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)). 
 - Upload a scientific article as a PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner disappears, you can proceed to ask your questions
 
@@ -76,6 +76,14 @@ This feature leverages both [grobid-quantities](https://github.com/kermitt2/grob
 Error: `streamlit: Your system has an unsupported version of sqlite3. Chroma requires sqlite3 >= 3.35.0`.
 Here the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
 For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on Chroma website.
+
+## Disclaimer on Data, Security, and Privacy ⚠️
+
+Please read carefully:
+
+- Avoid uploading sensitive data. We temporarily store text from the uploaded PDF documents only for processing your request, and we disclaim any responsibility for subsequent use or handling of the submitted data by third-party LLMs.
+- Mistral and Zephyr are FREE to use and do not require any API, but as we leverage the free API entrypoint, there is no guarantee that all requests will go through. Use at your own risk.
+- We do not assume responsibility for how the data is utilized by the LLM end-points API.
 
 ## Development notes
 
