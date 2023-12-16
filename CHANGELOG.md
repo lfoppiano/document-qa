@@ -3,11 +3,22 @@
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
+
+## [0.3.4] - 2023-12-16
+
+## Added
+
++ Add gpt4 and gpt4-turbo
+
+## Changed
+
++ improved UI: replace combo boxes with dropdown box
+
 ## [0.3.3] - 2023-12-14
 
 ### Added
 
-+ Add experimental PDF rendering in the page 
++ Add experimental PDF rendering in the page
 
 ### Fixed
 
@@ -15,11 +26,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [0.3.2] - 2023-12-01
 
-### Fixed 
+### Fixed
 
-+ Remove memory when using Zephyr-7b-beta, that easily hallucinate 
++ Remove memory when using Zephyr-7b-beta, that easily hallucinate
 
- 
 ## [0.3.1] - 2023-11-22
 
 ### Added
