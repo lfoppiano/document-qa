@@ -56,7 +56,7 @@ class DocumentQAEngine:
             grobid_client = GrobidClient(
                 grobid_server=self.grobid_url,
                 batch_size=1000,
-                coordinates=["s"],
+                coordinates=["p"],
                 sleep_time=5,
                 timeout=60,
                 check_server=True

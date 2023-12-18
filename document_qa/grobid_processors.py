@@ -136,7 +136,7 @@ class GrobidProcessor(BaseProcessor):
                                                                 input_path,
                                                                 consolidate_header=True,
                                                                 consolidate_citations=False,
-                                                                segment_sentences=True,
+                                                                segment_sentences=False,
                                                                 tei_coordinates=coordinates,
                                                                 include_raw_citations=False,
                                                                 include_raw_affiliations=False,
@@ -188,7 +188,7 @@ class GrobidProcessor(BaseProcessor):
         #         "passage_id": "title0"
         #     })
 
-        passage_type = "sentence" if coordinates else "paragraph"
+        passage_type = "paragraph"
 
         if doc_biblio.abstract is not None and len(doc_biblio.abstract) > 0:
             passages.append({
@@ -201,42 +201,74 @@ class GrobidProcessor(BaseProcessor):
             })
 
         soup = BeautifulSoup(text, 'xml')
-        text_blocks_body = get_children_body(soup, verbose=False, use_paragraphs=False)
+        text_blocks_body = get_children_body(soup, verbose=False, use_paragraphs=True)
 
-        passages.extend([
-            {
-                "text": self.post_process(''.join(text for text in sentence.find_all(text=True) if
-                                                  text.parent.name != "ref" or (
-                                                          text.parent.name == "ref" and text.parent.attrs[
-                                                      'type'] != 'bibr'))),
-                "type": passage_type,
-                "section": "<body>",
-                "subSection": "<sentence>",
-                "passage_id": str(paragraph_id) + str(sentence_id),
-                # "coordinates": sentence['coords'].split(";") if coordinates else []
-                "coordinates": sentence['coords'] if coordinates else ""
-            }
-            for paragraph_id, paragraph in enumerate(text_blocks_body) for
-            sentence_id, sentence in enumerate(paragraph)
-        ])
+        use_paragraphs = True
+        if not use_paragraphs:
+            passages.extend([
+                {
+                    "text": self.post_process(''.join(text for text in sentence.find_all(text=True) if
+                                                      text.parent.name != "ref" or (
+                                                              text.parent.name == "ref" and text.parent.attrs[
+                                                          'type'] != 'bibr'))),
+                    "type": passage_type,
+                    "section": "<body>",
+                    "subSection": "<paragraph>",
+                    "passage_id": str(paragraph_id),
+                    "coordinates": paragraph['coords'] if coordinates and sentence.has_attr('coords') else ""
+                }
+                for paragraph_id, paragraph in enumerate(text_blocks_body) for
+                sentence_id, sentence in enumerate(paragraph)
+            ])
+        else:
+            passages.extend([
+                {
+                    "text": self.post_process(''.join(text for text in paragraph.find_all(text=True) if
+                                                      text.parent.name != "ref" or (
+                                                              text.parent.name == "ref" and text.parent.attrs[
+                                                          'type'] != 'bibr'))),
+                    "type": passage_type,
+                    "section": "<body>",
+                    "subSection": "<paragraph>",
+                    "passage_id": str(paragraph_id),
+                    "coordinates": paragraph['coords'] if coordinates and paragraph.has_attr('coords') else ""
+                }
+                for paragraph_id, paragraph in enumerate(text_blocks_body)
+            ])
 
         text_blocks_figures = get_children_figures(soup, verbose=False)
 
-        passages.extend([
-            {
-                "text": self.post_process(''.join(text for text in sentence.find_all(text=True) if
-                                                  text.parent.name != "ref" or (
-                                                          text.parent.name == "ref" and text.parent.attrs[
-                                                      'type'] != 'bibr'))),
-                "type": passage_type,
-                "section": "<body>",
-                "subSection": "<figure>",
-                "passage_id": str(paragraph_id) + str(sentence_id),
-                "coordinates": sentence['coords'] if coordinates and 'coords' in sentence else ""
-            }
-            for paragraph_id, paragraph in enumerate(text_blocks_figures) for
-            sentence_id, sentence in enumerate(paragraph)
-        ])
+        if not use_paragraphs:
+            passages.extend([
+                {
+                    "text": self.post_process(''.join(text for text in sentence.find_all(text=True) if
+                                                      text.parent.name != "ref" or (
+                                                              text.parent.name == "ref" and text.parent.attrs[
+                                                          'type'] != 'bibr'))),
+                    "type": passage_type,
+                    "section": "<body>",
+                    "subSection": "<figure>",
+                    "passage_id": str(paragraph_id) + str(sentence_id),
+                    "coordinates": sentence['coords'] if coordinates and 'coords' in sentence else ""
+                }
+                for paragraph_id, paragraph in enumerate(text_blocks_figures) for
+                sentence_id, sentence in enumerate(paragraph)
+            ])
+        else:
+            passages.extend([
+                {
+                    "text": self.post_process(''.join(text for text in paragraph.find_all(text=True) if
+                                                      text.parent.name != "ref" or (
+                                                              text.parent.name == "ref" and text.parent.attrs[
+                                                          'type'] != 'bibr'))),
+                    "type": passage_type,
+                    "section": "<body>",
+                    "subSection": "<figure>",
+                    "passage_id": str(paragraph_id),
+                    "coordinates": paragraph['coords'] if coordinates and paragraph.has_attr('coords') else ""
+                }
+                for paragraph_id, paragraph in enumerate(text_blocks_figures)
+            ])
 
         return output_data
 
@@ -533,6 +565,21 @@ class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, Gro
         return self.gmp.extract_materials(text)
 
     @staticmethod
+    def box_to_dict(box, color=None, type=None):
+
+        if box is None or box == "" or len(box) < 5:
+            return {}
+
+        item = {"page": box[0], "x": box[1], "y": box[2], "width": box[3], "height": box[4]}
+        if color is not None:
+            item['color'] = color
+
+        if type:
+            item['type'] = type
+
+        return item
+
+    @staticmethod
     def prune_overlapping_annotations(entities: list) -> list:
         # Sorting by offsets
         sorted_entities = sorted(entities, key=lambda d: d['offset_start'])
@@ -742,7 +789,8 @@ def get_children_body(soup: object, use_paragraphs: object = True, verbose: obje
     child_name = "p" if use_paragraphs else "s"
     for child in soup.TEI.children:
         if child.name == 'text':
-            children.extend([subchild.find_all(child_name) for subchild in child.find_all("body")])
+            children.extend(
+                [subchild for subchild in child.find_all("body") for subchild in subchild.find_all(child_name)])
 
     if verbose:
         print(str(children))
@@ -755,7 +803,8 @@ def get_children_figures(soup: object, use_paragraphs: object = True, verbose: o
     child_name = "p" if use_paragraphs else "s"
     for child in soup.TEI.children:
         if child.name == 'text':
-            children.extend([subchild.find_all("figDesc") for subchild in child.find_all("body")])
+            children.extend(
+                [subchild for subchilds in child.find_all("body") for subchild in subchilds.find_all("figDesc")])
 
     if verbose:
         print(str(children))

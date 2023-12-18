@@ -296,7 +296,7 @@ with st.sidebar:
     mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0, horizontal=True,
                     help="LLM will respond the question, Embedding will show the "
                          "paragraphs relevant to the question in the paper.")
-    chunk_size = st.slider("Chunks size", -1, 2000, value=250,
+    chunk_size = st.slider("Chunks size", -1, 2000, value=-1,
                            help="Size of chunks in which the document is partitioned",
                            disabled=uploaded_file is not None)
     context_size = st.slider("Context size", 3, 10, value=4,
@@ -410,8 +410,9 @@ with right_column:
                                                                                               st.session_state.doc_id,
                                                                                               context_size=context_size)
                 annotations = [
-                    {"page": coo[0], "x": coo[1], "y": coo[2], "width": coo[3], "height": coo[4], "color": "grey"} for coo in [c.split(",") for coord in
-                    coordinates for c in coord]]
+                    GrobidAggregationProcessor.box_to_dict(coo) for coo in [c.split(",") for coord in
+                    coordinates for c in coord]
+                ]
                 gradients = generate_color_gradient(len(annotations))
                 for i, color in enumerate(gradients):
                     annotations[i]['color'] = color
