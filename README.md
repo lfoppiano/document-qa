@@ -16,9 +16,11 @@ license: apache-2.0
 
 <img src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300 align="right" />
 
+https://lfoppiano-document-qa.hf.space/
+
 ## Introduction
 
-Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, Mistral-7b-instruct and Zephyr-7b-beta.
+Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, GPT4, GPT4-Turbo, Mistral-7b-instruct and Zephyr-7b-beta.
 The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS (National Institute for Materials Science), in Tsukuba, Japan.
 Different to most of the projects, we focus on scientific articles. 
 We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
@@ -28,11 +30,6 @@ Additionally, this frontend provides the visualisation of named entities on LLM 
 The conversation is kept in memory by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
 
 (The image on the right was generated with https://huggingface.co/spaces/stabilityai/stable-diffusion)
-
-**Demos**: 
- - (stable version): https://lfoppiano-document-qa.hf.space/
- - (unstable version): https://document-insights.streamlit.app/
-
 
 
 [<img src="https://img.youtube.com/vi/M4UaYs5WKGs/hqdefault.jpg" height="300" align="right" 
