@@ -23,6 +23,13 @@ OPENAI_MODELS = ['chatgpt-3.5-turbo',
                  "gpt-4",
                  "gpt-4-1106-preview"]
 
+OPEN_MODELS = {
+    'mistral-7b-instruct-v0.1': 'mistralai/Mistral-7B-Instruct-v0.1',
+    "zephyr-7b-beta": 'HuggingFaceH4/zephyr-7b-beta'
+}
+
+DISABLE_MEMORY = ['zephyr-7b-beta']
+
 if 'rqa' not in st.session_state:
     st.session_state['rqa'] = {}
 
@@ -136,18 +143,14 @@ def init_qa(model, api_key=None):
                               frequency_penalty=0.1)
             embeddings = OpenAIEmbeddings()
 
-    elif model == 'mistral-7b-instruct-v0.1':
-        chat = HuggingFaceHub(repo_id="mistralai/Mistral-7B-Instruct-v0.1",
-                              model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
+    elif model in OPEN_MODELS:
+        chat = HuggingFaceHub(
+            repo_id=OPEN_MODELS[model],
+            model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048}
+        )
         embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2")
-        st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
-
-    elif model == 'zephyr-7b-beta':
-        chat = HuggingFaceHub(repo_id="HuggingFaceH4/zephyr-7b-beta",
-                              model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048})
-        embeddings = HuggingFaceEmbeddings(model_name="all-MiniLM-L6-v2")
-        st.session_state['memory'] = None
+        st.session_state['memory'] = ConversationBufferWindowMemory(k=4) if model not in DISABLE_MEMORY else None
     else:
         st.error("The model was not loaded properly. Try reloading. ")
         st.stop()
@@ -212,14 +215,8 @@ def play_old_messages():
 with st.sidebar:
     st.session_state['model'] = model = st.selectbox(
         "Model:",
-        options=[
-            "chatgpt-3.5-turbo",
-            "mistral-7b-instruct-v0.1",
-            "zephyr-7b-beta",
-            "gpt-4",
-            "gpt-4-1106-preview"
-        ],
-        index=2,
+        options=OPENAI_MODELS + list(OPEN_MODELS.keys()),
+        index=4,
         placeholder="Select model",
         help="Select the LLM model:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
@@ -228,7 +225,7 @@ with st.sidebar:
     st.markdown(
         ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa/tree/review-interface#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
-    if (model == 'mistral-7b-instruct-v0.1' or model == 'zephyr-7b-beta') and model not in st.session_state['api_keys']:
+    if (model in OPEN_MODELS) and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
 
