@@ -19,7 +19,7 @@ from document_qa.document_qa_engine import DocumentQAEngine
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 from grobid_client_generic import GrobidClientGeneric
 
-OPENAI_MODELS = ['chatgpt-3.5-turbo',
+OPENAI_MODELS = ['gpt-3.5-turbo',
                  "gpt-4",
                  "gpt-4-1106-preview"]
 
