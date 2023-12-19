@@ -306,9 +306,14 @@ with st.sidebar:
     chunk_size = st.slider("Chunks size", -1, 2000, value=-1,
                            help="Size of chunks in which the document is partitioned",
                            disabled=uploaded_file is not None)
-    context_size = st.slider("Context size", 3, 10, value=4,
-                             help="Number of chunks to consider when answering a question",
+    if chunk_size == -1:
+        context_size = st.slider("Context size", 3, 20, value=10,
+                             help="Number of paragraphs to consider when answering a question",
                              disabled=not uploaded_file)
+    else:
+        context_size = st.slider("Context size", 3, 10, value=4,
+                                 help="Number of chunks to consider when answering a question",
+                                 disabled=not uploaded_file)
 
     st.session_state['ner_processing'] = st.checkbox("Identify materials and properties.")
     st.markdown(
