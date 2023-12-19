@@ -16,9 +16,11 @@ license: apache-2.0
 
 <img src="https://github.com/lfoppiano/document-qa/assets/15426/f0a04a86-96b3-406e-8303-904b93f00015" width=300 align="right" />
 
+https://lfoppiano-document-qa.hf.space/
+
 ## Introduction
 
-Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, Mistral-7b-instruct and Zephyr-7b-beta.
+Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, GPT4, GPT4-Turbo, Mistral-7b-instruct and Zephyr-7b-beta.
 The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS (National Institute for Materials Science), in Tsukuba, Japan.
 Different to most of the projects, we focus on scientific articles. 
 We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
@@ -29,11 +31,6 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
 
 (The image on the right was generated with https://huggingface.co/spaces/stabilityai/stable-diffusion)
 
-**Demos**: 
- - (stable version): https://lfoppiano-document-qa.hf.space/
- - (unstable version): https://document-insights.streamlit.app/
-
-
 
 [<img src="https://img.youtube.com/vi/M4UaYs5WKGs/hqdefault.jpg" height="300" align="right" 
 />](https://www.youtube.com/embed/M4UaYs5WKGs)
@@ -41,7 +38,7 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
 ## Getting started
 
 - Select the model+embedding combination you want to use 
-- If using OpenAI, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)~~ or [Huggingface](https://huggingface.co/docs/hub/security-tokens))~~. 
+- If using gpt3.5-turbo, gpt4 or gpt4-turbo, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)). 
 - Upload a scientific article as a PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner disappears, you can proceed to ask your questions
 
@@ -68,11 +65,22 @@ Indicates whether sending a question to the LLM (Language Model) or to the vecto
  - Embeddings: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
 
 ### NER (Named Entities Recognition)
-
 This feature is specifically crafted for people working with scientific documents in materials science. 
 It enables to run NER on the response from the LLM, to identify materials mentions and properties (quantities, measurements).
 This feature leverages both [grobid-quantities](https://github.com/kermitt2/grobid-quanities) and [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors) external services. 
 
+### Troubleshooting
+Error: `streamlit: Your system has an unsupported version of sqlite3. Chroma requires sqlite3 >= 3.35.0`.
+Here the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
+For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on Chroma website.
+
+## Disclaimer on Data, Security, and Privacy ⚠️
+
+Please read carefully:
+
+- Avoid uploading sensitive data. We temporarily store text from the uploaded PDF documents only for processing your request, and we disclaim any responsibility for subsequent use or handling of the submitted data by third-party LLMs.
+- Mistral and Zephyr are FREE to use and do not require any API, but as we leverage the free API entrypoint, there is no guarantee that all requests will go through. Use at your own risk.
+- We do not assume responsibility for how the data is utilized by the LLM end-points API.
 
 ## Development notes
 

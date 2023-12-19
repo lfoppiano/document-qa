@@ -16,6 +16,7 @@ from langchain.vectorstores import Chroma
 from tqdm import tqdm
 
 
+
 class DocumentQAEngine:
     llm = None
     qa_chain_type = None
