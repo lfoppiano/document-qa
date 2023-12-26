@@ -4,13 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.3.5] - 2023-12-26
+
+### Fixed
+
++ Fixed dependencies when installing as library
+
 ## [0.3.4] - 2023-12-16
 
-## Added
+### Added
 
 + Add gpt4 and gpt4-turbo
 
-## Changed
+### Changed
 
 + improved UI: replace combo boxes with dropdown box
 
