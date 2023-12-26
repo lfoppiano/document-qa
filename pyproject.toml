@@ -25,7 +25,10 @@ maintainers = [
 description = "Scientific Document Insight Q/A"
 readme = "README.md"
 
-dynamic = ['version']
+dynamic = ['version', "dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
 
 [tool.setuptools_scm]
 
