@@ -1,4 +1,3 @@
-import base64
 import os
 import re
 from hashlib import blake2b
@@ -8,6 +7,7 @@ import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
+from streamlit_pdf_viewer import pdf_viewer
 
 dotenv.load_dotenv(override=True)
 
@@ -69,6 +69,12 @@ if 'memory' not in st.session_state:
 
 if 'binary' not in st.session_state:
     st.session_state['binary'] = None
+
+if 'annotations' not in st.session_state:
+    st.session_state['annotations'] = None
+
+if 'pdf' not in st.session_state:
+    st.session_state['pdf'] = None
 
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
@@ -294,12 +300,17 @@ with st.sidebar:
     mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0, horizontal=True,
                     help="LLM will respond the question, Embedding will show the "
                          "paragraphs relevant to the question in the paper.")
-    chunk_size = st.slider("Chunks size", 100, 2000, value=250,
+    chunk_size = st.slider("Chunks size", -1, 2000, value=-1,
                            help="Size of chunks in which the document is partitioned",
                            disabled=uploaded_file is not None)
-    context_size = st.slider("Context size", 3, 10, value=4,
-                             help="Number of chunks to consider when answering a question",
+    if chunk_size == -1:
+        context_size = st.slider("Context size", 3, 20, value=10,
+                             help="Number of paragraphs to consider when answering a question",
                              disabled=not uploaded_file)
+    else:
+        context_size = st.slider("Context size", 3, 10, value=4,
+                                 help="Number of chunks to consider when answering a question",
+                                 disabled=not uploaded_file)
 
     st.session_state['ner_processing'] = st.checkbox("Identify materials and properties.")
     st.markdown(
@@ -324,13 +335,6 @@ with st.sidebar:
     st.markdown(
         """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
 
-
-@st.cache_resource
-def get_pdf_display(binary):
-    base64_pdf = base64.b64encode(binary).decode('utf-8')
-    return F'<embed src="data:application/pdf;base64,{base64_pdf}" width="100%" height="700" type="application/pdf"></embed>'
-
-
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
         st.error("Before uploading a document, you must enter the API key. ")
@@ -352,9 +356,22 @@ if uploaded_file and not st.session_state.loaded_embeddings:
 
     # timestamp = datetime.utcnow()
 
-with left_column:
-    if st.session_state['binary']:
-        left_column.markdown(get_pdf_display(st.session_state['binary']), unsafe_allow_html=True)
+def rgb_to_hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(*rgb)
+
+def generate_color_gradient(num_elements):
+    # Define warm and cold colors in RGB format
+    warm_color = (255, 165, 0)  # Orange
+    cold_color = (0, 0, 255)    # Blue
+
+    # Generate a linear gradient of colors
+    color_gradient = [
+        rgb_to_hex(tuple(int(warm * (1 - i/num_elements) + cold * (i/num_elements)) for warm, cold in zip(warm_color, cold_color)))
+        for i in range(num_elements)
+    ]
+
+    return color_gradient
+
 
 with right_column:
     # css = '''
@@ -398,8 +415,19 @@ with right_column:
                                                                              context_size=context_size)
         elif mode == "LLM":
             with st.spinner("Generating response..."):
-                _, text_response = st.session_state['rqa'][model].query_document(question, st.session_state.doc_id,
-                                                                                 context_size=context_size)
+                _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
+                                                                                              st.session_state.doc_id,
+                                                                                              context_size=context_size)
+                annotations = [
+                    GrobidAggregationProcessor.box_to_dict(coo) for coo in [c.split(",") for coord in
+                    coordinates for c in coord]
+                ]
+                gradients = generate_color_gradient(len(annotations))
+                for i, color in enumerate(gradients):
+                    annotations[i]['color'] = color
+                st.session_state['annotations'] = annotations
+                # with left_column:
+                #     pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'], key=1)
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -426,3 +454,7 @@ with right_column:
 
     elif st.session_state.loaded_embeddings and st.session_state.doc_id:
         play_old_messages()
+
+with left_column:
+    if st.session_state['binary']:
+        pdf_viewer(input=st.session_state['binary'], width=600, height=800, annotations=st.session_state['annotations'])
