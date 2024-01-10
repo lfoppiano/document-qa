@@ -73,6 +73,9 @@ if 'binary' not in st.session_state:
 if 'annotations' not in st.session_state:
     st.session_state['annotations'] = None
 
+if 'should_show_annotations' not in st.session_state:
+    st.session_state['should_show_annotations'] = True
+
 if 'pdf' not in st.session_state:
     st.session_state['pdf'] = None
 
@@ -222,7 +225,7 @@ with st.sidebar:
     st.session_state['model'] = model = st.selectbox(
         "Model:",
         options=OPENAI_MODELS + list(OPEN_MODELS.keys()),
-        index=4,
+        index=OPENAI_MODELS.index('gpt-3.5-turbo'),
         placeholder="Select model",
         help="Select the LLM model:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
@@ -300,6 +303,11 @@ with st.sidebar:
     mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0, horizontal=True,
                     help="LLM will respond the question, Embedding will show the "
                          "paragraphs relevant to the question in the paper.")
+
+    # Add a checkbox for showing annotations
+    # st.session_state['show_annotations'] = st.checkbox("Show annotations", value=True)
+    st.session_state['should_show_annotations'] = st.checkbox("Show annotations", value=True)
+
     chunk_size = st.slider("Chunks size", -1, 2000, value=-1,
                            help="Size of chunks in which the document is partitioned",
                            disabled=uploaded_file is not None)
@@ -457,4 +465,7 @@ with right_column:
 
 with left_column:
     if st.session_state['binary']:
-        pdf_viewer(input=st.session_state['binary'], width=600, height=800, annotations=st.session_state['annotations'])
+        if st.session_state['should_show_annotations']:
+            pdf_viewer(input=st.session_state['binary'], width=600, height=800, annotations=st.session_state['annotations'])
+        else:
+            pdf_viewer(input=st.session_state['binary'], width=600, height=800)
