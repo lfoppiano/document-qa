@@ -176,32 +176,48 @@ class GrobidProcessor(BaseProcessor):
             pass
 
         output_data['biblio'] = biblio
-
         passages = []
         output_data['passages'] = passages
-        # if biblio['title'] is not None and len(biblio['title']) > 0:
-        #     passages.append({
-        #         "text": self.post_process(biblio['title']),
-        #         "type": "paragraph",
-        #         "section": "<header>",
-        #         "subSection": "<title>",
-        #         "passage_id": "title0"
-        #     })
-
         passage_type = "paragraph"
 
-        if doc_biblio.abstract is not None and len(doc_biblio.abstract) > 0:
-            passages.append({
-                "text": self.post_process(doc_biblio.abstract),
-                "type": passage_type,
-                "section": "<header>",
-                "subSection": "<abstract>",
-                "passage_id": "abstract0",
-                "coordinates": ""
-            })
-
         soup = BeautifulSoup(text, 'xml')
-        text_blocks_body = get_children_body(soup, verbose=False, use_paragraphs=True)
+        blocks_header = get_xml_nodes_header(soup, use_paragraphs=True)
+
+        passages.append({
+            "text": f"authors: {biblio['authors']}",
+            "type": passage_type,
+            "section": "<header>",
+            "subSection": "<title>",
+            "passage_id": "htitle",
+            "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
+                            blocks_header['authors']])
+        })
+
+        passages.append({
+            "text": self.post_process(" ".join([node.text for node in blocks_header['title']])),
+            "type": passage_type,
+            "section": "<header>",
+            "subSection": "<title>",
+            "passage_id": "htitle",
+            "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
+                                     blocks_header['title']])
+        })
+
+        passages.append({
+            "text": self.post_process(
+                ''.join(node.text for node in blocks_header['abstract'] for text in node.find_all(text=True) if
+                        text.parent.name != "ref" or (
+                                text.parent.name == "ref" and text.parent.attrs[
+                            'type'] != 'bibr'))),
+            "type": passage_type,
+            "section": "<header>",
+            "subSection": "<abstract>",
+            "passage_id": "habstract",
+            "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
+                                     blocks_header['abstract']])
+        })
+
+        text_blocks_body = get_xml_nodes_body(soup, verbose=False, use_paragraphs=True)
 
         use_paragraphs = True
         if not use_paragraphs:
@@ -236,7 +252,7 @@ class GrobidProcessor(BaseProcessor):
                 for paragraph_id, paragraph in enumerate(text_blocks_body)
             ])
 
-        text_blocks_figures = get_children_figures(soup, verbose=False)
+        text_blocks_figures = get_xml_nodes_figures(soup, verbose=False)
 
         if not use_paragraphs:
             passages.extend([
@@ -784,23 +800,36 @@ def get_children_list_grobid(soup: object, use_paragraphs: object = True, verbos
     return children
 
 
-def get_children_body(soup: object, use_paragraphs: object = True, verbose: object = False) -> object:
-    children = []
-    child_name = "p" if use_paragraphs else "s"
+def get_xml_nodes_header(soup: object, use_paragraphs: bool = True) -> list:
+    sub_tag = "p" if use_paragraphs else "s"
+
+    header_elements = {
+        "authors": [persNameNode for persNameNode in soup.teiHeader.find_all("persName")],
+        "abstract": [p_in_abstract for abstractNodes in soup.teiHeader.find_all("abstract") for p_in_abstract in
+                     abstractNodes.find_all(sub_tag)],
+        "title": [soup.teiHeader.fileDesc.title]
+    }
+
+    return header_elements
+
+
+def get_xml_nodes_body(soup: object, use_paragraphs: bool = True, verbose: bool = False) -> list:
+    nodes = []
+    tag_name = "p" if use_paragraphs else "s"
     for child in soup.TEI.children:
         if child.name == 'text':
-            children.extend(
-                [subchild for subchild in child.find_all("body") for subchild in subchild.find_all(child_name)])
+            # nodes.extend([subchild.find_all(tag_name) for subchild in child.find_all("body")])
+            nodes.extend(
+                [subsubchild for subchild in child.find_all("body") for subsubchild in subchild.find_all(tag_name)])
 
     if verbose:
-        print(str(children))
+        print(str(nodes))
 
-    return children
+    return nodes
 
 
-def get_children_figures(soup: object, use_paragraphs: object = True, verbose: object = False) -> object:
+def get_xml_nodes_figures(soup: object, verbose: bool = False) -> list:
     children = []
-    child_name = "p" if use_paragraphs else "s"
     for child in soup.TEI.children:
         if child.name == 'text':
             children.extend(

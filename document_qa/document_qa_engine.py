@@ -57,7 +57,7 @@ class DocumentQAEngine:
             grobid_client = GrobidClient(
                 grobid_server=self.grobid_url,
                 batch_size=1000,
-                coordinates=["p"],
+                coordinates=["p", "title", "persName"],
                 sleep_time=5,
                 timeout=60,
                 check_server=True
@@ -189,7 +189,7 @@ class DocumentQAEngine:
         relevant_documents = multi_query_retriever.get_relevant_documents(query)
         return relevant_documents
 
-    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, include=(), verbose=False):
+    def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, verbose=False):
         """
         Extract text from documents using Grobid, if chunk_size is < 0 it keeps each paragraph separately
         """
@@ -233,25 +233,13 @@ class DocumentQAEngine:
             metadatas = [biblio for _ in range(len(texts))]
             ids = [id for id, t in enumerate(texts)]
 
-        if "biblio" in include:
-            biblio_metadata = copy.copy(biblio)
-            biblio_metadata['type'] = "biblio"
-            biblio_metadata['section'] = "header"
-            for key in ['title', 'authors', 'publication_year']:
-                if key in biblio_metadata:
-                    texts.append("{}: {}".format(key, biblio_metadata[key]))
-                    metadatas.append(biblio_metadata)
-                    ids.append(key)
-
         return texts, metadatas, ids
 
-    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1, include_biblio=False):
-        include = ["biblio"] if include_biblio else []
+    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1):
         texts, metadata, ids = self.get_text_from_document(
             pdf_path,
             chunk_size=chunk_size,
-            perc_overlap=perc_overlap,
-            include=include)
+            perc_overlap=perc_overlap)
         if doc_id:
             hash = doc_id
         else:
