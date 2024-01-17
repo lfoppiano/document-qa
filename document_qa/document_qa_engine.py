@@ -3,18 +3,89 @@ import os
 from pathlib import Path
 from typing import Union, Any
 
-from document_qa.grobid_processors import GrobidProcessor
+import tiktoken
 from grobid_client.grobid_client import GrobidClient
-from langchain.chains import create_extraction_chain, ConversationChain, ConversationalRetrievalChain
+from langchain.chains import create_extraction_chain
 from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
     map_rerank_prompt
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
 from langchain.schema import Document
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.vectorstores import Chroma
 from tqdm import tqdm
 
+from document_qa.grobid_processors import GrobidProcessor
+
+
+class TextMerger:
+    def __init__(self, model_name=None, encoding_name="gpt2"):
+        if model_name is not None:
+            self.enc = tiktoken.encoding_for_model(model_name)
+        else:
+            self.enc = tiktoken.get_encoding(encoding_name)
+
+    def encode(self, text, allowed_special=set(), disallowed_special="all"):
+        return self.enc.encode(
+            text,
+            allowed_special=allowed_special,
+            disallowed_special=disallowed_special,
+        )
+
+    def merge_passages(self, passages, chunk_size, tolerance=0.2):
+        new_passages = []
+        new_coordinates = []
+        current_texts = []
+        current_coordinates = []
+        for idx, passage in enumerate(passages):
+            text = passage['text']
+            coordinates = passage['coordinates']
+            current_texts.append(text)
+            current_coordinates.append(coordinates)
+
+            accumulated_text = " ".join(current_texts)
+
+            encoded_accumulated_text = self.encode(accumulated_text)
+
+            if len(encoded_accumulated_text) > chunk_size + chunk_size * tolerance:
+                if len(current_texts) > 1:
+                    new_passages.append(current_texts[:-1])
+                    new_coordinates.append(current_coordinates[:-1])
+                    current_texts = [current_texts[-1]]
+                    current_coordinates = [current_coordinates[-1]]
+                else:
+                    new_passages.append(current_texts)
+                    new_coordinates.append(current_coordinates)
+                    current_texts = []
+                    current_coordinates = []
+
+            elif chunk_size <= len(encoded_accumulated_text) < chunk_size + chunk_size * tolerance:
+                new_passages.append(current_texts)
+                new_coordinates.append(current_coordinates)
+                current_texts = []
+                current_coordinates = []
+            else:
+                print("bao")
+
+        if len(current_texts) > 0:
+            new_passages.append(current_texts)
+            new_coordinates.append(current_coordinates)
+
+        new_passages_struct = []
+        for i, passages in enumerate(new_passages):
+            text = " ".join(passages)
+            coordinates = ";".join(new_coordinates[i])
+
+            new_passages_struct.append(
+                {
+                    "text": text,
+                    "coordinates": coordinates,
+                    "type": "aggregated chunks",
+                    "section": "mixed",
+                    "subSection": "mixed"
+                }
+            )
+
+        return new_passages_struct
 
 
 class DocumentQAEngine:
@@ -44,6 +115,7 @@ class DocumentQAEngine:
         self.llm = llm
         self.memory = memory
         self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
+        self.text_merger = TextMerger()
 
         if embeddings_root_path is not None:
             self.embeddings_root_path = embeddings_root_path
@@ -157,7 +229,9 @@ class DocumentQAEngine:
 
     def _run_query(self, doc_id, query, context_size=4):
         relevant_documents = self._get_context(doc_id, query, context_size)
-        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else [] for doc in relevant_documents] #filter(lambda d: d['type'] == "sentence", relevant_documents)]
+        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
+                                         for doc in
+                                         relevant_documents]  # filter(lambda d: d['type'] == "sentence", relevant_documents)]
         response = self.chain.run(input_documents=relevant_documents,
                                   question=query)
 
@@ -196,7 +270,7 @@ class DocumentQAEngine:
         if verbose:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
-        coordinates = True if chunk_size == -1 else False
+        coordinates = True  # if chunk_size == -1 else False
         structure = self.grobid_processor.process_structure(pdf_file_path, coordinates=coordinates)
 
         biblio = structure['biblio']
@@ -209,29 +283,25 @@ class DocumentQAEngine:
         metadatas = []
         ids = []
 
-        if chunk_size < 0:
-            for passage in structure['passages']:
-                biblio_copy = copy.copy(biblio)
-                if len(str.strip(passage['text'])) > 0:
-                    texts.append(passage['text'])
-
-                    biblio_copy['type'] = passage['type']
-                    biblio_copy['section'] = passage['section']
-                    biblio_copy['subSection'] = passage['subSection']
-                    biblio_copy['coordinates'] = passage['coordinates']
-                    metadatas.append(biblio_copy)
-
-                    ids.append(passage['passage_id'])
+        if chunk_size > 0:
+            new_passages = self.text_merger.merge_passages(structure['passages'], chunk_size=chunk_size)
         else:
-            document_text = " ".join([passage['text'] for passage in structure['passages']])
-            # text_splitter = CharacterTextSplitter.from_tiktoken_encoder(
-            text_splitter = RecursiveCharacterTextSplitter.from_tiktoken_encoder(
-                chunk_size=chunk_size,
-                chunk_overlap=chunk_size * perc_overlap
-            )
-            texts = text_splitter.split_text(document_text)
-            metadatas = [biblio for _ in range(len(texts))]
-            ids = [id for id, t in enumerate(texts)]
+            new_passages = structure['passages']
+
+        for passage in new_passages:
+            biblio_copy = copy.copy(biblio)
+            if len(str.strip(passage['text'])) > 0:
+                texts.append(passage['text'])
+
+                biblio_copy['type'] = passage['type']
+                biblio_copy['section'] = passage['section']
+                biblio_copy['subSection'] = passage['subSection']
+                biblio_copy['coordinates'] = passage['coordinates']
+                metadatas.append(biblio_copy)
+
+                # ids.append(passage['passage_id'])
+
+            ids = [id for id, t in enumerate(new_passages)]
 
         return texts, metadatas, ids
 
