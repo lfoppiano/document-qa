@@ -19,6 +19,7 @@ chromadb==0.4.19
 tiktoken==0.4.0
 openai==0.27.7
 langchain==0.0.350
+langchain-core==0.1.0
 typing-inspect==0.9.0
 typing_extensions==4.8.0
 pydantic==2.4.2
