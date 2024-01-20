@@ -308,17 +308,17 @@ with st.sidebar:
 
     # Add a checkbox for showing annotations
     # st.session_state['show_annotations'] = st.checkbox("Show annotations", value=True)
-    st.session_state['should_show_annotations'] = st.checkbox("Show annotations", value=True)
+    # st.session_state['should_show_annotations'] = st.checkbox("Show annotations", value=True)
 
-    chunk_size = st.slider("Chunks size", -1, 2000, value=-1,
-                           help="Size of chunks in which the document is partitioned",
+    chunk_size = st.slider("Text chunks size", -1, 2000, value=-1,
+                           help="Size of chunks in which split the document. -1: use paragraphs, > 0 paragraphs are aggregated.",
                            disabled=uploaded_file is not None)
     if chunk_size == -1:
-        context_size = st.slider("Context size", 3, 20, value=10,
+        context_size = st.slider("Context size (paragraphs)", 3, 20, value=10,
                                  help="Number of paragraphs to consider when answering a question",
                                  disabled=not uploaded_file)
     else:
-        context_size = st.slider("Context size", 3, 10, value=4,
+        context_size = st.slider("Context size (chunks)", 3, 10, value=4,
                                  help="Number of chunks to consider when answering a question",
                                  disabled=not uploaded_file)
 
@@ -437,7 +437,8 @@ with right_column:
                 for i, color in enumerate(gradients):
                     for annotation in annotations[i]:
                         annotation['color'] = color
-                st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in annotation_doc]
+                st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
+                                                   annotation_doc]
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -456,26 +457,20 @@ with right_column:
                 st.write(text_response)
             st.session_state.messages.append({"role": "assistant", "mode": mode, "content": text_response})
 
-        # if len(st.session_state.messages) > 1:
-        #     last_answer = st.session_state.messages[len(st.session_state.messages)-1]
-        #     if last_answer['role'] == "assistant":
-        #         last_question = st.session_state.messages[len(st.session_state.messages)-2]
-        #         st.session_state.memory.save_context({"input": last_question['content']}, {"output": last_answer['content']})
-
     elif st.session_state.loaded_embeddings and st.session_state.doc_id:
         play_old_messages()
 
 with left_column:
     if st.session_state['binary']:
-        if st.session_state['should_show_annotations']:
-            pdf_viewer(input=st.session_state['binary'],
+        # if st.session_state['should_show_annotations']:
+        pdf_viewer(input=st.session_state['binary'],
                        width=600,
                        height=800,
                        annotation_outline_size=2,
                        annotations=st.session_state['annotations'])
-        else:
-            pdf_viewer(input=st.session_state['binary'],
-                       width=600,
-                       height=800,
-                       annotation_outline_size=2
-                       )
+        # else:
+        #     pdf_viewer(input=st.session_state['binary'],
+        #                width=600,
+        #                height=800,
+        #                annotation_outline_size=2
+        #                )
