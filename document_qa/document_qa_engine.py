@@ -63,8 +63,6 @@ class TextMerger:
                 new_coordinates.append(current_coordinates)
                 current_texts = []
                 current_coordinates = []
-            else:
-                print("bao")
 
         if len(current_texts) > 0:
             new_passages.append(current_texts)

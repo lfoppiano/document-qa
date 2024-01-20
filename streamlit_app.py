@@ -430,16 +430,14 @@ with right_column:
                 _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
                                                                                               st.session_state.doc_id,
                                                                                               context_size=context_size)
-                annotations = [
-                    GrobidAggregationProcessor.box_to_dict(coo) for coo in [c.split(",") for coord in
-                                                                            coordinates for c in coord]
-                ]
+
+                annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
+                               for coord_doc in coordinates]
                 gradients = generate_color_gradient(len(annotations))
                 for i, color in enumerate(gradients):
-                    annotations[i]['color'] = color
-                st.session_state['annotations'] = annotations
-                # with left_column:
-                #     pdf_viewer(input=st.session_state['binary'], annotations=st.session_state['annotations'], key=1)
+                    for annotation in annotations[i]:
+                        annotation['color'] = color
+                st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in annotation_doc]
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -470,7 +468,14 @@ with right_column:
 with left_column:
     if st.session_state['binary']:
         if st.session_state['should_show_annotations']:
-            pdf_viewer(input=st.session_state['binary'], width=600, height=800,
+            pdf_viewer(input=st.session_state['binary'],
+                       width=600,
+                       height=800,
+                       annotation_outline_size=2,
                        annotations=st.session_state['annotations'])
         else:
-            pdf_viewer(input=st.session_state['binary'], width=600, height=800)
+            pdf_viewer(input=st.session_state['binary'],
+                       width=600,
+                       height=800,
+                       annotation_outline_size=2
+                       )
