@@ -79,6 +79,9 @@ if 'should_show_annotations' not in st.session_state:
 if 'pdf' not in st.session_state:
     st.session_state['pdf'] = None
 
+if 'pdf_rendering' not in st.session_state:
+    st.session_state['pdf_rendering'] = None
+
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
@@ -302,9 +305,15 @@ question = st.chat_input(
 
 with st.sidebar:
     st.header("Settings")
-    mode = st.radio("Query mode", ("LLM", "Embeddings"), disabled=not uploaded_file, index=0, horizontal=True,
-                    help="LLM will respond the question, Embedding will show the "
-                         "paragraphs relevant to the question in the paper.")
+    mode = st.radio(
+        "Query mode",
+        ("LLM", "Embeddings"),
+        disabled=not uploaded_file,
+        index=0,
+        horizontal=True,
+        help="LLM will respond the question, Embedding will show the "
+             "paragraphs relevant to the question in the paper."
+    )
 
     # Add a checkbox for showing annotations
     # st.session_state['show_annotations'] = st.checkbox("Show annotations", value=True)
@@ -326,6 +335,12 @@ with st.sidebar:
     st.markdown(
         'The LLM responses undergo post-processing to extract <span style="color:orange">physical quantities, measurements</span>, and <span style="color:green">materials</span> mentions.',
         unsafe_allow_html=True)
+
+    st.session_state['pdf_rendering'] = st.radio(
+        "PDF rendering mode",
+        {"PDF.JS", "Native browser engine"},
+        disabled=not uploaded_file,
+    )
 
     st.divider()
 
@@ -462,15 +477,11 @@ with right_column:
 
 with left_column:
     if st.session_state['binary']:
-        # if st.session_state['should_show_annotations']:
-        pdf_viewer(input=st.session_state['binary'],
-                       width=600,
-                       height=800,
-                       annotation_outline_size=2,
-                       annotations=st.session_state['annotations'])
-        # else:
-        #     pdf_viewer(input=st.session_state['binary'],
-        #                width=600,
-        #                height=800,
-        #                annotation_outline_size=2
-        #                )
+        pdf_viewer(
+            input=st.session_state['binary'],
+            width=600,
+            height=800,
+            annotation_outline_size=2,
+            annotations=st.session_state['annotations'],
+            rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed'
+        )
