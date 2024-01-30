@@ -1,0 +1,2604 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<TEI xml:space="preserve" xmlns="http://www.tei-c.org/ns/1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.tei-c.org/ns/1.0 https://raw.githubusercontent.com/kermitt2/grobid/master/grobid-home/schemas/xsd/Grobid.xsd" xmlns:xlink="http://www.w3.org/1999/xlink">
+	<teiHeader xml:lang="en">
+		<fileDesc>
+			<titleStmt>
+				<title level="a" type="main">PaperQA: Retrieval-Augmented Generative Agent for Scientific Research</title>
+			</titleStmt>
+			<publicationStmt>
+				<publisher/>
+				<availability status="unknown"><licence/></availability>
+				<date type="published" when="2023-12-14">14 Dec 2023</date>
+			</publicationStmt>
+			<sourceDesc>
+				<biblStruct>
+					<analytic>
+						<author>
+							<persName coords="1,139.37,184.20,57.96,10.75"><forename type="first">Jakub</forename><surname>Lála</surname></persName>
+							<affiliation key="aff0">
+								<orgName type="department">Future House Francis Crick Institute</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName coords="1,245.87,184.20,108.61,10.75"><forename type="first">Odhran</forename><surname>O'donoghue</surname></persName>
+							<affiliation key="aff1">
+								<orgName type="department">Align to Innovate Francis Crick Institute</orgName>
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName coords="1,378.55,184.20,118.57,10.75"><forename type="first">Aleksandar</forename><surname>Shtedritski</surname></persName>
+							<affiliation key="aff2">
+								<orgName type="department">Align to Innovate Francis Crick Institute</orgName>
+								<orgName type="institution">University of Oxford</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName coords="1,212.04,259.91,46.16,10.75"><forename type="first">Sam</forename><surname>Cox</surname></persName>
+							<affiliation key="aff3">
+								<orgName type="department">Future House</orgName>
+								<orgName type="institution">University of Rochester</orgName>
+							</affiliation>
+						</author>
+						<author>
+							<persName coords="1,327.15,259.91,106.28,10.75"><forename type="first">Samuel</forename><forename type="middle">G</forename><surname>Rodriques</surname></persName>
+							<affiliation key="aff4">
+								<orgName type="department">Future House Francis Crick Institute</orgName>
+							</affiliation>
+						</author>
+						<author role="corresp">
+							<persName coords="1,262.61,321.68,86.78,10.75"><forename type="first">Andrew</forename><forename type="middle">D</forename><surname>White</surname></persName>
+							<email>andrew@futurehouse.org</email>
+							<affiliation key="aff5">
+								<orgName type="department">Future House</orgName>
+								<orgName type="institution">University of Rochester</orgName>
+							</affiliation>
+						</author>
+						<title level="a" type="main">PaperQA: Retrieval-Augmented Generative Agent for Scientific Research</title>
+					</analytic>
+					<monogr>
+						<imprint>
+							<date type="published" when="2023-12-14">14 Dec 2023</date>
+						</imprint>
+					</monogr>
+					<idno type="MD5">F19D27C5A579FCA6A8D31FBD5E8086B3</idno>
+					<idno type="arXiv">arXiv:2312.07559v2[cs.CL]</idno>
+				</biblStruct>
+			</sourceDesc>
+		</fileDesc>
+		<encodingDesc>
+			<appInfo>
+				<application version="0.8.1-SNAPSHOT" ident="GROBID" when="2023-12-18T12:01+0000">
+					<desc>GROBID - A machine learning software for extracting information from scholarly documents</desc>
+					<ref target="https://github.com/kermitt2/grobid"/>
+				</application>
+			</appInfo>
+		</encodingDesc>
+		<profileDesc>
+			<abstract>
+<div xmlns="http://www.tei-c.org/ns/1.0"><p coords="1,143.87,436.66,324.27,8.64;1,143.87,447.62,324.27,8.64;1,143.87,458.58,324.27,8.64;1,143.87,469.54,324.27,8.64;1,143.87,480.50,324.27,8.64;1,143.87,491.46,324.27,8.64;1,143.87,502.42,324.27,8.64;1,143.87,513.38,324.27,8.64;1,143.87,524.34,324.27,8.64;1,143.87,535.29,324.27,8.64;1,143.87,546.25,324.27,8.64;1,143.87,557.21,324.27,8.64;1,143.87,568.17,324.27,8.64;1,143.87,579.13,324.27,8.64;1,143.87,590.09,276.37,8.64">Large Language Models (LLMs) generalize well across language tasks, but suffer from hallucinations and uninterpretability, making it difficult to assess their accuracy without ground-truth. Retrieval-Augmented Generation (RAG) models have been proposed to reduce hallucinations and provide provenance for how an answer was generated. Applying such models to the scientific literature may enable large-scale, systematic processing of scientific knowledge. We present PaperQA, a RAG agent for answering questions over the scientific literature. PaperQA is an agent that performs information retrieval across full-text scientific articles, assesses the relevance of sources and passages, and uses RAG to provide answers. Viewing this agent as a question-answering model, we find it exceeds performance of existing LLMs and LLM agents on current science QA benchmarks. To push the field closer to how humans perform research on scientific literature, we also introduce LitQA, a more complex benchmark that requires retrieval and synthesis of information from full-text scientific papers across the literature. Finally, we demonstrate PaperQA's matches expert human researchers on LitQA.</p></div>
+			</abstract>
+		</profileDesc>
+	</teiHeader>
+	<facsimile>
+		<surface n="1" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="2" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="3" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="4" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="5" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="6" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="7" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="8" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="9" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="10" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="11" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="12" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="13" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="14" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="15" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="16" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="17" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="18" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="19" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+		<surface n="20" ulx="0.0" uly="0.0" lrx="612.0" lry="792.0"/>
+	</facsimile>
+	<text xml:lang="en">
+		<body>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="1" coords="1,108.30,630.02,97.69,10.37">INTRODUCTION</head><p coords="1,108.00,657.62,396.00,8.64;1,108.00,668.58,88.81,8.64;1,209.69,668.58,149.41,8.64;1,371.98,668.58,132.02,8.64;1,108.00,679.54,396.00,8.64;1,140.36,690.50,363.65,8.64;1,108.00,701.46,250.13,8.64;1,381.38,701.46,122.62,8.64;1,161.51,712.42,105.46,8.64;1,299.32,712.42,204.68,8.64;1,108.00,723.38,127.08,8.64;2,108.00,85.34,396.00,8.64;2,108.00,96.30,243.33,8.64;2,386.51,96.30,117.50,8.64;2,108.00,107.26,396.00,8.64;2,108.00,118.22,319.79,8.64;2,460.63,118.22,43.37,8.64;2,108.00,129.17,396.00,8.64;2,108.00,140.13,277.44,8.64;2,403.27,140.13,100.73,8.64;2,108.00,151.09,396.00,8.64;2,108.00,162.05,312.25,8.64">The rate of papers published yearly grows at an exponential rate, with over 5 million academic articles published in 2022 <ref type="bibr" coords="1,199.11,668.58,10.58,8.64" target="#b0">[1]</ref>, and over 200 million articles in total <ref type="bibr" coords="1,361.40,668.58,10.58,8.64" target="#b1">[2]</ref>. The difficulty of navigating this extensive literature means significant scientific findings have gone unnoticed for extended periods <ref type="bibr" coords="1,108.00,690.50,10.79,8.64" target="#b2">[3,</ref><ref type="bibr" coords="1,122.24,690.50,7.47,8.64" target="#b3">4,</ref><ref type="bibr" coords="1,133.17,690.50,7.19,8.64" target="#b4">5]</ref>. Work in the last 10 years has sought to make the space of literature more manageable for scientists, with the introduction of keyword search systems <ref type="bibr" coords="1,360.76,701.46,10.79,8.64" target="#b5">[6,</ref><ref type="bibr" coords="1,374.19,701.46,7.19,8.64" target="#b6">7]</ref>, vector similarity embeddings <ref type="bibr" coords="1,108.00,712.42,10.79,8.64" target="#b7">[8,</ref><ref type="bibr" coords="1,121.17,712.42,7.47,8.64" target="#b8">9,</ref><ref type="bibr" coords="1,131.01,712.42,12.45,8.64" target="#b9">10,</ref><ref type="bibr" coords="1,145.85,712.42,13.28,8.64" target="#b10">11]</ref> and recommender systems <ref type="bibr" coords="1,269.35,712.42,15.77,8.64" target="#b11">[12,</ref><ref type="bibr" coords="1,287.50,712.42,11.83,8.64" target="#b12">13]</ref>. The process of scientific discovery from literature is still, however, highly manual. The use of Large Language Models (LLMs) to answer scientific questions is increasingly seen in academia and research-heavy professions such as medicine <ref type="bibr" coords="2,355.11,96.30,15.77,8.64" target="#b13">[14,</ref><ref type="bibr" coords="2,374.68,96.30,11.83,8.64" target="#b14">15]</ref>. While LLMs can produce answers faster and encompass a broader, deeper scope than manual searching, there is a high risk of hallucination in responses, which can lead to potentially dangerous outcomes <ref type="bibr" coords="2,430.41,118.22,15.77,8.64" target="#b15">[16,</ref><ref type="bibr" coords="2,448.80,118.22,11.83,8.64" target="#b16">17]</ref>. Incorrect information can be more damaging than no information at all, as the time to verify veracity can take just as long as retrieving it from research papers in the first place <ref type="bibr" coords="2,388.00,140.13,15.27,8.64" target="#b17">[18]</ref>. Reliance on pre-trained LLMs also prevents the discovery of new information published after a training cutoff date. Given the rapidly moving pace of science, this can lead to misconceptions persisting.</p><p coords="2,108.00,178.99,373.61,8.64;2,500.19,178.99,3.82,8.64;2,108.00,189.95,396.00,8.64;2,108.00,200.91,396.00,8.64;2,108.00,211.86,302.92,8.64;2,443.43,211.86,60.57,8.64;2,108.00,222.82,396.00,8.64;2,108.00,233.78,155.78,8.64">Retrieval-Augmented Generation (RAG) models are a potential solution to these limitations <ref type="bibr" coords="2,484.92,178.99,15.27,8.64" target="#b18">[19]</ref>. RAG models retrieve text from a corpus, using methods such as vector embedding search or keyword search, and add the retrieved passage to the context window of the LLM. RAG usage can reduce hallucinations in conversations and improve LLM performance on QA tasks <ref type="bibr" coords="2,413.37,211.86,15.77,8.64" target="#b15">[16,</ref><ref type="bibr" coords="2,431.61,211.86,11.83,8.64" target="#b19">20]</ref>. Nevertheless, standard RAG models follow a fixed, linear flow, which can be restrictive for addressing the diverse range of questions scientists encounter.</p><p coords="2,108.00,250.72,396.00,8.64;2,108.00,261.68,396.00,8.64;2,108.00,272.64,396.00,8.64;2,108.00,283.60,396.00,8.64;2,108.00,294.55,396.00,8.64;2,108.00,305.51,63.62,8.64">In this work, we eliminate these limitations by breaking RAG into modular pieces, allowing an agent LLM to dynamically adjust and iteratively perform steps in response to the specific demands of each question, ensuring more precise and relevant answers. We call this PaperQA, an agent-based RAG system for scientific question answering. PaperQA has three fundamental components: finding papers relevant to the given question, gathering text from those papers, and generating an answer with references.</p><p coords="2,108.00,322.45,396.00,8.64;2,108.00,333.41,396.00,8.64;2,108.00,344.37,230.74,8.64;2,361.78,344.37,142.23,8.64;2,108.00,355.33,396.00,8.64;2,108.00,366.29,396.00,8.64;2,108.00,377.24,396.00,8.64;2,108.00,388.20,396.00,8.64;2,108.00,399.16,396.00,8.64;2,108.00,410.12,396.00,8.64;2,108.00,421.08,396.00,8.64;2,108.00,432.04,396.00,8.64;2,108.00,443.00,396.00,8.64;2,108.00,453.96,63.65,8.64">We evaluate PaperQA on several standard multiple-choice datasets for evaluating LLMs, which assess the model's ability to answer questions with existing knowledge, but do not test the agents' ability to retrieve information. We modified PubMedQA <ref type="bibr" coords="2,341.96,344.37,16.60,8.64" target="#b20">[21]</ref> to remove the provided context (so it is closed-book) and found PaperQA beats GPT-4 by 30 points (57.9% to 86.3%). PubMedQA is only built on abstracts though, and so we construct a more difficult dataset that requires synthesizing information from one or multiple full-text research papers. We thus introduce a new dataset, LitQA, composed from recent literature, in order to test PaperQA's ability to retrieve information outside of the underlying LLM's pre-training data. PaperQA outperforms all models tested and commercial tools, and is comparable to human experts on LitQA on performance and time, but is significantly cheaper in terms of costs. Furthermore, PaperQA is competitive to state-of-the-art commercial tools for scientific question answering. Finally, we find that PaperQA exhibits a better knowledge boundary than competing tools, answering questions incorrectly at a lower rate, and instead, answering that it is unsure.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="2" coords="2,108.30,481.91,108.80,10.37">RELATED WORKS</head><p coords="2,108.00,506.69,396.00,9.03;2,108.00,518.04,300.33,8.64;2,500.06,518.04,3.94,8.64;2,108.00,529.00,396.00,8.64;2,108.00,539.96,43.71,8.64;2,173.30,539.96,191.67,8.64;2,382.75,539.96,121.26,8.64;2,190.12,550.92,159.19,8.64;2,382.81,550.92,121.19,8.64;2,108.00,561.87,201.96,8.64">LLMs for Natural Sciences Large Language Models (LLMs) have seen a surge in popularity and accessibility, leading to impressive applications across various domains <ref type="bibr" coords="2,410.71,518.04,15.77,8.64" target="#b21">[22,</ref><ref type="bibr" coords="2,428.88,518.04,12.45,8.64" target="#b22">23,</ref><ref type="bibr" coords="2,443.71,518.04,12.45,8.64" target="#b23">24,</ref><ref type="bibr" coords="2,458.55,518.04,12.45,8.64" target="#b24">25,</ref><ref type="bibr" coords="2,473.39,518.04,12.45,8.64" target="#b25">26,</ref><ref type="bibr" coords="2,488.23,518.04,11.83,8.64" target="#b26">27]</ref>. LLMs have been used effectively for text-based scientific tasks, such as extracting chemical reaction procedures <ref type="bibr" coords="2,154.21,539.96,16.60,8.64" target="#b27">[28]</ref> and entity extraction from biological documents <ref type="bibr" coords="2,367.48,539.96,15.27,8.64" target="#b28">[29]</ref>. LLMs trained on biomedical <ref type="bibr" coords="2,108.00,550.92,15.77,8.64" target="#b29">[30,</ref><ref type="bibr" coords="2,126.91,550.92,12.45,8.64" target="#b30">31,</ref><ref type="bibr" coords="2,142.51,550.92,12.45,8.64" target="#b31">32,</ref><ref type="bibr" coords="2,158.10,550.92,12.45,8.64" target="#b32">33,</ref><ref type="bibr" coords="2,173.69,550.92,13.28,8.64" target="#b33">34]</ref> or more generalized scientific literature <ref type="bibr" coords="2,352.45,550.92,10.79,8.64" target="#b8">[9,</ref><ref type="bibr" coords="2,366.39,550.92,13.28,8.64" target="#b34">35]</ref> have demonstrated impressive performance on current scientific QA benchmarks.</p><p coords="2,108.00,578.81,396.00,8.64;2,108.00,589.77,63.61,8.64;2,194.78,589.77,113.64,8.64;2,326.99,589.77,177.02,8.64;2,108.00,600.73,186.43,8.64;2,317.73,600.73,96.92,8.64;2,448.96,600.73,55.04,8.64;2,108.00,611.69,242.48,8.64;2,383.84,611.69,120.17,8.64;2,108.00,622.65,301.35,8.64">State-of-the-art pre-trained LLMs exhibit proficiency in complex tasks such as searching for chemical compounds <ref type="bibr" coords="2,174.90,589.77,16.60,8.64" target="#b26">[27]</ref> and designing new catalysts <ref type="bibr" coords="2,311.72,589.77,15.27,8.64" target="#b35">[36]</ref>. Still, LLMs frequently fall short in many scientific domains due to outdated knowledge <ref type="bibr" coords="2,297.79,600.73,16.60,8.64" target="#b36">[37]</ref> and reasoning problems <ref type="bibr" coords="2,418.01,600.73,15.77,8.64" target="#b37">[38,</ref><ref type="bibr" coords="2,437.13,600.73,11.83,8.64" target="#b38">39]</ref>. Prompt engineering techniques can enhance LLMs' reasoning abilities <ref type="bibr" coords="2,353.36,611.69,15.77,8.64" target="#b39">[40,</ref><ref type="bibr" coords="2,372.01,611.69,11.83,8.64" target="#b40">41]</ref>, though some scientific tasks requiring real-time calculations and up-to-date information remain difficult.</p><p coords="2,108.00,646.27,396.00,9.03;2,108.00,657.62,28.78,8.64;2,154.55,657.62,349.45,8.64;2,108.00,668.40,276.44,8.82;2,415.93,668.58,88.07,8.64;2,108.00,679.54,396.00,8.64;2,108.00,690.50,396.00,8.64;2,108.00,701.46,194.82,8.64;2,336.47,701.46,167.53,8.64;2,153.62,712.42,350.38,8.64;2,108.00,723.38,246.25,8.64;3,277.71,233.80,226.29,8.64;3,108.00,244.76,396.00,8.64;3,108.00,255.72,396.00,8.64;3,108.00,266.67,396.00,8.64;3,108.00,277.63,396.00,8.64;3,108.00,288.59,396.00,8.64;3,108.00,299.55,214.44,8.64">Agents Another technique is to integrate external tools into LLMs, creating agent systems, such as MRKL <ref type="bibr" coords="2,139.28,657.62,15.27,8.64" target="#b41">[42]</ref>. These LLM-agent systems leverage the reasoning power of the base-LLM and the use of pre-defined external tools to act in order to complete a given prompt <ref type="bibr" coords="2,386.39,668.58,15.77,8.64" target="#b42">[43,</ref><ref type="bibr" coords="2,404.10,668.58,11.83,8.64" target="#b43">44]</ref>. In such a system, the agent iteratively decides on the best tools to use in order to address the given task, correcting previous behavior when necessary, until the task is complete. This setup can also integrate reasoning steps, as with the ReAct framework and its derivatives <ref type="bibr" coords="2,305.85,701.46,15.77,8.64" target="#b44">[45,</ref><ref type="bibr" coords="2,324.65,701.46,11.83,8.64" target="#b45">46]</ref>, or may incorporate multi-agent systems <ref type="bibr" coords="2,108.00,712.42,15.77,8.64" target="#b46">[47,</ref><ref type="bibr" coords="2,126.56,712.42,12.45,8.64" target="#b47">48,</ref><ref type="bibr" coords="2,141.79,712.42,11.83,8.64" target="#b48">49]</ref>. Our method extends previous work by integrating an agent-based RAG framework in order to correctly and dependably answer scientific questions. PaperQA is an agent that transforms a scientific question into an answer with cited sources. The agent utilizes three tools -search, gather evidence, and answer question. The tools enable it to find and parse relevant full-text research papers, identify specific sections in the paper that help answer the question, summarize those section with the context of the question (called evidence), and then generate an answer based on the evidence. It is an agent, so that the LLM orchestrating the tools can adjust the input to paper searches, gather evidence with different phrases, and assess if an answer is complete.</p><p coords="3,108.00,357.05,396.00,9.03;3,108.00,368.40,199.47,8.64;3,341.21,368.40,140.63,8.64;3,500.19,368.40,3.82,8.64;3,108.00,379.36,76.83,8.64;3,207.91,379.36,50.84,8.64;3,292.83,379.36,211.17,8.64;3,108.00,390.32,114.71,8.64;3,246.65,390.32,121.97,8.64;3,387.57,390.32,116.44,8.64;3,108.00,401.27,396.00,8.64;3,108.00,412.23,220.01,8.64">Evaluating LLM Scientists Assessing the scientific capabilities of LLMs often relies on QA benchmarks, such as general science benchmarks <ref type="bibr" coords="3,310.54,368.40,15.77,8.64" target="#b49">[50,</ref><ref type="bibr" coords="3,329.38,368.40,11.83,8.64" target="#b50">51]</ref>, or those specializing in medicine <ref type="bibr" coords="3,484.92,368.40,15.27,8.64" target="#b20">[21]</ref>, biomedical science <ref type="bibr" coords="3,188.08,379.36,16.60,8.64" target="#b51">[52]</ref> or chemistry <ref type="bibr" coords="3,261.99,379.36,15.77,8.64" target="#b52">[53,</ref><ref type="bibr" coords="3,281.00,379.36,11.83,8.64" target="#b53">54]</ref>. In contrast, open-ended tasks, such as conducting chemical synthesis planning <ref type="bibr" coords="3,226.38,390.32,16.60,8.64" target="#b54">[55]</ref> or offering healthcare support <ref type="bibr" coords="3,372.30,390.32,15.27,8.64" target="#b55">[56]</ref>, necessitate manual evaluation to effectively measure an LLM's capabilities. We discuss the limitation of these datasets and introduce a new QA dataset for retrieval-based science.</p><p coords="3,108.00,463.31,396.00,9.03;3,108.00,474.65,193.49,8.64;3,319.22,474.65,184.78,8.64;3,108.00,485.61,396.00,8.64;3,108.00,496.57,358.62,8.64;3,500.06,496.57,3.94,8.64;3,108.00,507.53,396.00,8.64;3,108.00,518.49,129.41,8.64;3,255.24,518.49,61.31,8.64;3,334.38,518.49,169.63,8.64;3,108.00,529.45,140.50,8.64;3,266.75,529.27,237.25,8.82;3,108.00,540.41,396.00,8.64;3,108.00,551.19,396.00,8.82;3,108.00,562.33,153.47,8.64;3,279.42,562.33,56.93,8.64;3,358.30,562.33,145.70,8.64;3,108.00,573.28,152.53,8.64">Retrieval-Augmented LLMs LLMs integrated with retrieval systems are broadly referred to as Retrieval-Augmented Generation (RAG) models <ref type="bibr" coords="3,303.95,474.65,15.27,8.64" target="#b18">[19]</ref>, with the key components being a database of documents, a query system for retrieving documents, and a pipeline to add retrieved documents to a model's context. RAG models have proved effective at biomedical and clinical QA tasks <ref type="bibr" coords="3,469.54,496.57,15.77,8.64" target="#b56">[57,</ref><ref type="bibr" coords="3,488.23,496.57,11.83,8.64" target="#b15">16]</ref>. While RAG systems are typically pipelines with a fixed number and order of steps, they can be composed of multi-hop searches <ref type="bibr" coords="3,239.97,518.49,15.27,8.64" target="#b57">[58]</ref>, or use Agents <ref type="bibr" coords="3,319.11,518.49,15.27,8.64" target="#b48">[49]</ref>, where an LLM is used to decide when to use retrieval to augment an answer <ref type="bibr" coords="3,251.48,529.45,15.27,8.64" target="#b42">[43]</ref>. RAG performance can be further improved with a priori prompting, where an LLM is prompted to consider using latent information instead of searching, or a posteriori prompting, where an LLM is asked to consider the accuracy of a retrieved result and possibly provide an alternative answer <ref type="bibr" coords="3,264.15,562.33,15.27,8.64" target="#b58">[59]</ref>. Active RAG <ref type="bibr" coords="3,339.03,562.33,16.60,8.64" target="#b59">[60]</ref> regenerates sentences using retrieval if they contain low-probability tokens.</p><p coords="3,108.00,624.36,396.00,9.03;3,108.00,635.70,174.20,8.64;3,315.67,635.70,101.78,8.64;3,450.92,635.70,53.09,8.64;3,108.00,646.66,35.41,8.64;3,174.83,646.66,101.66,8.64;3,296.91,646.66,35.12,8.64;3,349.22,646.66,154.78,8.64;3,108.00,657.62,273.32,8.64;3,413.35,657.62,90.66,8.64;3,108.00,668.58,396.00,8.64;3,108.00,679.54,108.47,8.64;3,248.49,679.54,207.39,8.64;3,476.90,679.54,27.11,8.64;3,108.00,690.50,396.00,8.64;3,108.00,701.46,396.00,8.64;3,108.00,712.42,396.00,8.64;3,108.00,723.38,94.96,8.64">Retrieval Methods RAG models connected to databases retrieve documents using fixed representations, such as Bag-of-Words or BM25 <ref type="bibr" coords="3,285.14,635.70,15.77,8.64" target="#b60">[61,</ref><ref type="bibr" coords="3,303.84,635.70,11.83,8.64" target="#b61">62]</ref>, pre-trained embeddings <ref type="bibr" coords="3,420.39,635.70,15.77,8.64" target="#b62">[63,</ref><ref type="bibr" coords="3,439.09,635.70,11.83,8.64" target="#b60">61]</ref>, or trainable encoders <ref type="bibr" coords="3,145.32,646.66,15.77,8.64" target="#b18">[19,</ref><ref type="bibr" coords="3,163.00,646.66,11.83,8.64" target="#b63">64]</ref>, which are trained offline <ref type="bibr" coords="3,278.40,646.66,16.60,8.64" target="#b63">[64]</ref> or online <ref type="bibr" coords="3,333.95,646.66,15.27,8.64" target="#b64">[65]</ref>. For models using open-ended sources such as the internet, phrase or keyword searches are used for retrieval <ref type="bibr" coords="3,383.54,657.62,15.77,8.64" target="#b65">[66,</ref><ref type="bibr" coords="3,401.52,657.62,11.83,8.64" target="#b48">49]</ref>. Retrieved documents are typically passed to the model as input tokens, but some models separately process retrieved information with cross-attention <ref type="bibr" coords="3,218.67,679.54,15.77,8.64" target="#b66">[67,</ref><ref type="bibr" coords="3,236.66,679.54,11.83,8.64" target="#b61">62]</ref>. Learning to rank and filter the retrieved documents <ref type="bibr" coords="3,458.09,679.54,16.60,8.64" target="#b67">[68]</ref> further improves the performance of RAG models. In our work, we evaluate Retrieval-Augmented Models that use keyword search systems and vector embedding retrieval. In particular, we focus on benchmarking against humans and uncover under what conditions LLMs can match human performance in information retrieval.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3" coords="4,108.30,84.04,64.51,10.37">METHOD</head></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.1" coords="4,108.25,121.51,66.35,8.64">PAPERQA</head><p coords="4,108.00,150.37,209.06,8.64;4,324.79,150.37,179.22,8.64;4,108.00,161.33,261.75,8.64;4,377.13,161.33,50.44,8.64;4,431.56,161.33,72.44,8.64;4,108.00,172.29,396.00,8.64;4,108.00,183.25,396.00,8.64;4,108.00,194.21,396.00,8.64;4,108.00,205.17,396.00,8.64;4,108.00,215.95,396.00,8.82;4,108.00,226.91,396.00,8.82;4,108.00,238.05,225.11,8.64;4,350.35,238.05,153.66,8.64;4,108.00,248.83,396.00,8.82;4,108.00,259.96,396.00,8.64;4,108.00,270.92,396.00,8.64;4,108.00,281.70,396.00,8.82;4,108.00,292.84,173.26,8.64">The PaperQA system is an agent shown in Figure <ref type="figure" coords="4,321.05,150.37,3.74,8.64" target="#fig_0">1</ref>. The fundamental operations of PaperQA are to find relevant papers from online databases, such as Arxiv<ref type="foot" coords="4,369.75,159.66,3.49,6.05" target="#foot_0">1</ref> and Pubmed<ref type="foot" coords="4,427.58,159.66,3.49,6.05" target="#foot_1">2</ref> ; gather text from these papers; and synthesize information into a final answer. PaperQA's tools are composed of both external APIs and LLMs, described in detail below. Compared to a standard RAG, we make four key innovations. First, we decompose parts of a RAG and provide them as tools to an agent. This allows for some operations, such as search, to be performed multiple times, with different keywords, if the evidence collected is insufficient. Second, we use a map summarization step to gather evidence from multiple sources followed by a reduce step to answer. The map-reduce step increases the amount of sources that can be considered, and provides a scratchpad <ref type="bibr" coords="4,335.08,238.05,15.27,8.64" target="#b39">[40]</ref>, where the LLM can give intermediate evidence before formulating the final answer. Third, we utilise the LLM's ability to reason over text and provide numerical relevance scores for each chunk of text to the query question. In addition to the commonly used vector-embedding distances, we use these LLM-generated relevancy scores, adding another layer of retrieval. Finally, we make use of a priori and a posteriori prompting, tapping into the latent knowledge in LLMs.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="3.2" coords="4,108.25,338.70,52.62,8.64">TOOLS</head><p coords="4,108.00,367.56,396.00,8.64;4,108.00,378.52,396.00,8.64;4,108.00,389.48,396.00,8.64;4,108.00,400.44,396.00,8.64;4,108.00,411.40,396.00,8.64;4,108.00,422.36,396.00,8.64;4,108.00,433.31,176.97,8.64">PaperQA has three tools: search that finds relevant papers, gather evidence that collects most relevant chunks of papers relative to the query into a context library, and answer question which proposes an answer based on the accumulated contexts. These tools make use of three independent LLM instances, a summary LLM, an ask LLM, and an answer LLM, which ultimately take a string as input and output a status string while accumulating evidence to answer the question. The system prompts and the tools' descriptions appear in Appendices A.2 and A.3 respectively. The agent LLM is initialised with the following prompt:</p><p coords="4,114.52,461.76,368.22,4.91;4,114.52,469.73,368.22,4.91;4,114.52,477.70,364.04,4.91;4,114.52,485.67,359.85,4.91;4,114.52,493.64,343.12,4.91;4,114.52,501.61,46.03,4.91">Answer question: question. Search for papers, gather evidence, and answer. If you do not have enough evidence, you can search for more papers (preferred) or gather more evidence with a different phrase. You may rephrase or break-up the question in those steps. Once you have five or more pieces of evidence from multiple sources, or you have tried many times, call answer_question tool. You may reject the answer and try again if it is incomplete.</p><p coords="4,108.00,529.90,396.00,8.64;4,108.00,540.86,396.00,8.64;4,108.00,551.82,396.00,8.64;4,108.00,562.78,228.79,8.64;4,360.73,562.78,143.27,8.64;4,123.27,573.73,380.73,8.64;4,108.00,584.69,396.00,8.64;4,108.00,595.65,182.48,8.64">search The agent gives this tool keywords and (optionally) a year range. This queries a scientific literature search engine. Retrieved papers are added to a local bibliography for use by gather evidence. They are added by creating overlapping 4,000 character chunks which are embedded with the text-embedding-ada-002 model <ref type="bibr" coords="4,340.47,562.78,16.60,8.64" target="#b68">[69]</ref> and inserted into a vector database <ref type="bibr" coords="4,108.00,573.73,15.27,8.64" target="#b69">[70]</ref>. There is a failure rate associated with the performance of search engines, accessing papers, and parsing of PDFs. We explore this in Appendix C. This tool is always executed once with the full-text question before initialising the agent.</p><p coords="4,108.00,612.59,396.00,8.64;4,108.00,623.55,235.30,8.64;4,361.11,623.55,142.90,8.64;4,108.00,634.51,396.00,8.64;4,108.00,645.29,164.66,8.82;4,295.66,645.47,208.34,8.64;4,108.00,656.42,267.18,8.64">gather evidence This tool is given a question as input by the agent. This question is vectorembedded using the OpenAI text-embedding-ada-002 <ref type="bibr" coords="4,345.84,623.55,15.27,8.64" target="#b68">[69]</ref>, and relevant chunks based on vector search are returned from the vector database created in the search tool. Chunks are retrieved with maximal marginal relevance search <ref type="bibr" coords="4,275.87,645.47,16.60,8.64" target="#b70">[71]</ref> to increase the diversity of returned texts. Each retrieved chunk is fed to a summary LLM with the following prompt:</p><p coords="5,114.52,94.70,368.22,4.91;5,114.52,102.67,372.41,4.91;5,114.52,110.64,372.41,4.91;5,114.52,118.61,326.38,4.91;5,114.52,134.55,20.92,4.91;5,114.52,150.49,87.87,4.91;5,114.52,158.46,75.32,4.91;5,114.52,166.43,121.34,4.91">Summarize the text below to help answer a question. Do not directly answer the question, instead summarize to give evidence to help answer the question. Reply 'Not applicable' if text is irrelevant. Use summary_length. At the end of your response, provide a score from 1-10 on a newline indicating relevance to question. Do not explain your score. chunk Excerpt from citation Question: question Relevant Information Summary:</p><p coords="5,108.00,194.56,396.00,8.82;5,108.00,205.69,367.46,8.64">The returned chunks are then sorted by score and the top-k chunks are collected in a context library. The tool returns the top-1 chunk to the agent, so that the agent can respond to the top chunk.</p><p coords="5,108.00,222.63,396.00,8.64;5,108.00,233.59,396.00,8.64;5,108.00,244.55,396.00,8.64;5,108.00,255.51,328.15,8.64">The gather evidence tool is a map step that is always present in RAG systems. It provides an opportunity to reject irrelevant context and can be done concurrently to minimize the compute time. It is especially helpful for PDF parsing errors, which can be mitigated by having this step that can summarize garbled text with the question providing context to guide the summary.</p><p coords="5,108.00,272.44,396.00,8.64;5,108.00,283.40,396.00,8.64;5,108.00,294.36,197.25,8.64;5,323.40,294.36,180.60,8.64;5,108.00,305.32,346.35,8.64;5,108.00,465.67,396.00,8.64;5,108.00,476.62,396.00,8.64;5,108.00,487.58,396.00,8.64;5,108.00,498.54,164.51,8.64">answer question We first use the ask LLM to provide any useful information from the pre-trained LLM that might help with answering the original question (details are given in Appendix A.4), similar to the to the priori judgement explored in <ref type="bibr" coords="5,308.13,294.36,15.27,8.64" target="#b58">[59]</ref>. The output of the ask LLM is added to the chunks from the context library, and the final prompt to the answer LLM is as follows: The question in this prompt is the original question fed to the higher-level PaperQA agent, and the context comes from the collection of relevant chunks within the context library. The response from the the tool is returned to the agent, which may reject or accept the answer based as given in the agent's initialisation prompt given above.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="4" coords="5,108.30,530.45,129.36,10.37">THE LITQA DATASET</head><p coords="5,108.00,558.00,396.00,8.64;5,108.00,568.96,396.00,8.64;5,108.00,579.91,396.00,8.64;5,108.00,590.87,396.00,8.64;5,108.00,601.83,396.00,8.64;5,108.00,612.79,396.00,8.64;5,108.00,623.75,396.00,8.64;5,108.00,634.71,374.76,8.64">Existing benchmarks for scientific question-answering evaluate the ability of AI systems to present widely-known or widely-available information, or to answer questions given a specific context. These benchmarks are thus insufficient for evaluating an agent's ability to answer questions based on retrieved information. We thus introduce the LitQA dataset for PaperQA evaluation. The questions in LitQA are sourced from recent literature (after September 2021), so that we expect that they will not have been including in training for most language models, and are designed to be difficult or impossible to answer without retrieving the relevant paper. LitQA thus evaluates the ability both to retrieve necessary information and to present an accurate answer based on that information.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="5,108.00,651.26,83.59,8.96">Dataset description</head><p coords="5,195.48,651.65,308.52,8.64;5,108.00,662.60,396.00,8.64;5,108.00,673.56,396.00,8.64;5,108.00,684.52,396.00,8.64;5,108.00,695.48,137.68,8.64;5,251.91,695.48,3.74,8.64">The LitQA dataset consists of 50 multiple-choice questions, assembled by experts. All questions come from the biomedical domain. It has 5 Yes/No questions, 6 questions with 3 possible answers, 23 questions with 4 possible answers, 10 questions with 5 possible answers, 4 questions with 6 possible answers and finally 2 questions with 7 possible answers. We show examples of the questions in Table <ref type="table" coords="5,248.17,695.48,3.74,8.64" target="#tab_0">1</ref>.</p><p coords="5,108.00,712.03,396.00,9.03;5,108.00,723.38,396.00,8.64">Data collection All questions were written and reviewed by researchers in natural and biomedical sciences. Questions were assembled by first selecting a paper published after the September 2021 </p><formula xml:id="formula_0" coords="6,377.47,192.90,19.42,38.01">U8 U1 U35a Y5</formula><p coords="6,446.12,193.25,17.92,7.77;6,108.00,256.16,396.00,8.64;6,108.00,267.12,396.00,8.64;6,108.00,278.08,396.00,8.64;6,108.00,289.04,396.00,8.64;6,108.00,300.00,396.00,8.64;6,108.00,310.78,396.00,8.82;6,108.00,321.92,396.00,8.64;6,108.00,332.87,110.40,8.64">Hard cutoff and then devising a question from that paper that both refers to a novel finding in the paper and that is not presented in the paper abstract. We do not expect these findings to be presented in other papers or to be available in sources preceding the cutoff. For every question, distractor answers were also created, either by the question writer alone, or by using an LLM to provide a plausible answer to the given question. We take special care to only collect questions from papers published after the GPT-3.5/4 cutoff date in September 2021. This ensures the questions cannot be reliably answered using the latent knowledge of GPT-4. Each question was then independently reviewed by at least one other co-author.</p><p coords="6,108.00,349.42,396.00,9.03;6,108.00,360.77,396.00,8.64;6,108.00,371.73,396.00,8.64;6,108.00,382.51,396.00,8.82;6,108.00,393.65,60.48,8.64">Human performance We recruited five biomedical researchers with an undergraduate degree or higher to solve LitQA. They were given access to the internet and given three minutes per question (2.5 hours in total) to answer all questions, specifying the paper they used to choose the corresponding answer. Additionally, they were instructed to answer unsure if they cannot find the answer to a given question.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5" coords="6,108.30,420.86,91.78,10.37">EXPERIMENTS</head><p coords="6,108.00,445.43,396.00,8.64;6,108.00,456.39,396.00,8.64;6,108.00,467.35,396.00,8.64;6,108.00,478.31,69.18,8.64">In this section we measure the performance of PaperQA on LitQA and other datasets, and compare to existing commercial products. We ablate all components of PaperQA on the LitQA dataset, showing their importance. Finally, we investigate the ability to retrieve relevant papers and the rate of hallucinations.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.1" coords="6,108.25,502.93,130.75,8.64">EXPERIMENTAL DETAILS</head><p coords="6,108.00,523.45,318.62,8.64;6,444.57,523.45,59.43,8.64;6,108.00,534.41,396.00,8.64;6,108.00,545.05,396.00,9.65;6,108.00,556.01,396.00,9.65;6,108.00,566.97,396.00,9.65;6,108.00,578.24,396.00,8.64;6,108.00,589.20,396.00,8.64;6,108.00,600.16,396.00,8.64;6,108.00,611.12,396.00,8.64;6,108.00,622.08,234.34,8.64">All of the experiments were implemented within LangChain's agent framework <ref type="bibr" coords="6,429.30,523.45,15.27,8.64" target="#b71">[72]</ref>. As described above, we use four different LLM instances with the following settings unless stated otherwise: agent LLM: GPT-4 OpenAIFunctions Agent with temperature τ agent = 0.5; summary LLM: GPT-3.5 always with temperature τ sum = 0.2; answer LLM: GPT-4 with temperature τ ans = 0.5; ask LLM: GPT-4 with temperature τ ask = 0.5. For the search engine, we use Google Scholar, where we collect the top-5 papers that are accessible. The implementation details are explained in an experiment in the appendix. We access papers through publicly available APIs, such as Arxiv, PMC, OpenAccess, PubMed, and our own local database of papers. Lastly, we set the number of sources to consider at each round of gather evidence to 20, and the count of evidence context to include in the final answer within answer question to 8.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="5.2" coords="6,108.25,646.70,62.00,8.64">RESULTS</head><p coords="6,108.00,667.22,396.00,8.64;6,108.00,678.18,396.00,8.64;6,108.00,689.14,307.13,8.64;7,108.00,341.07,102.97,8.64;7,217.20,341.07,286.80,8.64;7,108.00,352.03,373.76,8.64;7,492.39,352.03,11.62,8.64;7,108.00,362.98,396.00,8.64;7,108.00,373.94,396.00,8.64;7,108.00,384.90,396.00,8.64;7,108.00,395.86,396.00,8.64;7,108.00,406.82,396.00,8.64;7,108.00,417.78,362.75,8.64">Here we thoroughly evaluate PaperQA. We compare it against commercially available tools and human performance on LitQA. Next, we ablate the components of PaperQA and look into hallucinated citations. Finally, we evaluate PaperQA on several standard QA benchmarks. and Perplexity -in Table <ref type="table" coords="7,213.46,341.07,3.74,8.64" target="#tab_1">2</ref>. All commercial tools are specifically tailored to answering questions by retrieving scientific literature. We give them the same prompt as to PaperQA. From Table <ref type="table" coords="7,484.58,352.03,4.98,8.64" target="#tab_1">2</ref> we see that PaperQA outperforms all competing models and products, and is on par with that of human experts with access to the internet. Furthermore, we see the lowest rate of incorrectly answered questions out of all tools, which rivals that of humans. This emphasizes that PaperQA is better calibrated to express uncertainty when it actually is uncertain. Surprisingly, GPT-4 and Claude-2 perform better than random although the questions are from papers after their training cut-off date, suggesting they have latent knowledge, leading to useful bias towards answers that are more plausible.</p><p coords="7,108.00,434.72,396.00,8.64;7,108.00,445.67,396.00,8.64">PaperQA averaged 4,500 tokens (prompt + completion) for the more expensive LLMs (agent LLM, answer LLM, ask LLM) and 24,000 tokens for the cheaper, high-throughput LLM (summary LLM).</p><p coords="7,108.00,456.63,396.00,8.64;7,108.00,467.59,396.00,8.64;7,108.00,478.55,396.00,8.64;7,108.00,489.51,396.00,8.64;7,108.00,500.47,390.89,8.64">Based on commercial pricing as of September 2023, that gives a cost per question of $0.18 using the stated GPT-4 and GPT-3.5-turbo models. It took PaperQA on average about 2.4 hours to answer all questions, which is also on par with humans who were given 2.5 hours. A single instance of PaperQA would thus cost $3.75 per hour, which is a fraction of an average hourly wage of a desk researcher. We exclude other negligible operating costs, such as search engine APIs, or electricity.</p><p coords="7,108.00,523.86,396.00,9.03;7,108.00,535.21,396.00,8.64;7,108.00,545.85,396.00,8.96;7,108.00,556.81,396.00,8.96;7,108.00,568.09,396.00,8.64;7,108.00,579.05,396.00,8.64;7,108.00,589.69,212.81,8.96">How does PaperQA compare to expert humans? PaperQA shows similar results to those of the expert humans who answered the questions. To quantify this, we calculate the categorical correlation (Cramer's V ) of the responses for each human-human and human-PaperQA pair. Average human-human V is 0.66±0.03, whereas average human-PaperQA V is 0.67±0.02 (mean ± stderr), indicating that PaperQA is, on average, as correlated with human respondents as the human respondents are with each other, implying no discernable difference in responses. To compare, the average V between humans and Perplexity was 0.630 ± 0.05.</p><p coords="7,108.00,613.40,396.00,9.03;7,108.00,624.75,72.85,8.64;7,187.73,624.75,316.27,8.64;7,108.00,635.70,396.00,8.64;7,108.00,646.48,396.00,8.82;7,108.00,657.62,396.00,8.64;7,108.00,668.58,396.00,8.64;7,108.00,679.36,396.00,8.82;7,108.00,690.50,396.00,8.64;7,108.00,701.28,396.00,8.82;7,108.00,712.42,396.00,8.64;7,108.00,723.38,202.23,8.64;7,319.55,723.38,184.46,8.64;8,108.00,509.23,396.00,8.64;8,108.00,520.01,396.00,8.82;8,108.00,531.15,75.66,8.64">Ablating PaperQA We report performance on LitQA when toggling different parts and LLMs of PaperQA in Table <ref type="table" coords="7,183.99,624.75,3.74,8.64" target="#tab_2">3</ref>. Using GPT-4 as the answer LLM slightly outperforms Claude-2. When we look at the different components of PaperQA, we observe a major drop in performance when not including multiple-choice options as answers (no MC options) and using Semantic Scholar instead of Google Scholar. The former we explain with the fact that closed-form questions are easier than open-form ones, and the model can use keywords derived from the possible answers to search. The drop in performance of the linear settings, Vanilla RAG and No search, show the advantage of an agent-based model that can call tools multiple times until it is satisfied with the final answer. Surprisingly enough, not using the LLM's latent knowledge (no ask LLM) also hurts performance, despite the benchmark being based on information after the cutoff date -we suggest that the useful latent knowledge we find LLMs to possess in Table <ref type="table" coords="7,312.39,723.38,4.98,8.64" target="#tab_4">5</ref> helps the agent use the best pieces of evidence. Lastly, due to the retrieval-first nature of LitQA, where only a single chunk from the original paper includes the answer, both single citation and no summary LLM settings perform comparably to standard PaperQA.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="8,108.00,555.18,161.40,8.96">Does PaperQA Hallucinate Citations?</head><p coords="8,279.37,555.57,224.63,8.64;8,108.00,566.53,280.32,8.64;8,392.30,566.53,111.70,8.64;8,108.00,577.49,396.00,8.64;8,108.00,588.45,396.00,8.64;8,108.00,599.40,396.00,8.64;8,108.00,610.36,204.07,8.64;8,318.49,610.36,185.51,8.64;8,108.00,621.32,396.00,8.64;8,108.00,632.28,396.00,8.64;8,108.00,643.24,396.00,8.64;8,108.00,654.20,354.15,8.64">We assessed citation hallucinations from GPT-3.5, GPT-4, and Claude-2 using 52 questions from an earlier version of LitQA <ref type="foot" coords="8,388.32,564.86,3.49,6.05" target="#foot_3">3</ref> , where we ask the LLM to answer the question in long-form and provide citations. The citations were assessed manually to verify existence of the paper, the accuracy of the citation details, and the relevance of the cited paper to the provided answer. Scores were based on the total number of citations N, rather than number of answers. We show hallucination results in Table <ref type="table" coords="8,314.75,610.36,3.74,8.64" target="#tab_3">4</ref>. Hallucinated citations are categorized as full hallucination, citation inaccuracy, or context irrelevance (the paper cited exists, but is irrelevant to the question). We tested numerous times, but no hallucinated citations were produced through Pa-perQA. Anecdotally, we have observed PaperQA citing a secondary source mentioned in a primary source which could lead to a hallucination since it has no access to the secondary source.</p><p coords="8,108.00,670.75,396.00,9.03;8,108.00,682.09,396.00,8.64;8,108.00,693.05,396.00,8.64;9,108.00,285.80,396.00,8.64;9,108.00,296.76,396.00,8.64;9,108.00,307.33,396.00,9.03;9,108.00,318.68,396.00,8.64;9,108.00,329.64,396.00,9.33;9,108.00,340.60,396.00,8.64;9,108.00,351.17,226.43,9.03;9,356.21,351.56,147.79,8.64;9,108.00,362.52,396.00,8.64;9,108.00,373.09,157.87,9.03;9,289.21,373.48,214.79,8.64;9,108.00,384.44,40.13,8.64">Evaluation on QA Benchmarks We evaluate PaperQA on standard QA multiple-choice datasets commonly used to assess LLMs. These benchmarks test for commonly known facts, which are most commonly not found in academic papers, but in textbooks. Here we measure how well PaperQA, which relies on information from papers, can perform on such questions. For all datasets, we evaluate on 100 randomly sampled questions (see Appendix E for details). We evaluate on the following datasets: PubMedQA [21] consists of yes/no/maybe questions that can be answered using a provided context. To mimic the LitQA setting, the context is not provided to the model. We call this PubMedQ blind to distinguish from PubMedQA. Furthermore, we omit questions that have a "maybe" ground-truth answer, as such questions may have evolved into definitive "yes" or "no" answers since the dataset was released in 2019. MedQA <ref type="bibr" coords="9,337.02,351.56,16.60,8.64" target="#b72">[73]</ref> consists of multiple-choice questions based on the United States Medical License Exams (USMLE) and covers multiple languages. We use the questions in English. BioASQ <ref type="bibr" coords="9,269.24,373.48,16.60,8.64" target="#b73">[74]</ref> is a biomedical QA dataset. We only use the yes/no questions.</p><p coords="9,108.00,401.37,33.43,8.64;9,152.92,401.37,351.08,8.64;9,108.00,412.33,396.00,8.64;9,108.00,423.29,396.00,8.64;9,108.00,434.25,396.00,8.64;9,108.00,445.21,396.00,9.33;9,108.00,456.17,396.00,8.64;9,108.00,467.12,396.00,8.64;9,108.00,478.08,396.00,8.64;9,108.00,489.04,396.00,8.64;9,108.00,500.00,396.00,8.64;9,108.00,510.78,254.41,8.82">In Table <ref type="table" coords="9,144.69,401.37,4.98,8.64" target="#tab_4">5</ref> we compare PaperQA to GPT-4 and AuoGPT (we do not measure the performance of commercially available tools as they have no API and require manual evaluation). For all benchmarks and methods, we use zero-shot inference. While AutoGPT underperforms GPT-4, PaperQA outperforms GPT-4 in all datasets. We see that the biggest gap in performance, and the biggest improvement when equipping GPT-4 with PaperQA search is on PubMedQA blind . In Appendix F we find that PaperQA matches the performance of GPT-4 that uses ground-truth context (which contains the correct answer by design), showing it is able to retrieve context information that is on par with the ground-truth one. We see a smaller gap between PaperQA and GPT-4 on MedQA, which we explain with the fact that MedQA is based on medical examinations and requires knowledge found in textbooks, instead of academic papers. Finally, we make the observation that GPT-4, on average, performs better with posteriori reasoning when using PaperQA.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="6" coords="9,108.30,541.96,85.59,10.37">LIMITATIONS</head><p coords="9,108.00,568.96,396.00,8.64;9,108.00,579.91,396.00,8.64;9,108.00,590.87,396.00,8.64;9,108.00,601.83,396.00,8.64;9,108.00,612.79,40.31,8.64">PaperQA leverages fact, processes and concepts from underlying research papers; transforming that information into human and machine interpretable context. We have an underlying assumption from this that the information in the underlying papers is correct, which may not hold. Although we give some "signals" to the model like the journal name and citation count, these are not faithful indicators of quality.</p><p coords="9,108.00,629.73,396.00,8.64;9,108.00,640.69,396.00,8.64;9,108.00,651.65,396.00,8.64;9,108.00,662.60,118.18,8.64">Our models and benchmarks are affected by the changing nature of science and the availability of scientific literature: some of the questions in LitQA may have new correct answers or become invalid over time. Users of this benchmark should therefore limit papers used to answer the questions to be cutoff at September 15, 2023.</p><p coords="9,108.00,679.54,260.78,8.64;9,403.77,679.54,100.23,8.64;9,108.00,690.50,396.00,8.64;9,108.00,701.46,396.00,8.64;9,108.00,712.42,396.00,8.64;9,108.00,723.38,143.21,8.64">While recent work has been conducted on prompt optimization <ref type="bibr" coords="9,372.48,679.54,15.77,8.64" target="#b74">[75,</ref><ref type="bibr" coords="9,391.94,679.54,11.83,8.64" target="#b75">76]</ref>, the complex setting of multiple agents with individual prompts is unsolved. Specifically, the task becomes a non-trivial, bi-level optimization problem. Consequently, discerning the impact of manual prompt adjustments becomes difficult. Thus, it is unlikely our prompts are optimal and it is difficult to assess which pieces of the prompts are necessary.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head n="7" coords="10,108.30,84.04,87.08,10.37">CONCLUSION</head><p coords="10,108.00,109.19,396.00,8.64;10,108.00,120.15,396.00,8.64;10,108.00,131.11,396.00,8.64;10,108.00,142.07,396.00,8.64;10,108.00,153.03,396.00,8.64;10,108.00,163.99,396.00,8.64">We introduced PaperQA, a Retrieval-Augmented Generative (RAG) agent that can answer scientific questions better than other LLMs and commercial products. We found PaperQA to be more costefficient than humans, while still retaining its accuracy on par with human researchers. We measured the hallucination rate of citations for recent LLMs to be between 40-60%, whereas we were not able to find a single hallucinated citation in PaperQA's responses. We also introduced LitQAa benchmark of 50 questions that require retrieving information from full-text scientific papers.</p><p coords="10,108.00,174.95,396.00,8.64;10,108.00,185.91,396.00,8.64;10,108.00,196.86,396.00,8.64;10,108.00,207.82,396.00,8.64;10,108.00,218.78,396.00,8.64;10,108.00,229.74,396.00,8.64;10,108.00,240.70,396.00,8.64;10,108.00,251.66,396.00,8.64;10,108.00,262.62,396.00,8.64;10,108.00,273.58,160.48,8.64">The PaperQA system works independently of the underlying model, with various combinations of Claude-2, GPT-3.5, and GPT-4 providing strong results on LitQA. The most important attributes of PaperQA are its ability to dynamically use RAG tools, retrieve full-text papers, and iterate on the answer through the agent's decision-making. We hope this open-source implementation of a scientific question-answering system illuminates the design of future RAG agents and tools that reduce hallucinations in LLMs. With such advancements, we believe scientific research will be carried at a fraction of the cost and a multiple of the speed, spurring faster innovation within the natural sciences. By augmenting researchers with a literature review tool, we aim to minimise the time spend searching literature, and rather maximize the amount of productive hours spend carrying out deep thinking for scientific research.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="17,108.30,84.04,217.67,10.37">B AUTOGPT IMPLEMENTATION DETAILS</head><p coords="17,108.00,111.47,396.00,8.64;17,108.00,122.43,396.00,8.64;17,108.00,133.39,396.00,8.64;17,108.00,144.35,396.00,8.64;17,108.00,155.31,375.65,8.64">We used LangChain's AutoGPT implementation from LangChain experimental 0.0.8 version. As AutoGPT can run indefinitely, we added a stopping condition after 10 searches. For LitQA, it is asked to answer the question based on all previous information; for other datasets, we restart it and make sure it chooses one of the options, so that we have an answer to all questions. The agent LLM used was GPT-4-0314. It has access to 3 tools: Google search, write to file, and read from file.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="17,108.30,187.02,184.50,10.37;17,108.25,214.45,160.54,8.64">C PAPER RETRIEVAL EVALUATION C.1 ABSTRACT RETRIEVAL METRIC</head><p coords="17,108.00,236.62,396.00,8.64;17,108.00,247.58,396.00,8.64;17,108.00,258.54,396.00,8.64;17,108.00,269.49,150.97,8.64">As part of the development of PaperQA, we evaluate the efficacy of paper searching using different search API engines. In order to do that, we create a new metric composed of 500 questions. The goal is to create questions that are likely to have only a small number of papers that would include an answer. The exact methodology is:</p><p coords="17,131.41,292.25,372.59,8.64;17,143.87,303.21,134.49,8.64;17,131.41,317.99,372.59,8.64;17,143.87,328.95,158.20,8.64;17,131.41,343.73,337.93,8.64">1. Search PubMed with 20,000 unique tuples of five keywords within the field of medicine, biology and artificial intelligence. 2. Only keep the search results with a single paper that is not a review (where a review is assumed to have more than 20 authors). 3. Instruct GPT-4 to generate a question that could be answered by the abstract only.</p><p coords="17,108.00,366.48,353.95,8.64">The question generation follows a 5-shot prompting technique, the system prompt being:</p><p coords="17,114.52,390.38,376.59,4.91;17,114.52,398.35,368.22,4.91;17,114.52,406.32,355.67,4.91">You are a helpful assistant helping completing the following task. The goal is to create a question that could be answered by the paper with these abstracts. Be creative and think of a question that a scientist would ask without knowing the paper he is looking for.</p><p coords="17,108.00,434.39,384.75,8.64">A concatenated example of such abstract-question pair (red being the LLM completion) follows:</p><p coords="17,114.52,462.84,25.11,4.91;17,114.52,470.81,221.77,4.91;17,114.52,486.75,37.66,4.91;17,114.52,494.72,359.86,4.91;17,114.52,502.69,355.67,4.91;17,114.52,510.66,364.04,4.91;17,114.52,518.63,66.95,4.91;17,114.52,526.60,359.85,4.91;17,114.52,534.57,355.67,4.91;17,114.52,542.54,108.79,4.91;17,114.52,558.48,37.66,4.91;17,114.52,566.45,355.67,4.91;17,114.52,574.42,117.16,4.91">Title: DeepDTA: deep drug-target binding affinity prediction Abstract: Motivation: The identification of novel drug-target (DT) interactions is a substantial part of the drug discovery process. [...] One novel approach used in this work is the modeling of protein sequences and compound 1D representations with convolutional neural networks (CNNs). Results: The results show that the proposed deep learning based model that uses the 1D representations of targets and drugs is an effective approach for drug target binding affinity prediction. [...] Question: Are there any models that use 1D representations of targets and drugs for drug target binding affinity prediction?</p><p coords="17,108.00,602.70,396.00,8.64;17,108.00,613.66,111.28,8.64">This dataset is then used to search for the top-10 papers using 20 keywords that were generated using the following prompt:</p><p coords="17,114.52,642.11,209.21,4.91;17,114.52,650.08,364.04,4.91;17,114.52,658.05,372.41,4.91;17,114.52,666.02,372.41,4.91;17,114.52,673.99,200.85,4.91;17,114.52,681.96,238.50,4.91;17,114.52,689.93,234.32,4.91;17,114.52,697.90,138.08,4.91;17,114.52,705.87,179.92,4.91;17,114.52,713.84,142.26,4.91;18,108.00,85.34,247.35,8.64;18,365.79,85.34,138.21,8.64;18,108.00,96.30,396.00,8.64;18,108.00,107.26,86.40,8.64;18,217.15,107.26,286.85,8.64;18,108.00,118.22,396.00,8.64;18,108.00,129.17,48.98,8.64">We want to answer the following question: question Provide num_keywords unique keyword searches (one search per line) and year ranges that will find papers to help answer the question. Do not use boolean operators. Make sure not to repeat searches without changing the keywords or year ranges. Make some searches broad and some narrow. The current year is get_year(). Use this format: 'X. [keywords], [start year]-[end year]' For example, a list of 3 keywords would be formatted as: 1. 'keyword1, keyword2, 2020-2021 2. 'keyword3, keyword4, keyword5, 2020-2021 3. 'keyword1, keyword2, 2020-2021' We thus evaluate recall, i.e. finding the original paper. Figure <ref type="figure" coords="18,358.08,85.34,4.98,8.64" target="#fig_2">2</ref> shows the cumulative recall curve, where Google Scholar and Semantic Scholar show outstanding ability to retrieve the original paper. Although CORE API <ref type="bibr" coords="18,197.48,107.26,16.60,8.64" target="#b77">[78]</ref> does not perform on par with the other two, we include it here as their main contribution to the field of scientific literature is their standardisation of open-access article repositories.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="18,108.25,405.74,164.23,8.64">C.2 FULL-TEXT RETRIEVAL METRIC</head><p coords="18,108.00,429.12,396.00,8.64;18,108.00,440.08,396.00,8.64;18,108.00,451.04,396.00,8.64;18,108.00,462.00,310.72,8.64;18,108.00,651.53,182.17,8.64;18,108.00,662.48,182.17,8.64;18,108.00,673.44,182.17,8.64;18,108.00,684.40,124.34,8.64">As the abstract retrieval from Appendix C.1 does not sufficiently cover all the use cases of PaperQA, we also use an earlier version of LitQA to evaluate our search pipeline, but now considering questions that are synthesized from articles' bodies and not abstracts. Moreover, we examine the ability of our pipeline to find, access and parse the original papers of these questions. Cumulative probability distributions of finding, accessing and parsing the original paper from LitQA by running API searches using GPT-4 for keyword generation.</p><p coords="18,295.59,508.88,21.89,8.64;18,326.01,508.49,175.50,9.03;18,295.59,519.84,205.92,8.64;18,295.59,530.80,205.92,8.64;18,295.59,541.76,205.92,8.64;18,295.59,552.72,205.92,8.64;18,295.59,563.68,112.18,8.64;18,417.73,563.68,42.89,8.64;18,196.67,701.46,307.34,8.64;18,108.00,712.42,396.00,8.64;18,108.00,723.38,396.00,8.64;19,108.00,85.34,396.00,8.64;19,108.00,96.30,396.00,8.64;19,108.00,107.26,396.00,8.64;19,108.00,118.22,396.00,8.64;19,108.00,129.17,318.16,8.64">Table <ref type="table" coords="18,322.14,508.88,3.88,8.64">7</ref>: Retrieval AUC (Full-Text). We evaluate keyword generation and search between two LLMs and two search engines. We also evaluate our pipeline for accessing papers and parsing their PDFs. The metric displayed is the normalized area under the curve from Figure <ref type="figure" coords="18,410.26,563.68,4.98,8.64" target="#fig_3">3</ref> on the left.   <ref type="table" coords="18,188.40,701.46,4.98,8.64">7</ref> shows superior performance of Google Scholar over Semantic Scholar. We believe this is thanks to Google Scholar's ability to search through the text of articles, whereas Semantic Scholar is limited to titles, authors and abstracts only. Effectively, we are able to parse almost all the papers we have access to. Notice the marginally better performance of GPT-4, which is likely due to it better following the instructions from the prompt. We expect that some prompt optimization might bring the performance of the two LLMs closer together. Lastly, note that since running this evaluation, we have improved our access to papers with Google Scholar's open-access links, so it is likely the final performance of parsed papers would be even better.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="19,108.30,162.86,157.26,10.37">D HALLUCINATION DATASET</head><p coords="19,108.00,191.48,296.53,8.64">To evaluate hallucinations, the following prompt was given to each model:</p><p coords="19,114.52,219.93,338.93,4.91;19,114.52,227.90,343.12,4.91;19,114.52,235.87,142.27,4.91">Answer the question below, with citations to primary sources that help answer the question. Cite the sources using format -(Foo et al., 2010) -note that the whole citation is always in parantheses.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="19,108.30,279.24,268.15,10.37">E EVALUATIONS ON STANDARD QA BENCHMARKS</head><p coords="19,108.00,307.85,396.00,8.64;19,108.00,318.81,270.22,8.64">For each dataset, we provide the questions ids, together with the formatted question and options list provided in the prompt. Please refer to the Supplementary Material.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="19,108.30,352.50,210.57,10.37">F QUALITY OF DISCOVERED EVIDENCE</head><p coords="19,108.00,381.11,396.00,8.64;19,108.00,392.07,396.00,8.64;19,108.00,403.03,114.37,8.64;19,232.18,403.03,271.82,8.64;19,108.00,413.99,396.00,8.64;19,108.00,424.95,310.56,8.64">To evaluate the quality of the discovered evidence, we compare the PaperQA discovered evidence to the ground-truth evidence provided in PubMedQA, which is sufficient to answer the questions correctly by design. In Table <ref type="table" coords="19,224.78,403.03,4.98,8.64" target="#tab_8">8</ref> we show that the PaperQA discovered evidence is competitive to the ground-truth context. Furthermore, PaperQA finds complementary information to the one provided in the ground-truth context, further improving results when both are provided.  </p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="19,108.30,584.23,217.90,10.37">G IMPACT OF PARAMETRIC KNOWLEDGE</head><p coords="19,108.00,612.84,396.00,8.64;19,108.00,623.80,39.69,8.64">In order to test whether including parametric knowledge in the gathered context is useful, we prompt PaperQA:</p><p coords="19,114.52,652.25,368.22,4.91;19,114.52,660.22,364.04,4.91;19,114.52,668.19,359.85,4.91;19,114.52,676.16,364.04,4.91;19,114.52,684.13,125.53,4.91">Write an answer (about 200 words, but can be longer if necessary) for the question below based on the provided context. If the context provides insufficient information and the question cannot be directly answered, reply ''I cannot answer''. For each part of your answer, indicate which sources most support it via valid citation markers at the end of sentences, like (Example2012).</p><p coords="19,108.00,712.42,396.00,8.64;19,108.00,723.38,372.61,8.64">Followed by pre-gathered context with relevance scores, some extra background information, and the question. The extra background information represents the LLMs' parametric knowledge.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="20,108.25,85.34,162.36,8.64">G.1 CONTRADICTING INFORMATION</head><p coords="20,108.00,105.86,396.00,8.64;20,108.00,116.82,396.00,8.64;20,108.00,127.78,396.00,8.64;20,108.00,138.74,304.53,8.64">In the first example, we ask: "Are COVID-19 vaccines effective?". The goal of this experiment is to evaluate the inclusion of background information that contradicts gathered context. Thus, while the provided context supports the efficacy of covid vaccines, we provide the model with the following background information: "COVID-19 vaccines are known to be ineffective."</p><p coords="20,108.00,155.68,396.00,8.64;20,108.00,166.63,321.62,8.64;20,108.00,255.25,396.00,8.64;20,108.00,266.21,396.00,8.64;20,108.00,277.17,396.00,8.64;20,108.00,288.13,295.41,8.64">With the contradicting background information, PaperQA responds that it cannot answer. However, if the extra contradicting information is excluded, the model provides an answer: When the background information (or parametric knowledge) contradicts context, PaperQA opts to not answer, indicating its recognition of a contradiction with established scientific understanding. This example shows the model's capability to discern and respond appropriately to accurate information, while avoiding potentially misleading or incorrect assertions.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="20,108.25,313.13,165.75,8.64">G.2 ABSENCE OF KEY INFORMATION</head><p coords="20,108.00,333.65,396.00,8.64;20,108.00,344.61,396.00,8.64;20,108.00,355.57,175.19,8.64">As a second example, we ask PaperQA: "What temperature does water turn to plasma?" and provide it with context that is relevant but insufficient to answer the question. Then, we provide the model with the following background information:</p><p coords="20,108.00,372.51,396.00,8.64;20,108.00,383.47,396.00,8.64;20,108.00,394.43,396.00,8.64;20,108.00,405.39,33.09,8.64">"Water turns into plasma under extreme conditions of temperature and pressure. Plasma is the fourth state of matter, beyond solid, liquid, and gas. It's a super-heated state where atoms are ionized, meaning electrons are stripped from atoms. This typically occurs at temperatures exceeding 20,000 Kelvin."</p><p coords="20,108.00,422.32,143.18,8.64">In this example, the model answers:</p><p coords="20,114.52,450.77,347.30,4.91;20,114.52,458.74,251.06,4.91">Water transitions into the plasma state under extreme conditions of temperature and pressure, typically at temperatures exceeding 20,000 Kelvin.</p><p coords="20,108.00,487.03,386.14,8.64">Excluding the background information results in PaperQA responding that it is unable to answer.</p><p coords="20,108.00,503.96,396.00,8.64;20,108.00,514.92,396.00,8.64;20,108.00,525.88,396.00,8.64;20,108.00,536.84,40.96,8.64">Thus, the role of parametric knowledge is crucial in shaping the model's responses: when it contradicts the context, the model may refrain from answering due to the conflict, whereas supportive parametric knowledge enables the model to provide detailed and informed responses when context is lacking.</p></div><figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_0" coords="3,108.00,233.41,396.00,9.03;3,108.00,244.76,396.00,8.64;3,108.00,255.72,396.00,8.64;3,108.00,266.67,396.00,8.64;3,108.00,277.63,396.00,8.64;3,108.00,288.59,396.00,8.64;3,108.00,299.55,214.44,8.64;3,107.47,80.82,397.02,142.88"><head>Figure 1 :</head><label>1</label><figDesc>Figure 1: PaperQA Workflow Diagram.PaperQA is an agent that transforms a scientific question into an answer with cited sources. The agent utilizes three tools -search, gather evidence, and answer question. The tools enable it to find and parse relevant full-text research papers, identify specific sections in the paper that help answer the question, summarize those section with the context of the question (called evidence), and then generate an answer based on the evidence. It is an agent, so that the LLM orchestrating the tools can adjust the input to paper searches, gather evidence with different phrases, and assess if an answer is complete.</figDesc><graphic coords="3,107.47,80.82,397.02,142.88" type="bitmap"/></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_1" coords="5,114.52,333.77,368.22,4.91;5,114.52,341.74,376.59,4.91;5,114.52,349.71,372.41,4.91;5,114.52,357.68,355.67,4.91;5,114.52,365.65,368.22,4.91;5,114.52,373.62,41.84,4.91;5,114.52,389.56,29.29,4.91;5,114.52,405.50,154.82,4.91;5,114.52,421.44,75.32,4.91;5,114.52,437.38,29.29,4.91"><head/><label/><figDesc>Write an answer (answer_length) for the question below based on the provided context. If the context provides insufficient information, reply ''I cannot answer''. For each part of your answer, indicate which sources most support it via valid citation markers at the end of sentences, like (Example2012). Answer in an unbiased, comprehensive, and scholarly tone. If the question is subjective, provide an opinionated answer in the concluding 1</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_2" coords="18,108.00,307.36,182.16,9.03;18,108.00,318.70,182.17,8.64;18,108.00,329.66,182.17,8.64;18,108.00,340.62,182.17,8.64;18,108.00,351.58,182.17,8.64;18,108.00,362.54,182.17,8.64;18,108.00,373.50,65.06,8.64;18,108.00,144.79,182.17,151.81"><head>Figure 2 :</head><label>2</label><figDesc>Figure 2: Retrieval Probability (Abstract).Cumulative probability distributions of finding, accessing and parsing the original paper from the described PubMed-based dataset by running API searches using GPT-4 for keyword generation. Uncertainty is shown by lighter shadows.</figDesc><graphic coords="18,108.00,144.79,182.17,151.81" type="bitmap"/></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_3" coords="18,108.00,640.18,182.16,9.03;18,108.00,651.53,182.17,8.64;18,108.00,662.48,182.17,8.64;18,108.00,673.44,182.17,8.64;18,108.00,684.40,124.34,8.64;18,108.00,477.61,182.17,151.81"><head>Figure 3 :</head><label>3</label><figDesc>Figure 3: Retrieval Probability (Full-Text).Cumulative probability distributions of finding, accessing and parsing the original paper from LitQA by running API searches using GPT-4 for keyword generation.</figDesc><graphic coords="18,108.00,477.61,182.17,151.81" type="bitmap"/></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_4" coords="18,108.00,701.46,396.00,8.64;18,108.00,712.42,396.00,8.64;18,108.00,723.38,396.00,8.64"><head>Figure 3</head><label>3</label><figDesc>Figure 3 and Table7shows superior performance of Google Scholar over Semantic Scholar. We believe this is thanks to Google Scholar's ability to search through the text of articles, whereas Semantic Scholar is limited to titles, authors and abstracts only. Effectively, we are able to parse</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" xml:id="fig_5" coords="20,114.52,195.08,376.59,4.91;20,114.52,203.05,255.24,4.91;20,114.52,211.02,12.55,4.91;20,114.52,218.99,359.85,4.91;20,114.52,226.96,347.30,4.91"><head>Yes, COVID- 19</head><label>19</label><figDesc>vaccines are effective. The BNT162b2 and ChAdOx1 nCoV-19 vaccines have shown effectiveness against the delta variant, with the second[...] ... Therefore, while the vaccines are effective, their effectiveness can vary based on the specific vaccine, the variant of the virus, and the time elapsed since vaccination.</figDesc></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_0" coords="6,108.00,82.66,396.00,128.32"><head>Table 1 :</head><label>1</label><figDesc>LitQA Dataset Examples. Three example questions from the dataset with correct answers bolded. The difficulty annotated comes from our observations in experiments given in Section 5.</figDesc><table coords="6,121.12,118.46,50.00,7.77"><row><cell>ID Question</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_1" coords="7,108.00,82.66,396.00,231.50"><head>Table 2 :</head><label>2</label><figDesc>Evaluation on LitQA. We compare PaperQA with other LLMs, the AutoGPT agent, and commercial products that use RAG. AutoGPT was run with GPT-4, where other implementation details are given in the Appendix B. Elicit.AI was run on default settings, Perplexity was run in academic mode, Perplexity Co-pilot was run on default settings (perplexity model, "all sources"), and "Assistant by Scite " was run on default settings. Each question was run on a new context (thread) and all commercial products were evaluated on September 27, 2023. We report averages over a different number of runs for each.</figDesc><table coords="7,115.84,173.04,380.35,141.12"><row><cell/><cell/><cell/><cell>Response</cell><cell/><cell>Score</cell><cell/></row><row><cell>Model</cell><cell>Samples</cell><cell cols="5">Correct Incorrect Unsure Accuracy ( Correct All ) Precision ( Correct Sure )</cell></row><row><cell>Random</cell><cell>100</cell><cell>10.2</cell><cell>29.5</cell><cell>10.3</cell><cell>20.4%</cell><cell>25.7%</cell></row><row><cell>Human</cell><cell>5</cell><cell>33.4</cell><cell>4.6</cell><cell>12.0</cell><cell>66.8%</cell><cell>87.9%</cell></row><row><cell>Claude-2</cell><cell>3</cell><cell>20.3</cell><cell>26.3</cell><cell>3.3</cell><cell>40.6%</cell><cell>43.6%</cell></row><row><cell>GPT-4</cell><cell>3</cell><cell>16.7</cell><cell>16.3</cell><cell>17.0</cell><cell>33.4%</cell><cell>50.6%</cell></row><row><cell>AutoGPT</cell><cell>3</cell><cell>20.7</cell><cell>7.3</cell><cell>22.0</cell><cell>41.4%</cell><cell>73.9%</cell></row><row><cell>Elicit</cell><cell>1</cell><cell>12.0</cell><cell>16.0</cell><cell>22.0</cell><cell>24.0%</cell><cell>42.9%</cell></row><row><cell>Scite</cell><cell>1</cell><cell>12.0</cell><cell>21.0</cell><cell>17.0</cell><cell>24.0%</cell><cell>36.4%</cell></row><row><cell>Perplexity</cell><cell>1</cell><cell>9.0</cell><cell>10.0</cell><cell>31.0</cell><cell>18.0%</cell><cell>47.4%</cell></row><row><cell>Perplexity (Co-pilot)</cell><cell>1</cell><cell>29.0</cell><cell>10.0</cell><cell>12.0</cell><cell>58.0%</cell><cell>74.4%</cell></row><row><cell>PaperQA</cell><cell>4</cell><cell>34.8</cell><cell>4.8</cell><cell>10.5</cell><cell>69.5%</cell><cell>87.9%</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_2" coords="8,108.00,82.66,396.00,232.91"><head>Table 3 :</head><label>3</label><figDesc>Ablation of LLM Types on LitQA (left). We compare using different LLMs for the answer LLM and summary LLM, averaged over 2 runs. Ablation of PaperQA Components on LitQA (right). No summary LLM setting only implements vector retrieval without any summarizaton and relevance scoring. Single citation only uses the best scoring chunk from the context library. No ask LLM ignores including the LLM's latent knowledge within the context of the answer LLM. No search setting starts with all papers from LitQA already collected and runs gather evidence once. Vanilla RAG setting runs the search tool thrice, followed by a single call to gather evidence and answer question. Semantic Scholar uses Semantic Scholar instead of Google Scholar. No MC options provides no multiple-choice answers as options within the question prompt. All ablations were done with a single run.</figDesc><table coords="8,117.48,218.09,383.25,97.48"><row><cell>Model</cell><cell/><cell/><cell/><cell>Ablation</cell><cell cols="3">Correct Incorrect Unsure</cell></row><row><cell>Answer Summary</cell><cell cols="3">Correct Incorrect Unsure</cell><cell>PaperQA</cell><cell>33.5</cell><cell>5.0</cell><cell>11.5</cell></row><row><cell>Claude-2 GPT-3.5</cell><cell>32.5</cell><cell>7.0</cell><cell>10.5</cell><cell>No summary LLM</cell><cell>29.0</cell><cell>10.0</cell><cell>11.0</cell></row><row><cell>Claude-2 GPT-4</cell><cell>26.5</cell><cell>9.0</cell><cell>14.5</cell><cell>Single citation</cell><cell>27.0</cell><cell>10.0</cell><cell>13.0</cell></row><row><cell>GPT-4 GPT-3.5 GPT-4 GPT-4</cell><cell>33.5 31.5</cell><cell>5.0 7.0</cell><cell>11.5 11.5</cell><cell>No ask LLM No search Vanilla RAG</cell><cell>23.0 23.0 22.0</cell><cell>14.0 7.0 6.0</cell><cell>13.0 20.0 22.0</cell></row><row><cell/><cell/><cell/><cell/><cell>Semantic Scholar</cell><cell>21.0</cell><cell>4.0</cell><cell>25.0</cell></row><row><cell/><cell/><cell/><cell/><cell>No MC options</cell><cell>18.0</cell><cell>6.0</cell><cell>26.0</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_3" coords="8,108.00,334.55,396.00,147.03"><head>Table 4 :</head><label>4</label><figDesc>Comparison</figDesc><table coords="8,132.36,414.20,347.28,67.39"><row><cell>LLM</cell><cell>Valid (%)</cell><cell/><cell>Hallucinated (%)</cell><cell/><cell>N</cell></row><row><cell/><cell/><cell cols="3">Full Hallucination Citation Inaccuracy Context Irrelevance</cell><cell/></row><row><cell>GPT-3.5</cell><cell>52.50%</cell><cell>33.75%</cell><cell>12.50%</cell><cell>1.25%</cell><cell>80</cell></row><row><cell>GPT-4</cell><cell>60.78%</cell><cell>29.41%</cell><cell>3.92%</cell><cell>5.88%</cell><cell>51</cell></row><row><cell>Claude-2</cell><cell>39.71%</cell><cell>42.65%</cell><cell>4.41%</cell><cell>13.24%</cell><cell>68</cell></row><row><cell>PaperQA</cell><cell>100%</cell><cell>0%</cell><cell>0%</cell><cell>0%  *</cell><cell>237</cell></row></table><note coords="8,197.79,334.55,306.21,9.03;8,108.00,345.72,396.00,8.82;8,108.00,356.86,396.00,8.64;8,108.00,367.82,244.01,8.64;8,355.39,365.93,4.08,6.12;8,359.97,367.82,144.03,8.64;8,108.00,378.78,396.00,8.64;8,108.00,389.74,40.17,8.64"><p>of Hallucination in Citations. We compare PaperQA's hallucination rates of citations with three pre-trained LLMs. Hallucinated refers to references that are either nonexistent, partially inaccurate, or have content that does not match the claim. Scores are calculated for each LLM based on N number of citations provided by the model. * For context irrelevance only, all 237 citations were evaluated via GPT-4, with 25 additionally checked by experts and 0 were found to be irrelevant.</p></note></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_4" coords="9,108.00,82.66,396.00,173.16"><head>Table 5 :</head><label>5</label><figDesc>Evaluation of PaperQA on Standard QA Benchmarks. We evaluate PaperQA on several multiple-choice QA datasets. PubMedQA blind is a version of the PubMedQA, where we obscure the context. GPT-4 + PaperQA is GPT-4 prompted to either answer or use PaperQA as an oracle to help answer the question. {PaperQA/AutoGPT} + Post reasoning involves feeding the output of PaperQA or AutoGPT to GPT-4, which is prompted to answer the question and use the output from the other systems if deemed useful. These two are similar to the a priori and a posteriori reasoning in Ren et al.<ref type="bibr" coords="9,158.64,148.80,16.60,8.64" target="#b58">[59]</ref> respectively.</figDesc><table coords="9,155.59,173.26,286.13,82.56"><row><cell>Method</cell><cell cols="3">MedQA-USMLE BioASQ PubMedQA blind</cell></row><row><cell>GPT-4</cell><cell>67.0</cell><cell>84.0</cell><cell>57.9</cell></row><row><cell>GPT-4 + PaperQA</cell><cell>63.0</cell><cell>87.0</cell><cell>86.3</cell></row><row><cell>AutoGPT</cell><cell>54.0</cell><cell>73.0</cell><cell>56.8</cell></row><row><cell>AutoGPT + Post reasoning</cell><cell>56.0</cell><cell>75.0</cell><cell>61.3</cell></row><row><cell>PaperQA</cell><cell>68.0</cell><cell>89.0</cell><cell>86.3</cell></row><row><cell>PaperQA + Post reasoning</cell><cell>69.0</cell><cell>91.0</cell><cell>85.0</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_5" coords="18,295.59,187.03,205.92,151.24"><head>Table 6 :</head><label>6</label><figDesc>Retrieval AUC (Abstract). We evaluate keyword generation and search between two LLMs and three search engines. The metric displayed is the normalized area under the curve from Figure2on the left.</figDesc><table coords="18,339.84,255.71,115.18,82.56"><row><cell>Search</cell><cell>LLM</cell><cell>Found</cell></row><row><cell>CORE</cell><cell>Claude-2 GPT-4</cell><cell>0.13 0.13</cell></row><row><cell>Semantic</cell><cell>Claude-2 GPT-4</cell><cell>0.64 0.72</cell></row><row><cell>Google</cell><cell>Claude-2 GPT-4</cell><cell>0.68 0.76</cell></row></table></figure>
+<figure xmlns="http://www.tei-c.org/ns/1.0" type="table" xml:id="tab_8" coords="19,108.00,533.59,396.00,19.99"><head>Table 8 :</head><label>8</label><figDesc>The quality of PaperQA-discovered context. We compare providing the ground truth context in PubMedQA to the answer generated by PaperQA.</figDesc><table/></figure>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="1" xml:id="foot_0" coords="4,124.14,713.15,59.06,7.77"><p>https://arxiv.org/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="2" xml:id="foot_1" coords="4,124.14,724.02,119.43,7.77"><p>https://pubmed.ncbi.nlm.nih.gov/</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" xml:id="foot_2" coords="6,108.00,712.03,396.00,9.03;6,108.00,723.38,392.42,8.64"><p>Scientific Question Answering First, we compare PaperQA on LitQA with two pre-trained LLMs, AutoGPT and several commercially available tools for scientific research -Elicit, Scite</p></note>
+			<note xmlns="http://www.tei-c.org/ns/1.0" place="foot" n="3" xml:id="foot_3" coords="8,124.14,714.06,379.86,7.77;8,108.00,724.02,163.47,7.77"><p>The final revised dataset had fewer questions because some had multiple potential answers, so there is small discrepancy on the questions used here.</p></note>
+		</body>
+		<back>
+
+			<div type="acknowledgement">
+<div><head coords="10,108.25,297.56,91.82,8.64">ACKNOWLEDGMENTS</head><p coords="10,108.00,316.87,396.00,8.64;10,108.00,327.82,396.00,8.64;10,108.00,338.78,101.27,8.64">The authors thank <rs type="person">Mitchell Zheng</rs> at the <rs type="affiliation">University of Melbourne</rs> for contributing questions to the LitQA dataset. We also thank <rs type="person">Matthew Rubashkin</rs> for significant contribution to the results and engineering of this paper.</p></div>
+<div><head coords="10,108.25,362.77,132.97,8.64">REPRODUCIBILITY STATEMENT</head><p coords="10,108.00,382.07,396.00,8.64;10,108.00,393.03,396.00,8.64;10,108.00,403.99,396.00,8.64;10,108.00,414.95,234.50,8.64">Discussions on the inherent limitations and challenges faced, along with the mitigations applied to maintain the robustness and reliability of the models, are available in section 6. For comprehensive understanding and replicability of our approach, we recommend a thorough review of the mentioned section, coupled with the supplemental materials provided.</p></div>
+<div><head coords="10,108.25,438.93,85.36,8.64">ETHICS STATEMENT</head><p coords="10,108.00,458.24,396.00,8.64;10,108.00,469.20,219.80,8.64">Dual-use (applying technology for both beneficial and detrimental purposes) is an ongoing concern as more powerful models are developed Urbina et al. [77]. We performed rigorous red-teaming questions and did not observe risks for harm that are significantly elevated compared to direct use of the language models used for summarization. Similarly, the LitQA dataset and responses pose no risk for harm.</p></div>
+			</div>			<div type="annex">
+<div xmlns="http://www.tei-c.org/ns/1.0"><p coords="16,108.00,171.33,396.00,8.64;16,108.00,182.29,214.79,8.64">The underlying model versions used are GPT-3.5-turbo-0613 and GPT-4-0613. We used LangChain v0.0.303 and OpenAI-python v0.28.1.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,108.25,213.75,99.26,8.64">A.2 SYSTEM PROMPT</head><p coords="16,108.00,236.85,396.00,8.64">The system prompt for the LLMs (ask LLM, summary LLM, and answer LLM) is given below:</p><p coords="16,114.52,259.33,368.22,4.91;16,114.52,267.30,322.20,4.91">Answer in an direct and concise tone, I am in a hurry. Your audience is an expert, so be highly specific. If there are ambiguous terms or acronyms, first define them.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,108.00,295.58,135.59,8.64">The system prompt of the agent is</head><p coords="16,114.52,324.03,129.71,4.91">You are a helpful AI assistant. gather evidence description:</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,108.25,366.81,115.98,8.64">A.3 TOOL DESCRIPTIONS</head><p coords="16,114.52,499.01,372.41,4.91;16,114.52,506.98,54.39,4.91">Give a specific question to get evidence for it. This will increase evidence and relevant paper counts.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,108.00,535.27,128.08,8.64">generate answer description:</head><p coords="16,114.52,563.72,372.41,4.91;16,114.52,571.69,359.85,4.91;16,114.52,579.66,25.11,4.91">Ask a model to propose an answer using evidence from papers. The input is the question to be answered. The tool may fail, indicating that better or different evidence should be found.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,108.25,622.44,107.63,8.64">A.4 ASK LLM PROMPT</head><p coords="16,108.00,645.54,272.37,8.64">To capture latent knowledge in LLMs, we use the following prompt:</p><p coords="16,114.52,673.99,288.72,4.91;16,114.52,681.96,364.04,4.91;16,114.52,689.93,368.22,4.91;16,114.52,697.90,192.48,4.91">We are collecting background information for the question/task below. Provide a brief summary of information you know (about 50 words) that could help answer the question -do not answer it directly and ignore formatting instructions. It is ok to not answer, if there is nothing to contribute.</p></div>
+<div xmlns="http://www.tei-c.org/ns/1.0"><head coords="16,114.52,713.84,75.32,4.91">Question: question</head></div>			</div>
+			<div type="references">
+
+				<listBibl>
+
+<biblStruct coords="10,129.58,549.16,373.93,8.64;10,129.58,559.83,364.79,8.93;10,129.58,571.08,198.39,8.64" xml:id="b0">
+	<monogr>
+		<title level="m" type="main">Dimitrije curcic</title>
+		<author>
+			<persName coords=""><forename type="first">Dimitrije</forename><surname>Curcic</surname></persName>
+		</author>
+		<ptr target="https://wordsrated.com/number-of-academic-papers"/>
+		<imprint>
+			<date type="published" when="2023-06">Jun 2023</date>
+		</imprint>
+	</monogr>
+	<note>published-per-year/#: ∼ :text=As%20of%202022%2C%20over%205.14,5. 03%20million%20papers%20were%20published</note>
+</biblStruct>
+
+<biblStruct coords="10,129.58,590.58,374.42,8.64;10,129.58,601.36,246.38,8.82" xml:id="b1">
+	<analytic>
+		<title level="a" type="main">Over-optimization of academic publishing metrics: observing goodhart's law in action</title>
+		<author>
+			<persName coords=""><forename type="first">Michael</forename><surname>Fire</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Carlos</forename><surname>Guestrin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">GigaScience</title>
+		<imprint>
+			<biblScope unit="volume">8</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page">53</biblScope>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="10,129.58,621.04,374.42,8.64;10,129.58,632.00,374.42,8.64;10,129.58,642.78,180.65,8.82" xml:id="b2">
+	<analytic>
+		<title level="a" type="main">Science of science</title>
+		<author>
+			<persName coords=""><forename type="first">Santo</forename><surname>Fortunato</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Carl</forename><forename type="middle">T</forename><surname>Bergstrom</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Katy</forename><surname>Börner</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">James</forename><forename type="middle">A</forename><surname>Evans</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dirk</forename><surname>Helbing</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Staša</forename><surname>Milojević</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Filippo</forename><surname>Alexander M Petersen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Roberta</forename><surname>Radicchi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Brian</forename><surname>Sinatra</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Uzzi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Science</title>
+		<imprint>
+			<biblScope unit="volume">359</biblScope>
+			<biblScope unit="issue">6379</biblScope>
+			<biblScope unit="page">185</biblScope>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="10,129.58,662.28,374.42,8.82;10,129.58,673.42,66.69,8.64" xml:id="b3">
+	<analytic>
+		<title level="a" type="main">Prematurity and uniqueness in scientific discovery</title>
+		<author>
+			<persName coords=""><forename type="first">S</forename><surname>Gunther</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Stent</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific American</title>
+		<imprint>
+			<biblScope unit="volume">227</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page" from="84" to="93"/>
+			<date type="published" when="1972">1972</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="10,129.58,692.74,374.43,8.82;10,129.58,703.88,47.32,8.64" xml:id="b4">
+	<monogr>
+		<title level="m" type="main">Premature discovery or delayed recognition-why. Current contents</title>
+		<author>
+			<persName coords=""><forename type="first">Eugene</forename><surname>Garfield</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="1980">1980</date>
+			<biblScope unit="page" from="5" to="10"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="10,129.58,723.38,267.30,8.64" xml:id="b5">
+	<monogr>
+		<ptr target="https://scholar.google.com/"/>
+		<title level="m">Google Scholar. Google scholar</title>
+		<imprint/>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,85.34,374.42,8.64;11,129.58,96.30,374.42,8.64;11,129.58,107.08,328.07,8.82" xml:id="b6">
+	<monogr>
+		<title level="m" type="main">The semantic scholar open data platform</title>
+		<author>
+			<persName coords=""><forename type="first">Rodney</forename><surname>Kinney</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Chloe</forename><surname>Anastasiades</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Russell</forename><surname>Authur</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Iz</forename><surname>Beltagy</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jonathan</forename><surname>Bragg</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alexandra</forename><surname>Buraczynski</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Isabel</forename><surname>Cachola</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Stefan</forename><surname>Candra</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yoganand</forename><surname>Chandrasekhar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Arman</forename><surname>Cohan</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2301.10140</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="11,129.58,127.78,374.42,8.64;11,129.58,138.56,374.42,8.82;11,129.58,149.52,100.17,8.82" xml:id="b7">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Arman</forename><surname>Cohan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sergey</forename><surname>Feldman</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Iz</forename><surname>Beltagy</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Doug</forename><surname>Downey</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Daniel</forename><forename type="middle">S</forename><surname>Weld</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2004.07180</idno>
+		<title level="m">Specter: Document-level representation learning using citation-informed transformers</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="11,129.58,170.22,374.42,8.64;11,129.58,181.00,374.42,8.82;11,129.58,191.96,374.42,8.59;11,129.58,202.92,374.42,8.82;11,129.58,214.06,162.67,8.64" xml:id="b8">
+	<analytic>
+		<title level="a" type="main">SciBERT: A pretrained language model for scientific text</title>
+		<author>
+			<persName coords=""><forename type="first">Iz</forename><surname>Beltagy</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kyle</forename><surname>Lo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Arman</forename><surname>Cohan</surname></persName>
+		</author>
+		<ptr target="https://aclanthology.org/D19-1371"/>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)</title>
+		<meeting>the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)<address><addrLine>Hong Kong, China</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2019-11">November 2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,234.59,374.42,8.64;11,129.58,245.54,148.78,8.64" xml:id="b9">
+	<monogr>
+		<title level="m" type="main">Enriching word vectors with subword information</title>
+		<author>
+			<persName coords=""><forename type="first">Piotr</forename><surname>Bojanowski</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Edouard</forename><surname>Grave</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Armand</forename><surname>Joulin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tomas</forename><surname>Mikolov</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,266.07,374.42,8.64;11,129.58,276.85,374.42,8.82;11,129.58,287.99,90.77,8.64" xml:id="b10">
+	<monogr>
+		<title level="m" type="main">Scirepeval: A multi-format benchmark for scientific document representations</title>
+		<author>
+			<persName coords=""><forename type="first">Amanpreet</forename><surname>Singh</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mike D'</forename><surname>Arcy</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Arman</forename><surname>Cohan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Doug</forename><surname>Downey</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sergey</forename><surname>Feldman</surname></persName>
+		</author>
+		<idno>ArXiv, abs/2211.13308</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,308.33,374.42,8.82;11,129.58,319.47,52.30,8.64" xml:id="b11">
+	<analytic>
+		<title/>
+		<author>
+			<persName coords=""><forename type="first">Paul</forename><surname>Resnick</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hal</forename><forename type="middle">R</forename><surname>Varian</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Communications of the ACM</title>
+		<imprint>
+			<biblScope unit="volume">40</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="56" to="58"/>
+			<date type="published" when="1997">1997</date>
+		</imprint>
+	</monogr>
+	<note>Recommender systems</note>
+</biblStruct>
+
+<biblStruct coords="11,129.58,340.00,374.42,8.64;11,129.58,350.78,374.42,8.82;11,129.58,361.74,198.03,8.82" xml:id="b12">
+	<monogr>
+		<title level="m" type="main">Toward the next generation of recommender systems: A survey of the state-of-the-art and possible extensions</title>
+		<author>
+			<persName coords=""><forename type="first">Gediminas</forename><surname>Adomavicius</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alexander</forename><surname>Tuzhilin</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2005">2005</date>
+			<biblScope unit="volume">17</biblScope>
+			<biblScope unit="page" from="734" to="749"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,382.44,374.42,8.64;11,129.58,393.40,374.42,8.64;11,129.58,404.18,243.15,8.82" xml:id="b13">
+	<analytic>
+		<title level="a" type="main">Large language models encode clinical knowledge</title>
+		<author>
+			<persName coords=""><forename type="first">Karan</forename><surname>Singhal</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Shekoofeh</forename><surname>Azizi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tao</forename><surname>Tu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sara</forename><surname>Mahdavi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jason</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hyung</forename><forename type="middle">Won</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nathan</forename><surname>Scales</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ajay</forename><surname>Tanwani</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Heather</forename><surname>Cole-Lewis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Stephen</forename><surname>Pfohl</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="page" from="1" to="9"/>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,424.88,374.42,8.64;11,129.58,435.84,374.42,8.64;11,129.58,446.80,22.42,8.64" xml:id="b14">
+	<monogr>
+		<title level="m" type="main">Algorithmic ghost in the research shell: Large language models and academic knowledge creation in management research</title>
+		<author>
+			<persName coords=""><forename type="first">Nigel</forename><surname>Williams</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Stanislav</forename><surname>Ivanov</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dimitrios</forename><surname>Buhalis</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,467.33,374.42,8.64;11,129.58,478.28,374.42,8.64;11,129.58,489.24,374.42,8.64;11,129.58,500.02,136.89,8.82" xml:id="b15">
+	<monogr>
+		<title level="m" type="main">Almanac: Retrieval-augmented language models for clinical medicine</title>
+		<author>
+			<persName coords=""><forename type="first">W</forename><surname>Hiesinger</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">C</forename><surname>Zakka</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Akash</forename><surname>Chaurasia</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">R</forename><surname>Shad</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alex</forename><forename type="middle">R</forename><surname>Dalal</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jennifer</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Michael</forename><surname>Moor</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kevin</forename><surname>Alexander</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Euan</forename><forename type="middle">A</forename><surname>Ashley</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jack</forename><surname>Boyd</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kathleen</forename><surname>Boyd</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Karen</forename><surname>Hirsch</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">C</forename><surname>Langlotz</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Joanna</forename><surname>Nelson</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note>Research Square</note>
+</biblStruct>
+
+<biblStruct coords="11,129.58,520.73,374.42,8.64;11,129.58,531.51,313.35,8.82" xml:id="b16">
+	<analytic>
+		<title level="a" type="main">The imperative for regulatory oversight of large language models (or generative ai) in healthcare</title>
+		<author>
+			<persName coords=""><forename type="first">Bertalan</forename><surname>Meskó</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Eric</forename><forename type="middle">J</forename><surname>Topol</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">NPJ Digital Medicine</title>
+		<imprint>
+			<biblScope unit="volume">6</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page">120</biblScope>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,552.03,374.42,8.82;11,129.58,563.17,42.34,8.64" xml:id="b17">
+	<analytic>
+		<title level="a" type="main">Take the time and effort to correct misinformation</title>
+		<author>
+			<persName coords=""><forename type="first">Phil</forename><surname>Williamson</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature</title>
+		<imprint>
+			<biblScope unit="volume">540</biblScope>
+			<biblScope unit="issue">7632</biblScope>
+			<biblScope unit="page" from="171" to="171"/>
+			<date type="published" when="2016">2016</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,583.70,374.42,8.64;11,129.58,594.65,374.42,8.64;11,129.58,605.43,374.42,8.82;11,129.58,616.39,167.80,8.82" xml:id="b18">
+	<analytic>
+		<title level="a" type="main">Retrievalaugmented generation for knowledge-intensive nlp tasks</title>
+		<author>
+			<persName coords=""><forename type="first">Patrick</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ethan</forename><surname>Perez</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Aleksandra</forename><surname>Piktus</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Fabio</forename><surname>Petroni</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Vladimir</forename><surname>Karpukhin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Naman</forename><surname>Goyal</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Heinrich</forename><surname>Küttler</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mike</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Wen-Tau</forename><surname>Yih</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tim</forename><surname>Rocktäschel</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="9459" to="9474"/>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="11,129.58,637.10,374.42,8.64;11,129.58,647.88,338.88,8.82" xml:id="b19">
+	<monogr>
+		<title level="m" type="main">Retrieval augmentation reduces hallucination in conversation</title>
+		<author>
+			<persName coords=""><forename type="first">Kurt</forename><surname>Shuster</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Spencer</forename><surname>Poff</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Moya</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Douwe</forename><surname>Kiela</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jason</forename><surname>Weston</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2104.07567</idno>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="11,129.58,668.58,374.42,8.64;11,129.58,679.36,374.42,8.82;11,129.58,690.32,374.42,8.59;11,129.58,701.28,374.42,8.82;11,129.58,712.42,373.93,8.64;11,129.58,723.38,188.67,8.64" xml:id="b20">
+	<analytic>
+		<title level="a" type="main">PubMedQA: A dataset for biomedical research question answering</title>
+		<author>
+			<persName coords=""><forename type="first">Qiao</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Bhuwan</forename><surname>Dhingra</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zhengping</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">William</forename><surname>Cohen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xinghua</forename><surname>Lu</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/D19-1259</idno>
+		<ptr target="https://aclanthology.org/D19-1259"/>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)</title>
+		<meeting>the 2019 Conference on Empirical Methods in Natural Language Processing and the 9th International Joint Conference on Natural Language Processing (EMNLP-IJCNLP)<address><addrLine>Hong Kong, China</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2019-11">November 2019</date>
+			<biblScope unit="page" from="2567" to="2577"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,85.34,374.42,8.64;12,129.58,96.12,374.42,8.82;12,129.58,107.08,117.99,8.82" xml:id="b21">
+	<analytic>
+		<title level="a" type="main">Attention is all you need</title>
+		<author>
+			<persName coords=""><forename type="first">Ashish</forename><surname>Vaswani</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Noam</forename><surname>Shazeer</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Niki</forename><surname>Parmar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jakob</forename><surname>Uszkoreit</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Llion</forename><surname>Jones</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Aidan</forename><forename type="middle">N</forename><surname>Gomez</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Łukasz</forename><surname>Kaiser</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Illia</forename><surname>Polosukhin</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in neural information processing systems</title>
+		<imprint>
+			<biblScope unit="volume">30</biblScope>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,125.43,374.42,8.64;12,129.58,136.39,374.42,8.64;12,129.58,147.17,374.42,8.82;12,129.58,158.31,22.42,8.64" xml:id="b22">
+	<analytic>
+		<title level="a" type="main">Language models are few-shot learners</title>
+		<author>
+			<persName coords=""><forename type="first">Tom</forename><surname>Brown</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Benjamin</forename><surname>Mann</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nick</forename><surname>Ryder</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Melanie</forename><surname>Subbiah</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jared</forename><forename type="middle">D</forename><surname>Kaplan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Prafulla</forename><surname>Dhariwal</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Arvind</forename><surname>Neelakantan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Pranav</forename><surname>Shyam</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Girish</forename><surname>Sastry</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Amanda</forename><surname>Askell</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Advances in neural information processing systems</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+			<biblScope unit="volume">33</biblScope>
+			<biblScope unit="page" from="1877" to="1901"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,176.49,374.42,8.64;12,129.58,187.45,374.42,8.64;12,129.58,198.23,344.15,8.82" xml:id="b23">
+	<monogr>
+		<title level="m" type="main">On the opportunities and risks of foundation models</title>
+		<author>
+			<persName coords=""><forename type="first">Rishi</forename><surname>Bommasani</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Drew</forename><forename type="middle">A</forename><surname>Hudson</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ehsan</forename><surname>Adeli</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Russ</forename><surname>Altman</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Simran</forename><surname>Arora</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Sydney Von Arx</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jeannette</forename><surname>Michael S Bernstein</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Antoine</forename><surname>Bohg</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Emma</forename><surname>Bosselut</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Brunskill</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2108.07258</idno>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="12,129.58,216.58,374.42,8.64;12,129.58,227.54,374.42,8.64;12,129.58,238.32,334.35,8.82" xml:id="b24">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Aakanksha</forename><surname>Chowdhery</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sharan</forename><surname>Narang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jacob</forename><surname>Devlin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Maarten</forename><surname>Bosma</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Gaurav</forename><surname>Mishra</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Adam</forename><surname>Roberts</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Paul</forename><surname>Barham</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hyung</forename><forename type="middle">Won</forename><surname>Chung</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Charles</forename><surname>Sutton</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sebastian</forename><surname>Gehrmann</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2204.02311</idno>
+		<title level="m">Scaling language modeling with pathways</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="12,129.58,256.68,374.42,8.64;12,129.58,267.64,374.42,8.64;12,129.58,278.42,277.46,8.82" xml:id="b25">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Danny</forename><surname>Driess</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Fei</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">S</forename><forename type="middle">M</forename><surname>Mehdi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Corey</forename><surname>Sajjadi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Aakanksha</forename><surname>Lynch</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Brian</forename><surname>Chowdhery</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ayzaan</forename><surname>Ichter</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jonathan</forename><surname>Wahid</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Quan</forename><surname>Tompson</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tianhe</forename><surname>Vuong</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Yu</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2303.03378</idno>
+		<title level="m">Palm-e: An embodied multimodal language model</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="12,129.58,296.77,153.54,8.64" xml:id="b26">
+	<analytic>
+		<title/>
+	</analytic>
+	<monogr>
+		<title level="j">OpenAI. Gpt-4 technical report</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,314.95,374.42,8.64;12,129.58,325.73,374.42,8.82;12,129.58,336.69,374.42,8.82;12,129.58,347.82,374.42,8.64;12,129.58,358.78,92.09,8.64" xml:id="b27">
+	<analytic>
+		<title level="a" type="main">SynKB: Semantic search for synthetic procedures</title>
+		<author>
+			<persName coords=""><forename type="first">Fan</forename><surname>Bai</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alan</forename><surname>Ritter</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Peter</forename><surname>Madrid</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dayne</forename><surname>Freitag</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">John</forename><surname>Niekrasz</surname></persName>
+		</author>
+		<ptr target="https://aclanthology.org/2022.emnlp-demos.31"/>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations</title>
+		<meeting>the 2022 Conference on Empirical Methods in Natural Language Processing: System Demonstrations<address><addrLine>Abu Dhabi, UAE</addrLine></address></meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2022-12">December 2022</date>
+			<biblScope unit="page" from="311" to="318"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,376.96,374.42,8.64;12,129.58,387.74,374.42,8.82;12,129.58,398.70,374.42,8.59;12,129.58,409.84,374.42,8.64;12,129.58,420.80,339.97,8.64" xml:id="b28">
+	<analytic>
+		<title level="a" type="main">Process-level representation of scientific protocols with interactive annotation</title>
+		<author>
+			<persName coords=""><forename type="first">Ronen</forename><surname>Tamari</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Fan</forename><surname>Bai</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alan</forename><surname>Ritter</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Gabriel</forename><surname>Stanovsky</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2021.eacl-main.187</idno>
+		<ptr target="https://aclanthology.org/2021.eacl-main.187"/>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume</title>
+		<meeting>the 16th Conference of the European Chapter of the Association for Computational Linguistics: Main Volume</meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2021-04">April 2021</date>
+			<biblScope unit="page" from="2190" to="2202"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,438.97,374.42,8.64;12,129.58,449.93,374.42,8.64;12,129.58,460.71,374.42,8.82;12,129.58,471.67,115.74,8.82" xml:id="b29">
+	<analytic>
+		<title level="a" type="main">Domain-specific language model pretraining for biomedical natural language processing</title>
+		<author>
+			<persName coords=""><forename type="first">Yu</forename><surname>Gu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Robert</forename><surname>Tinn</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hao</forename><surname>Cheng</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Michael</forename><surname>Lucas</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Naoto</forename><surname>Usuyama</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xiaodong</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tristan</forename><surname>Naumann</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jianfeng</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hoifung</forename><surname>Poon</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">ACM Transactions on Computing for Healthcare (HEALTH)</title>
+		<imprint>
+			<biblScope unit="volume">3</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="23"/>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,490.03,374.42,8.64;12,129.58,500.81,374.42,8.82;12,129.58,511.77,374.42,8.82;12,129.58,522.90,374.42,8.64;12,129.58,533.86,185.09,8.64" xml:id="b30">
+	<analytic>
+		<title level="a" type="main">Pretrained language models for biomedical and clinical tasks: Understanding and extending the state-of-the-art</title>
+		<author>
+			<persName coords=""><forename type="first">Patrick</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Myle</forename><surname>Ott</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jingfei</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Veselin</forename><surname>Stoyanov</surname></persName>
+		</author>
+		<idno type="DOI">10.18653/v1/2020.clinicalnlp-1.17</idno>
+		<ptr target="https://aclanthology.org/2020.clinicalnlp-1.17"/>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 3rd Clinical Natural Language Processing Workshop</title>
+		<meeting>the 3rd Clinical Natural Language Processing Workshop</meeting>
+		<imprint>
+			<publisher>Association for Computational Linguistics</publisher>
+			<date type="published" when="2020-11">November 2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,552.04,374.42,8.64;12,129.58,562.82,374.42,8.82;12,129.58,573.78,142.52,8.82" xml:id="b31">
+	<analytic>
+		<title level="a" type="main">Biogpt: generative pre-trained transformer for biomedical text generation and mining</title>
+		<author>
+			<persName coords=""><forename type="first">Renqian</forename><surname>Luo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Liai</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yingce</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tao</forename><surname>Qin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sheng</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hoifung</forename><surname>Poon</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tie-Yan</forename><surname>Liu</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Briefings in Bioinformatics</title>
+		<imprint>
+			<biblScope unit="volume">23</biblScope>
+			<biblScope unit="issue">6</biblScope>
+			<biblScope unit="page">2022</biblScope>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,592.13,374.42,8.64;12,129.58,603.09,374.42,8.64;12,129.58,613.87,212.38,8.82" xml:id="b32">
+	<analytic>
+		<title level="a" type="main">Biobert: a pre-trained biomedical language representation model for biomedical text mining</title>
+		<author>
+			<persName coords=""><forename type="first">Jinhyuk</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Wonjin</forename><surname>Yoon</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sungdong</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Donghyeon</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sunkyu</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Chan</forename><surname>Ho</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">So</forename></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jaewoo</forename><surname>Kang</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Bioinformatics</title>
+		<imprint>
+			<biblScope unit="volume">36</biblScope>
+			<biblScope unit="issue">4</biblScope>
+			<biblScope unit="page" from="1234" to="1240"/>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="12,129.58,632.23,374.42,8.64;12,129.58,643.01,374.42,8.82;12,129.58,653.97,134.95,8.82" xml:id="b33">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Hoo-Chang</forename><surname>Shin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yang</forename><surname>Zhang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Evelina</forename><surname>Bakhturina</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Raul</forename><surname>Puri</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mostofa</forename><surname>Patwary</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mohammad</forename><surname>Shoeybi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Raghav</forename><surname>Mani</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Biomegatron</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2010.06060</idno>
+		<title level="m">Larger biomedical domain language model</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="12,129.58,672.32,374.42,8.64;12,129.58,683.28,374.42,8.64;12,129.58,694.06,236.48,8.82" xml:id="b34">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Ross</forename><surname>Taylor</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Marcin</forename><surname>Kardas</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Guillem</forename><surname>Cucurull</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Thomas</forename><surname>Scialom</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Anthony</forename><surname>Hartshorn</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Elvis</forename><surname>Saravia</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Andrew</forename><surname>Poulton</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Viktor</forename><surname>Kerkez</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Robert</forename><surname>Stojnic</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2211.09085</idno>
+		<title level="m">Galactica: A large language model for science</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="12,129.58,712.42,374.42,8.64;12,129.58,723.20,361.70,8.82" xml:id="b35">
+	<monogr>
+		<title level="m" type="main">Bayesian optimization of catalysts with in-context learning</title>
+		<author>
+			<persName coords=""><forename type="first">Shane</forename><forename type="middle">S</forename><surname>Mayk Caldas Ramos</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Marc</forename><forename type="middle">D</forename><surname>Michtavy</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Andrew</forename><forename type="middle">D</forename><surname>Porosoff</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>White</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2304.05341</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,85.34,374.42,8.64;13,129.58,96.30,374.42,8.64;13,129.58,107.26,216.95,8.64" xml:id="b36">
+	<monogr>
+		<title level="m" type="main">Building open-ended embodied agents with internet-scale knowledge</title>
+		<author>
+			<persName coords=""><forename type="first">Linxi</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Guanzhi</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yunfan</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ajay</forename><surname>Mandlekar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuncong</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Haoyi</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Andrew</forename><surname>Tang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>De-An</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuke</forename><surname>Huang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Anima</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Anandkumar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Minedojo</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="13,129.58,127.87,374.42,8.64;13,129.58,138.83,334.49,8.64" xml:id="b37">
+	<monogr>
+		<title level="m" type="main">Reflexion: Language agents with verbal reinforcement learning</title>
+		<author>
+			<persName coords=""><forename type="first">Noah</forename><surname>Shinn</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Federico</forename><surname>Cassano</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Beck</forename><surname>Labash</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ashwin</forename><surname>Gopinath</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Karthik</forename><surname>Narasimhan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Shunyu</forename><surname>Yao</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="13,129.58,159.45,374.42,8.64;13,129.58,170.41,374.42,8.64;13,129.58,181.19,185.03,8.82" xml:id="b38">
+	<monogr>
+		<title level="m" type="main">Self-instruct: Aligning language model with self generated instructions</title>
+		<author>
+			<persName coords=""><forename type="first">Yizhong</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yeganeh</forename><surname>Kordi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Swaroop</forename><surname>Mishra</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alisa</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Noah</forename><forename type="middle">A</forename><surname>Smith</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Daniel</forename><surname>Khashabi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hannaneh</forename><surname>Hajishirzi</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2212.10560</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,201.99,374.42,8.64;13,129.58,212.95,374.42,8.64;13,129.58,223.73,308.78,8.82" xml:id="b39">
+	<analytic>
+		<title level="a" type="main">Chain-of-thought prompting elicits reasoning in large language models</title>
+		<author>
+			<persName coords=""><forename type="first">Jason</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xuezhi</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dale</forename><surname>Schuurmans</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Maarten</forename><surname>Bosma</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Fei</forename><surname>Xia</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ed</forename><surname>Chi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">V</forename><surname>Quoc</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Denny</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Zhou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Advances in Neural Information Processing Systems</title>
+		<imprint>
+			<biblScope unit="volume">35</biblScope>
+			<biblScope unit="page" from="24824" to="24837"/>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="13,129.58,244.52,374.42,8.64;13,129.58,255.30,374.42,8.82;13,129.58,266.26,134.95,8.82" xml:id="b40">
+	<monogr>
+		<title level="m" type="main">Tree of thoughts: Deliberate problem solving with large language models</title>
+		<author>
+			<persName coords=""><forename type="first">Shunyu</forename><surname>Yao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dian</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jeffrey</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Izhak</forename><surname>Shafran</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Thomas</forename><forename type="middle">L</forename><surname>Griffiths</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuan</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Karthik</forename><surname>Narasimhan</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2305.10601</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,287.06,374.42,8.64;13,129.58,298.02,374.42,8.64;13,129.58,308.98,374.42,8.64;13,129.58,319.76,254.74,8.82" xml:id="b41">
+	<monogr>
+		<title level="m" type="main">Mrkl systems: A modular, neuro-symbolic architecture that combines large language models, external knowledge sources and discrete reasoning</title>
+		<author>
+			<persName coords=""><forename type="first">Ehud</forename><surname>Karpas</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Omri</forename><surname>Abend</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yonatan</forename><surname>Belinkov</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Barak</forename><surname>Lenz</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Opher</forename><surname>Lieber</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nir</forename><surname>Ratner</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yoav</forename><surname>Shoham</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hofit</forename><surname>Bata</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yoav</forename><surname>Levine</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kevin</forename><surname>Leyton-Brown</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2205.00445</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,340.55,374.42,8.64;13,129.58,351.51,374.42,8.64;13,129.58,362.29,257.66,8.82" xml:id="b42">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Timo</forename><surname>Schick</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jane</forename><surname>Dwivedi-Yu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Roberto</forename><surname>Dessì</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Roberta</forename><surname>Raileanu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Maria</forename><surname>Lomeli</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Luke</forename><surname>Zettlemoyer</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nicola</forename><surname>Cancedda</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Thomas</forename><surname>Scialom</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Toolformer</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2302.04761</idno>
+		<title level="m">Language models can teach themselves to use tools</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,383.09,374.42,8.64;13,129.58,393.87,374.42,8.82;13,129.58,404.83,100.17,8.82" xml:id="b43">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Yongliang</forename><surname>Shen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kaitao</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xu</forename><surname>Tan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dongsheng</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Weiming</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yueting</forename><surname>Zhuang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Hugginggpt</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2303.17580</idno>
+		<title level="m">Solving ai tasks with chatgpt and its friends in huggingface</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,425.63,374.42,8.64;13,129.58,436.41,374.42,8.82;13,129.58,447.36,100.17,8.82" xml:id="b44">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Shunyu</forename><surname>Yao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jeffrey</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dian</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nan</forename><surname>Du</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Izhak</forename><surname>Shafran</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Karthik</forename><surname>Narasimhan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuan</forename><surname>Cao</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2210.03629</idno>
+		<title level="m">React: Synergizing reasoning and acting in language models</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,468.16,374.42,8.64;13,129.58,479.12,374.42,8.64;13,129.58,489.90,296.54,8.82" xml:id="b45">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Zhengyuan</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Linjie</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jianfeng</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kevin</forename><surname>Lin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ehsan</forename><surname>Azarnasab</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Faisal</forename><surname>Ahmed</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zicheng</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ce</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Michael</forename><surname>Zeng</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Lijuan</forename><surname>Wang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2303.11381</idno>
+		<title level="m">Mm-react: Prompting chatgpt for multimodal reasoning and action</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,510.70,374.42,8.64;13,129.58,521.48,249.79,8.82" xml:id="b46">
+	<monogr>
+		<title level="m" type="main">Multi-agent collaboration: Harnessing the power of intelligent llm agents</title>
+		<author>
+			<persName coords=""><forename type="first">Yashar</forename><surname>Talebirad</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Amirhossein</forename><surname>Nadiri</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2306.03314</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,542.27,374.42,8.64;13,129.58,553.23,374.42,8.64;13,129.58,564.01,194.44,8.82" xml:id="b47">
+	<monogr>
+		<title level="m" type="main">Voyager: An open-ended embodied agent with large language models</title>
+		<author>
+			<persName coords=""><forename type="first">Guanzhi</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuqi</forename><surname>Xie</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yunfan</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ajay</forename><surname>Mandlekar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Chaowei</forename><surname>Xiao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuke</forename><surname>Zhu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Linxi</forename><surname>Fan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Anima</forename><surname>Anandkumar</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2305.16291</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,584.81,374.42,8.64;13,129.58,595.77,69.19,8.64" xml:id="b48">
+	<monogr>
+		<title level="m" type="main">Significant-gravitas. auto-gpt: An experimental open-source attempt to make gpt-4 fully autonomous</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="13,129.58,616.39,374.42,8.64;13,129.58,627.35,374.42,8.64;13,129.58,638.13,374.43,8.82;13,129.58,649.08,196.87,8.82" xml:id="b49">
+	<analytic>
+		<title level="a" type="main">Are you smarter than a sixth grader? textbook question answering for multimodal machine comprehension</title>
+		<author>
+			<persName coords=""><forename type="first">Aniruddha</forename><surname>Kembhavi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Minjoon</forename><surname>Seo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dustin</forename><surname>Schwenk</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jonghyun</forename><surname>Choi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ali</forename><surname>Farhadi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hannaneh</forename><surname>Hajishirzi</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the IEEE Conference on Computer Vision and Pattern recognition</title>
+		<meeting>the IEEE Conference on Computer Vision and Pattern recognition</meeting>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+			<biblScope unit="page" from="4999" to="5007"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="13,129.58,669.88,374.42,8.64;13,129.58,680.66,374.42,8.82;13,129.58,691.62,100.17,8.82" xml:id="b50">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Dan</forename><surname>Hendrycks</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Collin</forename><surname>Burns</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Steven</forename><surname>Basart</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Andy</forename><surname>Zou</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mantas</forename><surname>Mazeika</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dawn</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jacob</forename><surname>Steinhardt</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2009.03300</idno>
+		<title level="m">Measuring massive multitask language understanding</title>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="13,129.58,712.42,374.42,8.64;13,129.58,723.20,364.11,8.82" xml:id="b51">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Mujeen</forename><surname>Sung</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jinhyuk</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sean</forename><surname>Yi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Minji</forename><surname>Jeon</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sungdong</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jaewoo</forename><surname>Kang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2109.07154</idno>
+		<title level="m">Can language models be biomedical knowledge bases? arXiv preprint</title>
+		<imprint>
+			<date type="published" when="2021">2021</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,85.34,374.42,8.64;14,129.58,96.30,374.42,8.64;14,129.58,107.26,161.47,8.64" xml:id="b52">
+	<monogr>
+		<title level="m" type="main">What indeed can gpt models do in chemistry? a comprehensive benchmark on eight tasks</title>
+		<author>
+			<persName coords=""><forename type="first">Taicheng</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kehan</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Bozhao</forename><surname>Nan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zhenwen</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zhichun</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">V</forename><surname>Nitesh</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Olaf</forename><surname>Chawla</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xiangliang</forename><surname>Wiest</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Zhang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,125.68,374.42,8.64;14,129.58,136.64,374.42,8.64;14,129.58,147.60,266.78,8.64" xml:id="b53">
+	<monogr>
+		<title level="m" type="main">Moleculenet: A benchmark for molecular machine learning</title>
+		<author>
+			<persName coords=""><forename type="first">Zhenqin</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Bharath</forename><surname>Ramsundar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Evan</forename><forename type="middle">N</forename><surname>Feinberg</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Joseph</forename><surname>Gomes</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Caleb</forename><surname>Geniesse</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Aneesh</forename><forename type="middle">S</forename><surname>Pappu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Karl</forename><surname>Leswing</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Vijay</forename><surname>Pande</surname></persName>
+		</author>
+		<ptr target="https://arxiv.org/abs/1703.00564"/>
+		<imprint>
+			<date type="published" when="2017">2017</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,166.03,374.42,8.64;14,129.58,176.81,339.80,8.82" xml:id="b54">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Sam</forename><surname>Andres M Bran</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Andrew</forename><forename type="middle">D</forename><surname>Cox</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Philippe</forename><surname>White</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Schwaller</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Chemcrow</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2304.05376</idno>
+		<title level="m">Augmenting large-language models with chemistry tools</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,195.41,374.42,8.64;14,129.58,206.37,374.42,8.64;14,129.58,217.33,374.42,8.64;14,129.58,228.11,187.85,8.82" xml:id="b55">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Debadutta</forename><surname>Dash</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Rahul</forename><surname>Thapa</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Juan</forename><forename type="middle">M</forename><surname>Banda</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Akshay</forename><surname>Swaminathan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Morgan</forename><surname>Cheatham</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mehr</forename><surname>Kashyap</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nikesh</forename><surname>Kotecha</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jonathan</forename><forename type="middle">H</forename><surname>Chen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Saurabh</forename><surname>Gombar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Lance</forename><surname>Downing</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2304.13714</idno>
+		<title level="m">Evaluation of gpt-3.5 and gpt-4 for supporting real-world information needs in healthcare delivery</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,246.71,374.42,8.64;14,129.58,257.67,374.42,8.64;14,129.58,268.45,374.42,8.82;14,129.58,279.59,90.77,8.64" xml:id="b56">
+	<monogr>
+		<title level="m" type="main">Improving accuracy of gpt-3/4 results on biomedical data using a retrieval-augmented language model</title>
+		<author>
+			<persName coords=""><forename type="first">D</forename><surname>Soong</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">S</forename><surname>Sridhar</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Han</forename><surname>Si</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">J</forename><surname>Wagner</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ana</forename></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Caroline</forename><surname>Costa</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">S</forename></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Christina</forename><forename type="middle">Y</forename><surname>Yu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kubra</forename><surname>Karagoz</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Meijian</forename><surname>Guan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">K</forename><surname>Hisham</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Brandon</forename><surname>Hamadeh</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Higgs</surname></persName>
+		</author>
+		<idno>ArXiv, abs/2305.17116</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,298.02,374.42,8.64;14,129.58,308.98,374.42,8.64;14,129.58,319.76,263.24,8.82" xml:id="b57">
+	<monogr>
+		<title level="m" type="main">Demonstrate-search-predict: Composing retrieval and language models for knowledge-intensive nlp</title>
+		<author>
+			<persName coords=""><forename type="first">Omar</forename><surname>Khattab</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Keshav</forename><surname>Santhanam</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Lisa</forename><surname>Xiang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">David</forename><surname>Li</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Percy</forename><surname>Hall</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Christopher</forename><surname>Liang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Matei</forename><surname>Potts</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Zaharia</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2212.14024</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,338.36,374.42,8.64;14,129.58,349.32,374.42,8.64;14,129.58,360.28,168.30,8.64" xml:id="b58">
+	<monogr>
+		<title level="m" type="main">Investigating the factual knowledge boundary of large language models with retrieval augmentation</title>
+		<author>
+			<persName coords=""><forename type="first">Ruiyang</forename><surname>Ren</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yuhao</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yingqi</forename><surname>Qu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Wayne</forename><forename type="middle">Xin</forename><surname>Zhao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jing</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hua</forename><surname>Hao Tian</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ji-Rong</forename><surname>Wu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Haifeng</forename><surname>Wen</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Wang</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,378.71,374.42,8.64;14,129.58,389.49,374.42,8.82;14,129.58,400.44,134.95,8.82" xml:id="b59">
+	<monogr>
+		<title level="m" type="main">Active retrieval augmented generation</title>
+		<author>
+			<persName coords=""><forename type="first">Zhengbao</forename><surname>Jiang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Frank</forename><forename type="middle">F</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Luyu</forename><surname>Gao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zhiqing</forename><surname>Sun</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Qian</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jane</forename><surname>Dwivedi-Yu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yiming</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jamie</forename><surname>Callan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Graham</forename><surname>Neubig</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2305.06983</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,419.05,374.42,8.64;14,129.58,429.83,297.09,8.82" xml:id="b60">
+	<monogr>
+		<title level="m" type="main">Leveraging passage retrieval with generative models for open domain question answering</title>
+		<author>
+			<persName coords=""><forename type="first">Gautier</forename><surname>Izacard</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Edouard</forename><surname>Grave</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2007.01282</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,448.44,374.42,8.64;14,129.58,459.21,374.42,8.82;14,129.58,470.17,100.17,8.82" xml:id="b61">
+	<monogr>
+		<title level="m" type="main">Surfacebased retrieval reduces perplexity of retrieval-augmented language models</title>
+		<author>
+			<persName coords=""><forename type="first">Ehsan</forename><surname>Doostmohammadi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tobias</forename><surname>Norlund</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Marco</forename><surname>Kuhlmann</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Richard</forename><surname>Johansson</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2305.16243</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,488.78,374.42,8.64;14,129.58,499.56,374.42,8.82;14,129.58,510.70,22.42,8.64" xml:id="b62">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Jacob</forename><surname>Devlin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ming-Wei</forename><surname>Chang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kenton</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kristina</forename><surname>Toutanova</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Bert</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:1810.04805</idno>
+		<title level="m">Pre-training of deep bidirectional transformers for language understanding</title>
+		<imprint>
+			<date type="published" when="2018">2018</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,529.12,374.42,8.64;14,129.58,540.08,374.42,8.64;14,129.58,550.86,159.58,8.82" xml:id="b63">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Weijia</forename><surname>Shi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sewon</forename><surname>Min</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Michihiro</forename><surname>Yasunaga</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Minjoon</forename><surname>Seo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Rich</forename><surname>James</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mike</forename><surname>Lewis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Luke</forename><surname>Zettlemoyer</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Wen-Tau</forename><surname>Yih</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2301.12652</idno>
+		<title level="m">Replug: Retrieval-augmented black-box language models</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,569.47,374.42,8.64;14,129.58,580.25,284.16,8.82" xml:id="b64">
+	<monogr>
+		<title level="m" type="main">Realm: Retrievalaugmented language model pre-training</title>
+		<author>
+			<persName coords=""><forename type="first">Kelvin</forename><surname>Guu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Kenton</forename><surname>Lee</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Z</forename><surname>Tung</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Panupong</forename><surname>Pasupat</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ming-Wei</forename><surname>Chang</surname></persName>
+		</author>
+		<idno>ArXiv, abs/2002.08909</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,598.85,374.42,8.64;14,129.58,609.81,374.42,8.64;14,129.58,620.59,374.42,8.82;14,129.58,631.55,100.17,8.82" xml:id="b65">
+	<monogr>
+		<title level="m" type="main">Teaching language models to support answers with verified quotes</title>
+		<author>
+			<persName coords=""><forename type="first">Jacob</forename><surname>Menick</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Maja</forename><surname>Trebacz</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Vladimir</forename><surname>Mikulik</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">John</forename><surname>Aslanides</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Francis</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Martin</forename><surname>Chadwick</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Mia</forename><surname>Glaese</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Susannah</forename><surname>Young</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Lucy</forename><surname>Campbell-Gillingham</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Geoffrey</forename><surname>Irving</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2203.11147</idno>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="14,129.58,650.16,374.42,8.64;14,129.58,661.11,374.42,8.64;14,129.58,671.89,374.42,8.82;14,129.58,682.85,262.63,8.82" xml:id="b66">
+	<analytic>
+		<title level="a" type="main">Improving language models by retrieving from trillions of tokens</title>
+		<author>
+			<persName coords=""><forename type="first">Sebastian</forename><surname>Borgeaud</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Arthur</forename><surname>Mensch</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jordan</forename><surname>Hoffmann</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Trevor</forename><surname>Cai</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Eliza</forename><surname>Rutherford</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Katie</forename><surname>Millican</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">George</forename><forename type="middle">Bm</forename><surname>Van Den Driessche</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jean-Baptiste</forename><surname>Lespiau</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Bogdan</forename><surname>Damoc</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Aidan</forename><surname>Clark</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">International conference on machine learning</title>
+		<imprint>
+			<publisher>PMLR</publisher>
+			<date type="published" when="2022">2022</date>
+			<biblScope unit="page" from="2206" to="2240"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="14,129.58,701.46,374.42,8.64;14,129.58,712.42,374.42,8.64;14,129.58,723.20,235.10,8.82" xml:id="b67">
+	<monogr>
+		<title level="m" type="main">Improving retrieval-augmented large language models via data importance learning</title>
+		<author>
+			<persName coords=""><forename type="first">Xiaozhong</forename><surname>Lyu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Stefan</forename><surname>Grafberger</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Samantha</forename><surname>Biegel</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Shaopeng</forename><surname>Wei</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Meng</forename><surname>Cao</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sebastian</forename><surname>Schelter</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ce</forename><surname>Zhang</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2307.03027</idno>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="15,129.58,85.34,374.42,8.64;15,129.58,96.30,374.42,8.64;15,129.58,107.08,270.95,8.82" xml:id="b68">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Arvind</forename><surname>Neelakantan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tao</forename><surname>Xu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Raul</forename><surname>Puri</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Alec</forename><surname>Radford</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jesse</forename><surname>Michael Han</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jerry</forename><surname>Tworek</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Qiming</forename><surname>Yuan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nikolas</forename><surname>Tezak</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jong</forename><forename type="middle">Wook</forename><surname>Kim</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Chris</forename><surname>Hallacy</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2201.10005</idno>
+		<title level="m">Text and code embeddings by contrastive pre-training</title>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="15,129.58,126.19,374.42,8.64;15,129.58,136.97,213.22,8.82" xml:id="b69">
+	<analytic>
+		<title level="a" type="main">Billion-scale similarity search with GPUs</title>
+		<author>
+			<persName coords=""><forename type="first">Jeff</forename><surname>Johnson</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Matthijs</forename><surname>Douze</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hervé</forename><surname>Jégou</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">IEEE Transactions on Big Data</title>
+		<imprint>
+			<biblScope unit="volume">7</biblScope>
+			<biblScope unit="issue">3</biblScope>
+			<biblScope unit="page" from="535" to="547"/>
+			<date type="published" when="2019">2019</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,156.07,374.42,8.64;15,129.58,166.85,374.42,8.82;15,129.58,177.81,372.54,8.82" xml:id="b70">
+	<analytic>
+		<title level="a" type="main">The use of mmr, diversity-based reranking for reordering documents and producing summaries</title>
+		<author>
+			<persName coords=""><forename type="first">Jaime</forename><surname>Carbonell</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jade</forename><surname>Goldstein</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="m">Proceedings of the 21st annual international ACM SI-GIR conference on Research and development in information retrieval</title>
+		<meeting>the 21st annual international ACM SI-GIR conference on Research and development in information retrieval</meeting>
+		<imprint>
+			<date type="published" when="1998">1998</date>
+			<biblScope unit="page" from="335" to="336"/>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,196.92,374.42,8.64;15,129.58,207.88,135.74,8.64" xml:id="b71">
+	<monogr>
+		<title/>
+		<author>
+			<persName coords=""><forename type="first">Harrison</forename><surname>Chase</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Langchain</surname></persName>
+		</author>
+		<ptr target="https://github.com/hwchase17/langchain"/>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,226.81,374.42,8.64;15,129.58,237.77,374.42,8.64;15,129.58,248.55,224.99,8.82" xml:id="b72">
+	<monogr>
+		<title level="m" type="main">What disease does this patient have? a large-scale open domain question answering dataset from medical exams</title>
+		<author>
+			<persName coords=""><forename type="first">Di</forename><surname>Jin</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Eileen</forename><surname>Pan</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nassim</forename><surname>Oufattole</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Wei-Hung</forename><surname>Weng</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hanyi</forename><surname>Fang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Peter</forename><surname>Szolovits</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2009.13081</idno>
+		<imprint>
+			<date type="published" when="2020">2020</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="15,129.58,267.66,374.42,8.64;15,129.58,278.61,374.42,8.64;15,129.58,289.57,374.42,8.64;15,129.58,300.35,308.54,8.82" xml:id="b73">
+	<analytic>
+		<title level="a" type="main">An overview of the bioasq large-scale biomedical semantic indexing and question answering competition</title>
+		<author>
+			<persName coords=""><forename type="first">George</forename><surname>Tsatsaronis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Georgios</forename><surname>Balikas</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Prodromos</forename><surname>Malakasiotis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Ioannis</forename><surname>Partalas</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Matthias</forename><surname>Zschunke</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dirk</forename><surname>Michael R Alvers</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Anastasia</forename><surname>Weissenborn</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sergios</forename><surname>Krithara</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Dimitris</forename><surname>Petridis</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Polychronopoulos</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">BMC bioinformatics</title>
+		<imprint>
+			<biblScope unit="volume">16</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<biblScope unit="page" from="1" to="28"/>
+			<date type="published" when="2015">2015</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,319.46,374.42,8.64;15,129.58,330.42,374.42,8.64;15,129.58,341.38,102.92,8.64" xml:id="b74">
+	<monogr>
+		<title level="m" type="main">Rlprompt: Optimizing discrete text prompts with reinforcement learning</title>
+		<author>
+			<persName coords=""><forename type="first">Mingkai</forename><surname>Deng</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Jianyu</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Cheng-Ping</forename><surname>Hsieh</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yihan</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Han</forename><surname>Guo</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Tianmin</forename><surname>Shu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Meng</forename><surname>Song</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Eric</forename><forename type="middle">P</forename><surname>Xing</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Zhiting</forename><surname>Hu</surname></persName>
+		</author>
+		<imprint>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,360.31,374.42,8.64;15,129.58,371.09,340.89,8.82" xml:id="b75">
+	<monogr>
+		<author>
+			<persName coords=""><forename type="first">Chengrun</forename><surname>Yang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xuezhi</forename><surname>Wang</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Yifeng</forename><surname>Lu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Hanxiao</forename><surname>Liu</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">V</forename><surname>Quoc</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Denny</forename><surname>Le</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Xinyun</forename><surname>Zhou</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><surname>Chen</surname></persName>
+		</author>
+		<idno type="arXiv">arXiv:2309.03409</idno>
+		<title level="m">Large language models as optimizers</title>
+		<imprint>
+			<date type="published" when="2023">2023</date>
+		</imprint>
+	</monogr>
+	<note type="report_type">arXiv preprint</note>
+</biblStruct>
+
+<biblStruct coords="15,129.58,390.20,374.43,8.64;15,129.58,400.98,238.72,8.82" xml:id="b76">
+	<analytic>
+		<title level="a" type="main">A teachable moment for dual-use</title>
+		<author>
+			<persName coords=""><forename type="first">Fabio</forename><surname>Urbina</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Filippa</forename><surname>Lentzos</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Cédric</forename><surname>Invernizzi</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Sean</forename><surname>Ekins</surname></persName>
+		</author>
+	</analytic>
+	<monogr>
+		<title level="j">Nature machine intelligence</title>
+		<imprint>
+			<biblScope unit="volume">4</biblScope>
+			<biblScope unit="issue">7</biblScope>
+			<biblScope unit="page" from="607" to="607"/>
+			<date type="published" when="2022">2022</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+<biblStruct coords="15,129.58,420.08,374.42,8.64;15,129.58,431.04,374.42,8.64;15,129.58,441.82,374.42,8.82;15,129.58,452.96,206.10,8.64" xml:id="b77">
+	<analytic>
+		<title level="a" type="main">CORE: A global aggregation service for open access papers</title>
+		<author>
+			<persName coords=""><forename type="first">Petr</forename><surname>Knoth</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Drahomira</forename><surname>Herrmannova</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Matteo</forename><surname>Cancellieri</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Lucas</forename><surname>Anastasiou</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Nancy</forename><surname>Pontika</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Samuel</forename><surname>Pearce</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">Bikash</forename><surname>Gyawali</surname></persName>
+		</author>
+		<author>
+			<persName coords=""><forename type="first">David</forename><surname>Pride</surname></persName>
+		</author>
+		<idno type="DOI">10.1038/s41597-023-02208-w</idno>
+		<ptr target="https://doi.org/10.1038/s41597-023-02208-w"/>
+	</analytic>
+	<monogr>
+		<title level="j">Scientific Data</title>
+		<imprint>
+			<biblScope unit="volume">10</biblScope>
+			<biblScope unit="issue">1</biblScope>
+			<date type="published" when="2023-06">June 2023</date>
+		</imprint>
+	</monogr>
+</biblStruct>
+
+				</listBibl>
+			</div>
+		</back>
+	</text>
+</TEI>
