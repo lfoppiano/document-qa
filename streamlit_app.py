@@ -290,12 +290,14 @@ with right_column:
     st.markdown(
         ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
 
-    uploaded_file = st.file_uploader("Upload an article",
-                                     type=("pdf", "txt"),
-                                     on_change=new_file,
-                                     disabled=st.session_state['model'] is not None and st.session_state['model'] not in
-                                              st.session_state['api_keys'],
-                                     help="The full-text is extracted using Grobid. ")
+    uploaded_file = st.file_uploader(
+        "Upload an article",
+        type=("pdf", "txt"),
+        on_change=new_file,
+        disabled=st.session_state['model'] is not None and st.session_state['model'] not in
+                 st.session_state['api_keys'],
+        help="The full-text is extracted using Grobid."
+    )
 
 question = st.chat_input(
     "Ask something about the article",
@@ -482,7 +484,7 @@ with left_column:
             input=st.session_state['binary'],
             width=600,
             height=800,
-            annotation_outline_size=2,
+            annotation_outline_size=1,
             annotations=st.session_state['annotations'],
             rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed'
         )
