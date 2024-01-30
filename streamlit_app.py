@@ -339,6 +339,7 @@ with st.sidebar:
     st.session_state['pdf_rendering'] = st.radio(
         "PDF rendering mode",
         {"PDF.JS", "Native browser engine"},
+        index=1,
         disabled=not uploaded_file,
     )
 
