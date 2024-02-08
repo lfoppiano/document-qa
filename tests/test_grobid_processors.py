@@ -38,7 +38,7 @@ def test_get_xml_nodes_header_paragraphs():
 
     children = get_xml_nodes_header(soup)
 
-    assert len(children) == 8
+    assert sum([len(child) for k, child in children.items()]) == 8
 
 
 def test_get_xml_nodes_header_sentences():
@@ -47,4 +47,4 @@ def test_get_xml_nodes_header_sentences():
 
     children = get_xml_nodes_header(soup, use_paragraphs=False)
 
-    assert len(children) == 15
+    assert sum([len(child) for k, child in children.items()]) == 15
