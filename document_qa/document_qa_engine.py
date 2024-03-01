@@ -85,6 +85,9 @@ class TextMerger:
 
         return new_passages_struct
 
+class DataStorage:
+
+
 
 class DocumentQAEngine:
     llm = None
@@ -123,16 +126,7 @@ class DocumentQAEngine:
                 self.load_embeddings(self.embeddings_root_path)
 
         if grobid_url:
-            self.grobid_url = grobid_url
-            grobid_client = GrobidClient(
-                grobid_server=self.grobid_url,
-                batch_size=1000,
-                coordinates=["p", "title", "persName"],
-                sleep_time=5,
-                timeout=60,
-                check_server=True
-            )
-            self.grobid_processor = GrobidProcessor(grobid_client)
+            self.grobid_processor = GrobidProcessor(grobid_url)
 
     def load_embeddings(self, embeddings_root_path: Union[str, Path]) -> None:
         """
@@ -203,6 +197,16 @@ class DocumentQAEngine:
 
         context_as_text = [doc.page_content for doc in documents]
         return context_as_text
+
+    def query_storage_and_embeddings(self, query: str, doc_id, context_size=4):
+        db = self.embeddings_dict[doc_id]
+        retriever = db.as_retriever(search_kwargs={"k": context_size})
+        relevant_documents = retriever.get_relevant_documents(query, include=["embeddings"])
+
+        context_as_text = [doc.page_content for doc in relevant_documents]
+        return context_as_text
+
+        # chroma_collection.get(include=['embeddings'])['embeddings']
 
     def _parse_json(self, response, output_parser):
         system_message = "You are an useful assistant expert in materials science, physics, and chemistry " \

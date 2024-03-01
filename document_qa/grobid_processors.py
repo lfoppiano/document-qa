@@ -6,6 +6,7 @@ from pathlib import Path
 import dateparser
 import grobid_tei_xml
 from bs4 import BeautifulSoup
+from grobid_client.grobid_client import GrobidClient
 from tqdm import tqdm
 
 
@@ -127,8 +128,16 @@ class BaseProcessor(object):
 
 
 class GrobidProcessor(BaseProcessor):
-    def __init__(self, grobid_client):
+    def __init__(self, grobid_url, ping_server=True):
         # super().__init__()
+        grobid_client = GrobidClient(
+            grobid_server=grobid_url,
+            batch_size=5,
+            coordinates=["p", "title", "persName"],
+            sleep_time=5,
+            timeout=60,
+            check_server=ping_server
+        )
         self.grobid_client = grobid_client
 
     def process_structure(self, input_path, coordinates=False):

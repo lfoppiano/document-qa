@@ -441,7 +441,7 @@ with right_column:
         text_response = None
         if mode == "Embeddings":
             with st.spinner("Generating LLM response..."):
-                text_response = st.session_state['rqa'][model].query_storage(question, st.session_state.doc_id,
+                text_response = st.session_state['rqa'][model].query_storage_and_embeddings(question, st.session_state.doc_id,
                                                                              context_size=context_size)
         elif mode == "LLM":
             with st.spinner("Generating response..."):
