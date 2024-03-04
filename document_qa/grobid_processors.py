@@ -2,6 +2,7 @@ import re
 from collections import OrderedDict
 from html import escape
 from pathlib import Path
+from typing_extensions import deprecated
 
 import dateparser
 import grobid_tei_xml
@@ -54,6 +55,7 @@ def decorate_text_with_annotations(text, spans, tag="span"):
     return annotated_text
 
 
+@deprecated("Use GrobidQuantitiesProcessor.process() instead")
 def extract_quantities(client, x_all, column_text_index):
     # relevant_items = ['magnetic field strength', 'magnetic induction', 'maximum energy product',
     #                   "magnetic flux density", "magnetic flux"]
@@ -78,6 +80,7 @@ def extract_quantities(client, x_all, column_text_index):
     return output_data
 
 
+@deprecated("Use GrobidMaterialsProcessor.process() instead")
 def extract_materials(client, x_all, column_text_index):
     output_data = []
 
@@ -149,15 +152,6 @@ class GrobidProcessor(BaseProcessor):
         document_object['filename'] = Path(pdf_file).stem.replace(".tei", "")
 
         return document_object
-
-    # def process_single(self, input_file):
-    #     doc = self.process_structure(input_file)
-    # 
-    #     for paragraph in doc['passages']:
-    #         entities = self.process_single_text(paragraph['text'])
-    #         paragraph['spans'] = entities
-    # 
-    #     return doc
 
     def parse_grobid_xml(self, text, coordinates=False):
         output_data = OrderedDict()
