@@ -269,7 +269,7 @@ class DocumentQAEngine:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
         coordinates = True  # if chunk_size == -1 else False
-        structure = self.grobid_processor.process_structure(pdf_file_path, coordinates=coordinates)
+        structure = self.grobid_processor.process(pdf_file_path, coordinates=coordinates)
 
         biblio = structure['biblio']
         biblio['filename'] = filename.replace(" ", "_")
