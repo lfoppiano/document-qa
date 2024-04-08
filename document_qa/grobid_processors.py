@@ -110,10 +110,10 @@ class GrobidProcessor(BaseProcessor):
         if status != 200:
             return
 
-        output_data = self.parse_grobid_xml(text, coordinates=coordinates)
-        output_data['filename'] = Path(pdf_file).stem.replace(".tei", "")
+        document_object = self.parse_grobid_xml(text, coordinates=coordinates)
+        document_object['filename'] = Path(pdf_file).stem.replace(".tei", "")
 
-        return output_data
+        return document_object
 
     def process_single(self, input_file):
         doc = self.process_structure(input_file)
@@ -152,8 +152,8 @@ class GrobidProcessor(BaseProcessor):
             "text": f"authors: {biblio['authors']}",
             "type": passage_type,
             "section": "<header>",
-            "subSection": "<title>",
-            "passage_id": "htitle",
+            "subSection": "<authors>",
+            "passage_id": "hauthors",
             "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
                                      blocks_header['authors']])
         })
@@ -258,7 +258,7 @@ class GrobidQuantitiesProcessor(BaseProcessor):
     def __init__(self, grobid_quantities_client):
         self.grobid_quantities_client = grobid_quantities_client
 
-    def extract_quantities(self, text) -> list:
+    def process(self, text) -> list:
         status, result = self.grobid_quantities_client.process_text(text.strip())
 
         if status != 200:
@@ -430,7 +430,7 @@ class GrobidMaterialsProcessor(BaseProcessor):
     def __init__(self, grobid_superconductors_client):
         self.grobid_superconductors_client = grobid_superconductors_client
 
-    def extract_materials(self, text):
+    def process(self, text):
         preprocessed_text = text.strip()
         status, result = self.grobid_superconductors_client.process_text(preprocessed_text,
                                                                          "processText_disable_linking")
@@ -534,22 +534,21 @@ class GrobidAggregationProcessor(GrobidQuantitiesProcessor, GrobidMaterialsProce
             self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
 
     def process_single_text(self, text):
-        extracted_quantities_spans = self.gqp.extract_quantities(text)
-        extracted_materials_spans = self.gmp.extract_materials(text)
+        extracted_quantities_spans = self.process_properties(text)
+        extracted_materials_spans = self.process_materials(text)
         all_entities = extracted_quantities_spans + extracted_materials_spans
         entities = self.prune_overlapping_annotations(all_entities)
         return entities
 
-    def extract_quantities(self, text):
+    def process_properties(self, text):
         if self.gqp:
-            return self.gqp.extract_quantities(text)
+            return self.gqp.process(text)
         else:
             return []
 
-
-    def extract_materials(self, text):
+    def process_materials(self, text):
         if self.gmp:
-            return self.gmp.extract_materials(text)
+            return self.gmp.process(text)
         else:
             return []
 
@@ -688,8 +687,8 @@ class GrobidAggregationProcessor(GrobidQuantitiesProcessor, GrobidMaterialsProce
 
 
 class XmlProcessor(BaseProcessor):
-    def __init__(self, grobid_superconductors_client, grobid_quantities_client):
-        super().__init__(grobid_superconductors_client, grobid_quantities_client)
+    def __init__(self):
+        super().__init__()
 
     def process_structure(self, input_file):
         text = ""
@@ -701,16 +700,16 @@ class XmlProcessor(BaseProcessor):
 
         return output_data
 
-    def process_single(self, input_file):
-        doc = self.process_structure(input_file)
+    # def process_single(self, input_file):
+    #     doc = self.process_structure(input_file)
+    #
+    #     for paragraph in doc['passages']:
+    #         entities = self.process_single_text(paragraph['text'])
+    #         paragraph['spans'] = entities
+    #
+    #     return doc
 
-        for paragraph in doc['passages']:
-            entities = self.process_single_text(paragraph['text'])
-            paragraph['spans'] = entities
-
-        return doc
-
-    def parse_xml(self, text):
+    def process(self, text):
         output_data = OrderedDict()
         soup = BeautifulSoup(text, 'xml')
         text_blocks_children = get_children_list_supermat(soup, verbose=False)
