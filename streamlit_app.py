@@ -9,15 +9,16 @@ from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
 from streamlit_pdf_viewer import pdf_viewer
 
+from document_qa.ner_client_generic import NERClientGeneric
+
 dotenv.load_dotenv(override=True)
 
 import streamlit as st
 from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
 
-from document_qa.document_qa_engine import DocumentQAEngine
+from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
-from grobid_client_generic import GrobidClientGeneric
 
 OPENAI_MODELS = ['gpt-3.5-turbo',
                  "gpt-4",
@@ -168,14 +169,15 @@ def init_qa(model, api_key=None):
         st.stop()
         return
 
-    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
+    storage = DataStorage(embeddings)
+    return DocumentQAEngine(chat, storage, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
 
 
 @st.cache_resource
 def init_ner():
     quantities_client = QuantitiesAPI(os.environ['GROBID_QUANTITIES_URL'], check_server=True)
 
-    materials_client = GrobidClientGeneric(ping=True)
+    materials_client = NERClientGeneric(ping=True)
     config_materials = {
         'grobid': {
             "server": os.environ['GROBID_MATERIALS_URL'],
@@ -190,10 +192,8 @@ def init_ner():
 
     materials_client.set_config(config_materials)
 
-    gqa = GrobidAggregationProcessor(None,
-                                     grobid_quantities_client=quantities_client,
-                                     grobid_superconductors_client=materials_client
-                                     )
+    gqa = GrobidAggregationProcessor(grobid_quantities_client=quantities_client,
+                                     grobid_superconductors_client=materials_client)
     return gqa
 
 
@@ -340,9 +340,12 @@ with st.sidebar:
 
     st.session_state['pdf_rendering'] = st.radio(
         "PDF rendering mode",
-        {"PDF.JS", "Native browser engine"},
-        index=1,
+        ("unwrap", "legacy_embed"),
+        index=0,
         disabled=not uploaded_file,
+        help="PDF rendering engine."
+             "Note: The Legacy PDF viewer does not support annotations and might not work on Chrome.",
+        format_func=lambda q: "Legacy PDF Viewer" if q == "legacy_embed" else "Streamlit PDF Viewer (Pdf.js)"
     )
 
     st.divider()
@@ -441,7 +444,8 @@ with right_column:
         text_response = None
         if mode == "Embeddings":
             with st.spinner("Generating LLM response..."):
-                text_response = st.session_state['rqa'][model].query_storage_and_embeddings(question, st.session_state.doc_id,
+                text_response, coordinates = st.session_state['rqa'][model].query_storage(question,
+                                                                             st.session_state.doc_id,
                                                                              context_size=context_size)
         elif mode == "LLM":
             with st.spinner("Generating response..."):
@@ -449,14 +453,14 @@ with right_column:
                                                                                               st.session_state.doc_id,
                                                                                               context_size=context_size)
 
-                annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
-                               for coord_doc in coordinates]
-                gradients = generate_color_gradient(len(annotations))
-                for i, color in enumerate(gradients):
-                    for annotation in annotations[i]:
-                        annotation['color'] = color
-                st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
-                                                   annotation_doc]
+        annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
+                       for coord_doc in coordinates]
+        gradients = generate_color_gradient(len(annotations))
+        for i, color in enumerate(gradients):
+            for annotation in annotations[i]:
+                annotation['color'] = color
+        st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
+                                           annotation_doc]
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
@@ -486,5 +490,5 @@ with left_column:
             height=800,
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
-            rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed'
+            rendering=st.session_state['pdf_rendering']
         )

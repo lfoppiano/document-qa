@@ -4,10 +4,10 @@ grobid-client-python==0.0.7
 grobid_tei_xml==0.1.3
 
 # Utils
-tqdm==4.66.1
+tqdm==4.66.2
 pyyaml==6.0.1
-pytest==7.4.3
-streamlit==1.29.0
+pytest==8.1.1
+streamlit==1.33.0
 lxml
 Beautifulsoup4
 python-dotenv
@@ -15,13 +15,13 @@ watchdog
 dateparser
 
 # LLM
-chromadb==0.4.19
-tiktoken==0.4.0
-openai==0.27.7
-langchain==0.0.350
-langchain-core==0.1.0
+chromadb==0.4.24
+tiktoken==0.6.0
+openai==1.16.2
+langchain==0.1.14
+langchain-core==0.1.40
 typing-inspect==0.9.0
-typing_extensions==4.8.0
-pydantic==2.4.2
-sentence_transformers==2.2.2
+typing_extensions==4.11.0
+pydantic==2.6.4
+sentence_transformers==2.6.1
 streamlit-pdf-viewer
