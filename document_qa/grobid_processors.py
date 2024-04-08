@@ -7,7 +7,6 @@ import dateparser
 import grobid_tei_xml
 from bs4 import BeautifulSoup
 from grobid_client.grobid_client import GrobidClient
-from tqdm import tqdm
 
 
 def get_span_start(type, title=None):
@@ -53,49 +52,6 @@ def decorate_text_with_annotations(text, spans, tag="span"):
         start = span['offset_end']
     annotated_text += escape(text[start: len(text)])
     return annotated_text
-
-
-def extract_quantities(client, x_all, column_text_index):
-    # relevant_items = ['magnetic field strength', 'magnetic induction', 'maximum energy product',
-    #                   "magnetic flux density", "magnetic flux"]
-    # property_keywords = ['coercivity', 'remanence']
-
-    output_data = []
-
-    for idx, example in tqdm(enumerate(x_all), desc="extract quantities"):
-        text = example[column_text_index]
-        spans = GrobidQuantitiesProcessor(client).extract_quantities(text)
-
-        data_record = {
-            "id": example[0],
-            "filename": example[1],
-            "passage_id": example[2],
-            "text": text,
-            "spans": spans
-        }
-
-        output_data.append(data_record)
-
-    return output_data
-
-
-def extract_materials(client, x_all, column_text_index):
-    output_data = []
-
-    for idx, example in tqdm(enumerate(x_all), desc="extract materials"):
-        text = example[column_text_index]
-        spans = GrobidMaterialsProcessor(client).extract_materials(text)
-        data_record = {
-            "id": example[0],
-            "filename": example[1],
-            "passage_id": example[2],
-            "text": text,
-            "spans": spans
-        }
-
-        output_data.append(data_record)
-
-    return output_data
 
 
 def get_parsed_value_type(quantity):
@@ -199,7 +155,7 @@ class GrobidProcessor(BaseProcessor):
             "subSection": "<title>",
             "passage_id": "htitle",
             "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
-                            blocks_header['authors']])
+                                     blocks_header['authors']])
         })
 
         passages.append({
@@ -302,7 +258,7 @@ class GrobidQuantitiesProcessor(BaseProcessor):
     def __init__(self, grobid_quantities_client):
         self.grobid_quantities_client = grobid_quantities_client
 
-    def extract_quantities(self, text):
+    def extract_quantities(self, text) -> list:
         status, result = self.grobid_quantities_client.process_text(text.strip())
 
         if status != 200:
@@ -570,11 +526,12 @@ class GrobidMaterialsProcessor(BaseProcessor):
         return materials
 
 
-class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, GrobidMaterialsProcessor):
-    def __init__(self, grobid_client, grobid_quantities_client=None, grobid_superconductors_client=None):
-        GrobidProcessor.__init__(self, grobid_client)
-        self.gqp = GrobidQuantitiesProcessor(grobid_quantities_client)
-        self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
+class GrobidAggregationProcessor(GrobidQuantitiesProcessor, GrobidMaterialsProcessor):
+    def __init__(self, grobid_quantities_client=None, grobid_superconductors_client=None):
+        if grobid_quantities_client:
+            self.gqp = GrobidQuantitiesProcessor(grobid_quantities_client)
+        if grobid_superconductors_client:
+            self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
 
     def process_single_text(self, text):
         extracted_quantities_spans = self.gqp.extract_quantities(text)
@@ -584,10 +541,17 @@ class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, Gro
         return entities
 
     def extract_quantities(self, text):
-        return self.gqp.extract_quantities(text)
+        if self.gqp:
+            return self.gqp.extract_quantities(text)
+        else:
+            return []
+
 
     def extract_materials(self, text):
-        return self.gmp.extract_materials(text)
+        if self.gmp:
+            return self.gmp.extract_materials(text)
+        else:
+            return []
 
     @staticmethod
     def box_to_dict(box, color=None, type=None):
