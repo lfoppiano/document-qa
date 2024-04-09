@@ -5,8 +5,11 @@ from tempfile import NamedTemporaryFile
 
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
-from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.chat_models.openai import ChatOpenAI
+from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings.openai import OpenAIEmbeddings
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from streamlit_pdf_viewer import pdf_viewer
 
 from document_qa.ner_client_generic import NERClientGeneric
@@ -14,9 +17,6 @@ from document_qa.ner_client_generic import NERClientGeneric
 dotenv.load_dotenv(override=True)
 
 import streamlit as st
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-
 from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 
@@ -157,9 +157,11 @@ def init_qa(model, api_key=None):
             embeddings = OpenAIEmbeddings()
 
     elif model in OPEN_MODELS:
-        chat = HuggingFaceHub(
+        chat = HuggingFaceEndpoint(
             repo_id=OPEN_MODELS[model],
-            model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048}
+            temperature=0.01,
+            max_new_tokens=2048,
+            model_kwargs={"max_length": 4096}
         )
         embeddings = HuggingFaceEmbeddings(
             model_name="all-MiniLM-L6-v2")
@@ -305,16 +307,24 @@ question = st.chat_input(
     disabled=not uploaded_file
 )
 
+query_modes = {
+    "llm": "LLM Q/A",
+    "embeddings": "Embeddings",
+    "question_coefficient": "Question coefficient"
+}
+
 with st.sidebar:
     st.header("Settings")
     mode = st.radio(
         "Query mode",
-        ("LLM", "Embeddings"),
+        ("llm", "embeddings", "question_coefficient"),
         disabled=not uploaded_file,
         index=0,
         horizontal=True,
+        format_func=lambda x: query_modes[x],
         help="LLM will respond the question, Embedding will show the "
-             "paragraphs relevant to the question in the paper."
+             "relevant paragraphs to the question in the paper. "
+             "Question coefficient attempt to estimate how effective the question will be answered."
     )
 
     # Add a checkbox for showing annotations
@@ -429,10 +439,12 @@ with right_column:
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
-                if message['mode'] == "LLM":
+                if message['mode'] == "llm":
                     st.markdown(message["content"], unsafe_allow_html=True)
-                elif message['mode'] == "Embeddings":
+                elif message['mode'] == "embeddings":
                     st.write(message["content"])
+                if message['mode'] == "question_coefficient":
+                    st.markdown(message["content"], unsafe_allow_html=True)
         if model not in st.session_state['rqa']:
             st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
             st.stop()
@@ -442,16 +454,28 @@ with right_column:
             st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
 
         text_response = None
-        if mode == "Embeddings":
+        if mode == "embeddings":
+            with st.spinner("Fetching the relevant context..."):
+                text_response, coordinates = st.session_state['rqa'][model].query_storage(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
+        elif mode == "llm":
             with st.spinner("Generating LLM response..."):
-                text_response, coordinates = st.session_state['rqa'][model].query_storage(question,
-                                                                             st.session_state.doc_id,
-                                                                             context_size=context_size)
-        elif mode == "LLM":
-            with st.spinner("Generating response..."):
-                _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
-                                                                                              st.session_state.doc_id,
-                                                                                              context_size=context_size)
+                _, text_response, coordinates = st.session_state['rqa'][model].query_document(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
+
+        elif mode == "question_coefficient":
+            with st.spinner("Estimate question/context relevancy..."):
+                text_response, coordinates = st.session_state['rqa'][model].analyse_query(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
 
         annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
                        for coord_doc in coordinates]
@@ -466,7 +490,7 @@ with right_column:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
 
         with st.chat_message("assistant"):
-            if mode == "LLM":
+            if mode == "llm":
                 if st.session_state['ner_processing']:
                     with st.spinner("Processing NER on LLM response..."):
                         entities = gqa.process_single_text(text_response)
