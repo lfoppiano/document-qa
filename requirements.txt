@@ -25,3 +25,5 @@ typing_extensions==4.11.0
 pydantic==2.6.4
 sentence_transformers==2.6.1
 streamlit-pdf-viewer
+umap-learn
+plotly

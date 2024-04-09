@@ -1,35 +1,23 @@
 import copy
 import os
 from pathlib import Path
-from typing import Union, Any, Optional, List, Dict, Tuple, ClassVar, Collection
+from typing import Union, Any, List
 
 import tiktoken
 from langchain.chains import create_extraction_chain
 from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
     map_rerank_prompt
+from langchain.evaluation import PairwiseEmbeddingDistanceEvalChain, load_evaluator, EmbeddingDistance
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
 from langchain.schema import Document
-from langchain_community.vectorstores.chroma import Chroma, DEFAULT_K
-from langchain_community.vectorstores.faiss import FAISS
-from langchain_core.callbacks import CallbackManagerForRetrieverRun
-from langchain_core.utils import xor_args
-from langchain_core.vectorstores import VectorStore, VectorStoreRetriever
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_core.vectorstores import VectorStore
 from tqdm import tqdm
 
+# from document_qa.embedding_visualiser import QueryVisualiser
 from document_qa.grobid_processors import GrobidProcessor
-
-
-def _results_to_docs_scores_and_embeddings(results: Any) -> List[Tuple[Document, float, List[float]]]:
-    return [
-        (Document(page_content=result[0], metadata=result[1] or {}), result[2], result[3])
-        for result in zip(
-            results["documents"][0],
-            results["metadatas"][0],
-            results["distances"][0],
-            results["embeddings"][0],
-        )
-    ]
+from document_qa.langchain import ChromaAdvancedRetrieval
 
 
 class TextMerger:
@@ -117,135 +105,6 @@ class BaseRetrieval:
         self.persist_directory = persist_directory
 
 
-class AdvancedVectorStoreRetriever(VectorStoreRetriever):
-    allowed_search_types: ClassVar[Collection[str]] = (
-        "similarity",
-        "similarity_score_threshold",
-        "mmr",
-        "similarity_with_embeddings"
-    )
-
-    def _get_relevant_documents(
-            self, query: str, *, run_manager: CallbackManagerForRetrieverRun
-    ) -> List[Document]:
-        if self.search_type == "similarity":
-            docs = self.vectorstore.similarity_search(query, **self.search_kwargs)
-        elif self.search_type == "similarity_score_threshold":
-            docs_and_similarities = (
-                self.vectorstore.similarity_search_with_relevance_scores(
-                    query, **self.search_kwargs
-                )
-            )
-            for doc, similarity in docs_and_similarities:
-                if '__similarity' not in doc.metadata.keys():
-                    doc.metadata['__similarity'] = similarity
-
-            docs = [doc for doc, _ in docs_and_similarities]
-        elif self.search_type == "mmr":
-            docs = self.vectorstore.max_marginal_relevance_search(
-                query, **self.search_kwargs
-            )
-        elif self.search_type == "similarity_with_embeddings":
-            docs_scores_and_embeddings = (
-                self.vectorstore.advanced_similarity_search(
-                    query, **self.search_kwargs
-                )
-            )
-
-            for doc, score, embeddings in docs_scores_and_embeddings:
-                if '__embeddings' not in doc.metadata.keys():
-                    doc.metadata['__embeddings'] = embeddings
-                if '__similarity' not in doc.metadata.keys():
-                    doc.metadata['__similarity'] = score
-
-            docs = [doc for doc, _, _ in docs_scores_and_embeddings]
-        else:
-            raise ValueError(f"search_type of {self.search_type} not allowed.")
-        return docs
-
-
-class AdvancedVectorStore(VectorStore):
-    def as_retriever(self, **kwargs: Any) -> AdvancedVectorStoreRetriever:
-        tags = kwargs.pop("tags", None) or []
-        tags.extend(self._get_retriever_tags())
-        return AdvancedVectorStoreRetriever(vectorstore=self, **kwargs, tags=tags)
-
-
-class ChromaAdvancedRetrieval(Chroma, AdvancedVectorStore):
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-
-    @xor_args(("query_texts", "query_embeddings"))
-    def __query_collection(
-            self,
-            query_texts: Optional[List[str]] = None,
-            query_embeddings: Optional[List[List[float]]] = None,
-            n_results: int = 4,
-            where: Optional[Dict[str, str]] = None,
-            where_document: Optional[Dict[str, str]] = None,
-            **kwargs: Any,
-    ) -> List[Document]:
-        """Query the chroma collection."""
-        try:
-            import chromadb  # noqa: F401
-        except ImportError:
-            raise ValueError(
-                "Could not import chromadb python package. "
-                "Please install it with `pip install chromadb`."
-            )
-        return self._collection.query(
-            query_texts=query_texts,
-            query_embeddings=query_embeddings,
-            n_results=n_results,
-            where=where,
-            where_document=where_document,
-            **kwargs,
-        )
-
-    def advanced_similarity_search(
-            self,
-            query: str,
-            k: int = DEFAULT_K,
-            filter: Optional[Dict[str, str]] = None,
-            **kwargs: Any,
-    ) -> [List[Document], float, List[float]]:
-        docs_scores_and_embeddings = self.similarity_search_with_scores_and_embeddings(query, k, filter=filter)
-        return docs_scores_and_embeddings
-
-    def similarity_search_with_scores_and_embeddings(
-            self,
-            query: str,
-            k: int = DEFAULT_K,
-            filter: Optional[Dict[str, str]] = None,
-            where_document: Optional[Dict[str, str]] = None,
-            **kwargs: Any,
-    ) -> List[Tuple[Document, float, List[float]]]:
-
-        if self._embedding_function is None:
-            results = self.__query_collection(
-                query_texts=[query],
-                n_results=k,
-                where=filter,
-                where_document=where_document,
-                include=['metadatas', 'documents', 'embeddings', 'distances']
-            )
-        else:
-            query_embedding = self._embedding_function.embed_query(query)
-            results = self.__query_collection(
-                query_embeddings=[query_embedding],
-                n_results=k,
-                where=filter,
-                where_document=where_document,
-                include=['metadatas', 'documents', 'embeddings', 'distances']
-            )
-
-        return _results_to_docs_scores_and_embeddings(results)
-
-
-class FAISSAdvancedRetrieval(FAISS):
-    pass
-
-
 class NER_Retrival(VectorStore):
     """
     This class implement a retrieval based on NER models.
@@ -256,7 +115,6 @@ class NER_Retrival(VectorStore):
 
 engines = {
     'chroma': ChromaAdvancedRetrieval,
-    'faiss': FAISSAdvancedRetrieval,
     'ner': NER_Retrival
 }
 
@@ -409,7 +267,7 @@ class DocumentQAEngine:
         context_as_text = [doc.page_content for doc in documents]
         return context_as_text, coordinates
 
-    def query_storage_and_embeddings(self, query: str, doc_id, context_size=4):
+    def query_storage_and_embeddings(self, query: str, doc_id, context_size=4) -> List[Document]:
         """
         Returns both the context and the embedding information from a given query
         """
@@ -417,10 +275,35 @@ class DocumentQAEngine:
         retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
         relevant_documents = retriever.get_relevant_documents(query)
 
-        context_as_text = [doc.page_content for doc in relevant_documents]
-        return context_as_text
+        return relevant_documents
 
-        # chroma_collection.get(include=['embeddings'])['embeddings']
+    def analyse_query(self, query, doc_id, context_size=4):
+        db = self.data_storage.embeddings_dict[doc_id]
+        # retriever = db.as_retriever(
+        #     search_kwargs={"k": context_size, 'score_threshold': 0.0},
+        #     search_type="similarity_score_threshold"
+        # )
+        retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
+        relevant_documents = retriever.get_relevant_documents(query)
+        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
+                                         for doc in
+                                         relevant_documents]
+        all_documents = db.get(include=['documents', 'metadatas', 'embeddings'])
+        # all_documents_embeddings = all_documents["embeddings"]
+        # query_embedding = db._embedding_function.embed_query(query)
+
+        # distance_evaluator = load_evaluator("pairwise_embedding_distance",
+        #                               embeddings=db._embedding_function,
+        #                               distance_metric=EmbeddingDistance.EUCLIDEAN)
+
+        # distance_evaluator.evaluate_string_pairs(query=query_embedding, documents="")
+
+        similarities = [doc.metadata['__similarity'] for doc in relevant_documents]
+        min_similarity = min(similarities)
+        mean_similarity = sum(similarities) / len(similarities)
+        coefficient = min_similarity - mean_similarity
+
+        return f"Coefficient: {coefficient}, (Min similarity {min_similarity}, Mean similarity: {mean_similarity})", relevant_document_coordinates
 
     def _parse_json(self, response, output_parser):
         system_message = "You are an useful assistant expert in materials science, physics, and chemistry " \
@@ -444,10 +327,7 @@ class DocumentQAEngine:
         return parsed_output
 
     def _run_query(self, doc_id, query, context_size=4) -> (List[Document], list):
-        relevant_documents = self._get_context(doc_id, query, context_size)
-        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
-                                         for doc in
-                                         relevant_documents]
+        relevant_documents, relevant_document_coordinates = self._get_context(doc_id, query, context_size)
         response = self.chain.run(input_documents=relevant_documents,
                                   question=query)
 
