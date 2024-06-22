@@ -15,8 +15,6 @@ RUN pip3 install -r requirements.txt
 
 COPY .streamlit ./.streamlit
 COPY document_qa ./document_qa
-COPY grobid_client_generic.py .
-COPY client.py .
 COPY streamlit_app.py .
 
 # extract version

@@ -5,27 +5,41 @@ from tempfile import NamedTemporaryFile
 
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
-from langchain.llms.huggingface_hub import HuggingFaceHub
 from langchain.memory import ConversationBufferWindowMemory
+from langchain_community.chat_models.openai import ChatOpenAI
+from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
+from langchain_community.embeddings.openai import OpenAIEmbeddings
+from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from streamlit_pdf_viewer import pdf_viewer
+
+from document_qa.ner_client_generic import NERClientGeneric
 
 dotenv.load_dotenv(override=True)
 
 import streamlit as st
-from langchain.chat_models import ChatOpenAI
-from langchain.embeddings import OpenAIEmbeddings, HuggingFaceEmbeddings
-
-from document_qa.document_qa_engine import DocumentQAEngine
+from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
-from grobid_client_generic import GrobidClientGeneric
 
 OPENAI_MODELS = ['gpt-3.5-turbo',
                  "gpt-4",
                  "gpt-4-1106-preview"]
 
+OPENAI_EMBEDDINGS = [
+    'text-embedding-ada-002',
+    'text-embedding-3-large',
+    'openai-text-embedding-3-small'
+]
+
 OPEN_MODELS = {
-    'mistral-7b-instruct-v0.1': 'mistralai/Mistral-7B-Instruct-v0.1',
-    "zephyr-7b-beta": 'HuggingFaceH4/zephyr-7b-beta'
+    'mistral-7b-instruct-v0.3': 'mistralai/Mistral-7B-Instruct-v0.2',
+    # 'Phi-3-mini-128k-instruct': "microsoft/Phi-3-mini-128k-instruct",
+    'Phi-3-mini-4k-instruct': "microsoft/Phi-3-mini-4k-instruct"
+}
+
+DEFAULT_OPEN_EMBEDDING_NAME = 'Default (all-MiniLM-L6-v2)'
+OPEN_EMBEDDINGS = {
+    DEFAULT_OPEN_EMBEDDING_NAME: 'all-MiniLM-L6-v2',
+    'Salesforce/SFR-Embedding-Mistral': 'Salesforce/SFR-Embedding-Mistral'
 }
 
 DISABLE_MEMORY = ['zephyr-7b-beta']
@@ -81,6 +95,9 @@ if 'pdf' not in st.session_state:
 
 if 'pdf_rendering' not in st.session_state:
     st.session_state['pdf_rendering'] = None
+
+if 'embeddings' not in st.session_state:
+    st.session_state['embeddings'] = None
 
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
@@ -138,44 +155,57 @@ def clear_memory():
 
 
 # @st.cache_resource
-def init_qa(model, api_key=None):
+def init_qa(model, embeddings_name=None, api_key=None):
     ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
     if model in OPENAI_MODELS:
+        if embeddings_name is None:
+            embeddings_name = 'text-embedding-ada-002'
+
         st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
         if api_key:
             chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               openai_api_key=api_key,
                               frequency_penalty=0.1)
-            embeddings = OpenAIEmbeddings(openai_api_key=api_key)
+            if embeddings_name not in OPENAI_EMBEDDINGS:
+                st.error(f"The embeddings provided {embeddings_name} are not supported by this model {model}.")
+                st.stop()
+                return
+            embeddings = OpenAIEmbeddings(model=embeddings_name, openai_api_key=api_key)
 
         else:
             chat = ChatOpenAI(model_name=model,
                               temperature=0,
                               frequency_penalty=0.1)
-            embeddings = OpenAIEmbeddings()
+            embeddings = OpenAIEmbeddings(model=embeddings_name)
 
     elif model in OPEN_MODELS:
-        chat = HuggingFaceHub(
+        if embeddings_name is None:
+            embeddings_name = DEFAULT_OPEN_EMBEDDING_NAME
+
+        chat = HuggingFaceEndpoint(
             repo_id=OPEN_MODELS[model],
-            model_kwargs={"temperature": 0.01, "max_length": 4096, "max_new_tokens": 2048}
+            temperature=0.01,
+            max_new_tokens=2048,
+            model_kwargs={"max_length": 4096}
         )
         embeddings = HuggingFaceEmbeddings(
-            model_name="all-MiniLM-L6-v2")
+            model_name=OPEN_EMBEDDINGS[embeddings_name])
         st.session_state['memory'] = ConversationBufferWindowMemory(k=4) if model not in DISABLE_MEMORY else None
     else:
         st.error("The model was not loaded properly. Try reloading. ")
         st.stop()
         return
 
-    return DocumentQAEngine(chat, embeddings, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
+    storage = DataStorage(embeddings)
+    return DocumentQAEngine(chat, storage, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
 
 
 @st.cache_resource
 def init_ner():
     quantities_client = QuantitiesAPI(os.environ['GROBID_QUANTITIES_URL'], check_server=True)
 
-    materials_client = GrobidClientGeneric(ping=True)
+    materials_client = NERClientGeneric(ping=True)
     config_materials = {
         'grobid': {
             "server": os.environ['GROBID_MATERIALS_URL'],
@@ -190,10 +220,8 @@ def init_ner():
 
     materials_client.set_config(config_materials)
 
-    gqa = GrobidAggregationProcessor(None,
-                                     grobid_quantities_client=quantities_client,
-                                     grobid_superconductors_client=materials_client
-                                     )
+    gqa = GrobidAggregationProcessor(grobid_quantities_client=quantities_client,
+                                     grobid_superconductors_client=materials_client)
     return gqa
 
 
@@ -229,15 +257,25 @@ with st.sidebar:
         "Model:",
         options=OPENAI_MODELS + list(OPEN_MODELS.keys()),
         index=(OPENAI_MODELS + list(OPEN_MODELS.keys())).index(
-            "zephyr-7b-beta") if "DEFAULT_MODEL" not in os.environ or not os.environ["DEFAULT_MODEL"] else (
+            "mistral-7b-instruct-v0.2") if "DEFAULT_MODEL" not in os.environ or not os.environ["DEFAULT_MODEL"] else (
                 OPENAI_MODELS + list(OPEN_MODELS.keys())).index(os.environ["DEFAULT_MODEL"]),
         placeholder="Select model",
         help="Select the LLM model:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
     )
+    embedding_choices = OPENAI_EMBEDDINGS if model in OPENAI_MODELS else OPEN_EMBEDDINGS
+
+    st.session_state['embeddings'] = embedding_name = st.selectbox(
+        "Embeddings:",
+        options=embedding_choices,
+        index=0,
+        placeholder="Select embedding",
+        help="Select the Embedding function:",
+        disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
+    )
 
     st.markdown(
-        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa/tree/review-interface#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
+        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
     if (model in OPEN_MODELS) and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
@@ -254,7 +292,7 @@ with st.sidebar:
                     st.session_state['api_keys'][model] = api_key
                     # if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
                     #     os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
-                    st.session_state['rqa'][model] = init_qa(model)
+                    st.session_state['rqa'][model] = init_qa(model, embedding_name)
 
     elif model in OPENAI_MODELS and model not in st.session_state['api_keys']:
         if 'OPENAI_API_KEY' not in os.environ:
@@ -268,9 +306,9 @@ with st.sidebar:
                 with st.spinner("Preparing environment"):
                     st.session_state['api_keys'][model] = api_key
                     if 'OPENAI_API_KEY' not in os.environ:
-                        st.session_state['rqa'][model] = init_qa(model, api_key)
+                        st.session_state['rqa'][model] = init_qa(model, st.session_state['embeddings'], api_key)
                     else:
-                        st.session_state['rqa'][model] = init_qa(model)
+                        st.session_state['rqa'][model] = init_qa(model, st.session_state['embeddings'])
     # else:
     #     is_api_key_provided = st.session_state['api_key']
 
@@ -305,16 +343,24 @@ question = st.chat_input(
     disabled=not uploaded_file
 )
 
+query_modes = {
+    "llm": "LLM Q/A",
+    "embeddings": "Embeddings",
+    "question_coefficient": "Question coefficient"
+}
+
 with st.sidebar:
     st.header("Settings")
     mode = st.radio(
         "Query mode",
-        ("LLM", "Embeddings"),
+        ("llm", "embeddings", "question_coefficient"),
         disabled=not uploaded_file,
         index=0,
         horizontal=True,
+        format_func=lambda x: query_modes[x],
         help="LLM will respond the question, Embedding will show the "
-             "paragraphs relevant to the question in the paper."
+             "relevant paragraphs to the question in the paper. "
+             "Question coefficient attempt to estimate how effective the question will be answered."
     )
 
     # Add a checkbox for showing annotations
@@ -340,9 +386,12 @@ with st.sidebar:
 
     st.session_state['pdf_rendering'] = st.radio(
         "PDF rendering mode",
-        {"PDF.JS", "Native browser engine"},
+        ("unwrap", "legacy_embed"),
         index=0,
         disabled=not uploaded_file,
+        help="PDF rendering engine."
+             "Note: The Legacy PDF viewer does not support annotations and might not work on Chrome.",
+        format_func=lambda q: "Legacy PDF Viewer" if q == "legacy_embed" else "Streamlit PDF Viewer (Pdf.js)"
     )
 
     st.divider()
@@ -358,10 +407,13 @@ with st.sidebar:
 
     st.header("Query mode (Advanced use)")
     st.markdown(
-        """By default, the mode is set to LLM (Language Model) which enables question/answering. You can directly ask questions related to the document content, and the system will answer the question using content from the document.""")
+        """By default, the mode is set to LLM (Language Model) which enables question/answering. 
+        You can directly ask questions related to the document content, and the system will answer the question using content from the document.""")
 
     st.markdown(
-        """If you switch the mode to "Embedding," the system will return specific chunks from the document that are semantically related to your query. This mode helps to test why sometimes the answers are not satisfying or incomplete. """)
+        """If you switch the mode to "Embedding," the system will return specific chunks from the document 
+        that are semantically related to your query. This mode helps to test why sometimes the answers are not 
+        satisfying or incomplete. """)
 
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
@@ -426,10 +478,12 @@ with right_column:
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
         for message in st.session_state.messages:
             with st.chat_message(message["role"]):
-                if message['mode'] == "LLM":
+                if message['mode'] == "llm":
                     st.markdown(message["content"], unsafe_allow_html=True)
-                elif message['mode'] == "Embeddings":
+                elif message['mode'] == "embeddings":
                     st.write(message["content"])
+                if message['mode'] == "question_coefficient":
+                    st.markdown(message["content"], unsafe_allow_html=True)
         if model not in st.session_state['rqa']:
             st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
             st.stop()
@@ -439,30 +493,43 @@ with right_column:
             st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
 
         text_response = None
-        if mode == "Embeddings":
+        if mode == "embeddings":
+            with st.spinner("Fetching the relevant context..."):
+                text_response, coordinates = st.session_state['rqa'][model].query_storage(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
+        elif mode == "llm":
             with st.spinner("Generating LLM response..."):
-                text_response = st.session_state['rqa'][model].query_storage(question, st.session_state.doc_id,
-                                                                             context_size=context_size)
-        elif mode == "LLM":
-            with st.spinner("Generating response..."):
-                _, text_response, coordinates = st.session_state['rqa'][model].query_document(question,
-                                                                                              st.session_state.doc_id,
-                                                                                              context_size=context_size)
+                _, text_response, coordinates = st.session_state['rqa'][model].query_document(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
 
-                annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
-                               for coord_doc in coordinates]
-                gradients = generate_color_gradient(len(annotations))
-                for i, color in enumerate(gradients):
-                    for annotation in annotations[i]:
-                        annotation['color'] = color
-                st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
-                                                   annotation_doc]
+        elif mode == "question_coefficient":
+            with st.spinner("Estimate question/context relevancy..."):
+                text_response, coordinates = st.session_state['rqa'][model].analyse_query(
+                    question,
+                    st.session_state.doc_id,
+                    context_size=context_size
+                )
+
+        annotations = [[GrobidAggregationProcessor.box_to_dict([cs for cs in c.split(",")]) for c in coord_doc]
+                       for coord_doc in coordinates]
+        gradients = generate_color_gradient(len(annotations))
+        for i, color in enumerate(gradients):
+            for annotation in annotations[i]:
+                annotation['color'] = color
+        st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
+                                           annotation_doc]
 
         if not text_response:
             st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
 
         with st.chat_message("assistant"):
-            if mode == "LLM":
+            if mode == "llm":
                 if st.session_state['ner_processing']:
                     with st.spinner("Processing NER on LLM response..."):
                         entities = gqa.process_single_text(text_response)
@@ -486,6 +553,6 @@ with left_column:
             height=800,
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
-            rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed',
+            rendering=st.session_state['pdf_rendering']
             render_text=True
         )

@@ -2,12 +2,11 @@ import re
 from collections import OrderedDict
 from html import escape
 from pathlib import Path
-from typing_extensions import deprecated
 
 import dateparser
 import grobid_tei_xml
 from bs4 import BeautifulSoup
-from tqdm import tqdm
+from grobid_client.grobid_client import GrobidClient
 
 
 def get_span_start(type, title=None):
@@ -55,51 +54,6 @@ def decorate_text_with_annotations(text, spans, tag="span"):
     return annotated_text
 
 
-@deprecated("Use GrobidQuantitiesProcessor.process() instead")
-def extract_quantities(client, x_all, column_text_index):
-    # relevant_items = ['magnetic field strength', 'magnetic induction', 'maximum energy product',
-    #                   "magnetic flux density", "magnetic flux"]
-    # property_keywords = ['coercivity', 'remanence']
-
-    output_data = []
-
-    for idx, example in tqdm(enumerate(x_all), desc="extract quantities"):
-        text = example[column_text_index]
-        spans = GrobidQuantitiesProcessor(client).process(text)
-
-        data_record = {
-            "id": example[0],
-            "filename": example[1],
-            "passage_id": example[2],
-            "text": text,
-            "spans": spans
-        }
-
-        output_data.append(data_record)
-
-    return output_data
-
-
-@deprecated("Use GrobidMaterialsProcessor.process() instead")
-def extract_materials(client, x_all, column_text_index):
-    output_data = []
-
-    for idx, example in tqdm(enumerate(x_all), desc="extract materials"):
-        text = example[column_text_index]
-        spans = GrobidMaterialsProcessor(client).process(text)
-        data_record = {
-            "id": example[0],
-            "filename": example[1],
-            "passage_id": example[2],
-            "text": text,
-            "spans": spans
-        }
-
-        output_data.append(data_record)
-
-    return output_data
-
-
 def get_parsed_value_type(quantity):
     if 'parsedValue' in quantity and 'structure' in quantity['parsedValue']:
         return quantity['parsedValue']['structure']['type']
@@ -130,11 +84,19 @@ class BaseProcessor(object):
 
 
 class GrobidProcessor(BaseProcessor):
-    def __init__(self, grobid_client):
+    def __init__(self, grobid_url, ping_server=True):
         # super().__init__()
+        grobid_client = GrobidClient(
+            grobid_server=grobid_url,
+            batch_size=5,
+            coordinates=["p", "title", "persName"],
+            sleep_time=5,
+            timeout=60,
+            check_server=ping_server
+        )
         self.grobid_client = grobid_client
 
-    def process(self, input_path, coordinates=False):
+    def process_structure(self, input_path, coordinates=False):
         pdf_file, status, text = self.grobid_client.process_pdf("processFulltextDocument",
                                                                 input_path,
                                                                 consolidate_header=True,
@@ -152,6 +114,15 @@ class GrobidProcessor(BaseProcessor):
         document_object['filename'] = Path(pdf_file).stem.replace(".tei", "")
 
         return document_object
+
+    def process_single(self, input_file):
+        doc = self.process_structure(input_file)
+
+        for paragraph in doc['passages']:
+            entities = self.process_single_text(paragraph['text'])
+            paragraph['spans'] = entities
+
+        return doc
 
     def parse_grobid_xml(self, text, coordinates=False):
         output_data = OrderedDict()
@@ -212,6 +183,7 @@ class GrobidProcessor(BaseProcessor):
         })
 
         text_blocks_body = get_xml_nodes_body(soup, verbose=False, use_paragraphs=True)
+        text_blocks_body.extend(get_xml_nodes_back(soup, verbose=False, use_paragraphs=True))
 
         use_paragraphs = True
         if not use_paragraphs:
@@ -287,7 +259,7 @@ class GrobidQuantitiesProcessor(BaseProcessor):
     def __init__(self, grobid_quantities_client):
         self.grobid_quantities_client = grobid_quantities_client
 
-    def process(self, text):
+    def process(self, text) -> list:
         status, result = self.grobid_quantities_client.process_text(text.strip())
 
         if status != 200:
@@ -555,11 +527,12 @@ class GrobidMaterialsProcessor(BaseProcessor):
         return materials
 
 
-class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, GrobidMaterialsProcessor):
-    def __init__(self, grobid_client, grobid_quantities_client=None, grobid_superconductors_client=None):
-        GrobidProcessor.__init__(self, grobid_client)
-        self.gqp = GrobidQuantitiesProcessor(grobid_quantities_client)
-        self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
+class GrobidAggregationProcessor(GrobidQuantitiesProcessor, GrobidMaterialsProcessor):
+    def __init__(self, grobid_quantities_client=None, grobid_superconductors_client=None):
+        if grobid_quantities_client:
+            self.gqp = GrobidQuantitiesProcessor(grobid_quantities_client)
+        if grobid_superconductors_client:
+            self.gmp = GrobidMaterialsProcessor(grobid_superconductors_client)
 
     def process_single_text(self, text):
         extracted_quantities_spans = self.process_properties(text)
@@ -569,10 +542,16 @@ class GrobidAggregationProcessor(GrobidProcessor, GrobidQuantitiesProcessor, Gro
         return entities
 
     def process_properties(self, text):
-        return self.gqp.process(text)
+        if self.gqp:
+            return self.gqp.process(text)
+        else:
+            return []
 
     def process_materials(self, text):
-        return self.gmp.process(text)
+        if self.gmp:
+            return self.gmp.process(text)
+        else:
+            return []
 
     @staticmethod
     def box_to_dict(box, color=None, type=None):
@@ -724,11 +703,11 @@ class XmlProcessor(BaseProcessor):
 
     # def process_single(self, input_file):
     #     doc = self.process_structure(input_file)
-    # 
+    #
     #     for paragraph in doc['passages']:
     #         entities = self.process_single_text(paragraph['text'])
     #         paragraph['spans'] = entities
-    # 
+    #
     #     return doc
 
     def process(self, text):
@@ -815,6 +794,20 @@ def get_xml_nodes_body(soup: object, use_paragraphs: bool = True, verbose: bool 
             # nodes.extend([subchild.find_all(tag_name) for subchild in child.find_all("body")])
             nodes.extend(
                 [subsubchild for subchild in child.find_all("body") for subsubchild in subchild.find_all(tag_name)])
+
+    if verbose:
+        print(str(nodes))
+
+    return nodes
+
+
+def get_xml_nodes_back(soup: object, use_paragraphs: bool = True, verbose: bool = False) -> list:
+    nodes = []
+    tag_name = "p" if use_paragraphs else "s"
+    for child in soup.TEI.children:
+        if child.name == 'text':
+            nodes.extend(
+                [subsubchild for subchild in child.find_all("back") for subsubchild in subchild.find_all(tag_name)])
 
     if verbose:
         print(str(nodes))

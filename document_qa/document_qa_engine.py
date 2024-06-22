@@ -1,23 +1,31 @@
 import copy
 import os
 from pathlib import Path
-from typing import Union, Any
+from typing import Union, Any, List
 
 import tiktoken
-from grobid_client.grobid_client import GrobidClient
 from langchain.chains import create_extraction_chain
 from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
     map_rerank_prompt
+from langchain.evaluation import PairwiseEmbeddingDistanceEvalChain, load_evaluator, EmbeddingDistance
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
 from langchain.schema import Document
-from langchain.vectorstores import Chroma
+from langchain_community.vectorstores.chroma import Chroma
+from langchain_core.vectorstores import VectorStore
 from tqdm import tqdm
 
+# from document_qa.embedding_visualiser import QueryVisualiser
 from document_qa.grobid_processors import GrobidProcessor
+from document_qa.langchain import ChromaAdvancedRetrieval
 
 
 class TextMerger:
+    """
+    This class tries to replicate the RecursiveTextSplitter from LangChain, to preserve and merge the
+    coordinate information from the PDF document.
+    """
+
     def __init__(self, model_name=None, encoding_name="gpt2"):
         if model_name is not None:
             self.enc = tiktoken.encoding_for_model(model_name)
@@ -86,57 +94,56 @@ class TextMerger:
         return new_passages_struct
 
 
-class DocumentQAEngine:
-    llm = None
-    qa_chain_type = None
-    embedding_function = None
+class BaseRetrieval:
+
+    def __init__(
+            self,
+            persist_directory: Path,
+            embedding_function
+    ):
+        self.embedding_function = embedding_function
+        self.persist_directory = persist_directory
+
+
+class NER_Retrival(VectorStore):
+    """
+    This class implement a retrieval based on NER models.
+    This is an alternative retrieval to embeddings that relies on extracted entities.
+    """
+    pass
+
+
+engines = {
+    'chroma': ChromaAdvancedRetrieval,
+    'ner': NER_Retrival
+}
+
+
+class DataStorage:
     embeddings_dict = {}
     embeddings_map_from_md5 = {}
     embeddings_map_to_md5 = {}
 
-    default_prompts = {
-        'stuff': stuff_prompt,
-        'refine': refine_prompts,
-        "map_reduce": map_reduce_prompt,
-        "map_rerank": map_rerank_prompt
-    }
-
-    def __init__(self,
-                 llm,
-                 embedding_function,
-                 qa_chain_type="stuff",
-                 embeddings_root_path=None,
-                 grobid_url=None,
-                 memory=None
-                 ):
+    def __init__(
+            self,
+            embedding_function,
+            root_path: Path = None,
+            engine=ChromaAdvancedRetrieval,
+    ) -> None:
+        self.root_path = root_path
+        self.engine = engine
         self.embedding_function = embedding_function
-        self.llm = llm
-        self.memory = memory
-        self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
-        self.text_merger = TextMerger()
 
-        if embeddings_root_path is not None:
-            self.embeddings_root_path = embeddings_root_path
-            if not os.path.exists(embeddings_root_path):
-                os.makedirs(embeddings_root_path)
+        if root_path is not None:
+            self.embeddings_root_path = root_path
+            if not os.path.exists(root_path):
+                os.makedirs(root_path)
             else:
                 self.load_embeddings(self.embeddings_root_path)
 
-        if grobid_url:
-            self.grobid_url = grobid_url
-            grobid_client = GrobidClient(
-                grobid_server=self.grobid_url,
-                batch_size=1000,
-                coordinates=["p", "title", "persName"],
-                sleep_time=5,
-                timeout=60,
-                check_server=True
-            )
-            self.grobid_processor = GrobidProcessor(grobid_client)
-
     def load_embeddings(self, embeddings_root_path: Union[str, Path]) -> None:
         """
-        Load the embeddings assuming they are all persisted and stored in a single directory.
+        Load the vector storage assuming they are all persisted and stored in a single directory.
         The root path of the embeddings containing one data store for each document in each subdirectory
         """
 
@@ -147,8 +154,10 @@ class DocumentQAEngine:
             return
 
         for embedding_document_dir in embeddings_directories:
-            self.embeddings_dict[embedding_document_dir.name] = Chroma(persist_directory=embedding_document_dir.path,
-                                                                       embedding_function=self.embedding_function)
+            self.embeddings_dict[embedding_document_dir.name] = self.engine(
+                persist_directory=embedding_document_dir.path,
+                embedding_function=self.embedding_function
+            )
 
             filename_list = list(Path(embedding_document_dir).glob('*.storage_filename'))
             if filename_list:
@@ -167,9 +176,60 @@ class DocumentQAEngine:
     def get_filename_from_md5(self, md5):
         return self.embeddings_map_from_md5[md5]
 
-    def query_document(self, query: str, doc_id, output_parser=None, context_size=4, extraction_schema=None,
-                       verbose=False) -> (
-            Any, str):
+    def embed_document(self, doc_id, texts, metadatas):
+        if doc_id not in self.embeddings_dict.keys():
+            self.embeddings_dict[doc_id] = self.engine.from_texts(texts,
+                                                                  embedding=self.embedding_function,
+                                                                  metadatas=metadatas,
+                                                                  collection_name=doc_id)
+        else:
+            # Workaround Chroma (?) breaking change
+            self.embeddings_dict[doc_id].delete_collection()
+            self.embeddings_dict[doc_id] = self.engine.from_texts(texts,
+                                                                  embedding=self.embedding_function,
+                                                                  metadatas=metadatas,
+                                                                  collection_name=doc_id)
+
+        self.embeddings_root_path = None
+
+
+class DocumentQAEngine:
+    llm = None
+    qa_chain_type = None
+
+    default_prompts = {
+        'stuff': stuff_prompt,
+        'refine': refine_prompts,
+        "map_reduce": map_reduce_prompt,
+        "map_rerank": map_rerank_prompt
+    }
+
+    def __init__(self,
+                 llm,
+                 data_storage: DataStorage,
+                 qa_chain_type="stuff",
+                 grobid_url=None,
+                 memory=None
+                 ):
+
+        self.llm = llm
+        self.memory = memory
+        self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
+        self.text_merger = TextMerger()
+        self.data_storage = data_storage
+
+        if grobid_url:
+            self.grobid_processor = GrobidProcessor(grobid_url)
+
+    def query_document(
+            self,
+            query: str,
+            doc_id,
+            output_parser=None,
+            context_size=4,
+            extraction_schema=None,
+            verbose=False
+    ) -> (Any, str):
         # self.load_embeddings(self.embeddings_root_path)
 
         if verbose:
@@ -198,11 +258,52 @@ class DocumentQAEngine:
         else:
             return None, response, coordinates
 
-    def query_storage(self, query: str, doc_id, context_size=4):
-        documents = self._get_context(doc_id, query, context_size)
+    def query_storage(self, query: str, doc_id, context_size=4) -> (List[Document], list):
+        """
+        Returns the context related to a given query
+        """
+        documents, coordinates = self._get_context(doc_id, query, context_size)
 
         context_as_text = [doc.page_content for doc in documents]
-        return context_as_text
+        return context_as_text, coordinates
+
+    def query_storage_and_embeddings(self, query: str, doc_id, context_size=4) -> List[Document]:
+        """
+        Returns both the context and the embedding information from a given query
+        """
+        db = self.data_storage.embeddings_dict[doc_id]
+        retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
+        relevant_documents = retriever.get_relevant_documents(query)
+
+        return relevant_documents
+
+    def analyse_query(self, query, doc_id, context_size=4):
+        db = self.data_storage.embeddings_dict[doc_id]
+        # retriever = db.as_retriever(
+        #     search_kwargs={"k": context_size, 'score_threshold': 0.0},
+        #     search_type="similarity_score_threshold"
+        # )
+        retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
+        relevant_documents = retriever.get_relevant_documents(query)
+        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
+                                         for doc in
+                                         relevant_documents]
+        all_documents = db.get(include=['documents', 'metadatas', 'embeddings'])
+        # all_documents_embeddings = all_documents["embeddings"]
+        # query_embedding = db._embedding_function.embed_query(query)
+
+        # distance_evaluator = load_evaluator("pairwise_embedding_distance",
+        #                               embeddings=db._embedding_function,
+        #                               distance_metric=EmbeddingDistance.EUCLIDEAN)
+
+        # distance_evaluator.evaluate_string_pairs(query=query_embedding, documents="")
+
+        similarities = [doc.metadata['__similarity'] for doc in relevant_documents]
+        min_similarity = min(similarities)
+        mean_similarity = sum(similarities) / len(similarities)
+        coefficient = min_similarity - mean_similarity
+
+        return f"Coefficient: {coefficient}, (Min similarity {min_similarity}, Mean similarity: {mean_similarity})", relevant_document_coordinates
 
     def _parse_json(self, response, output_parser):
         system_message = "You are an useful assistant expert in materials science, physics, and chemistry " \
@@ -225,11 +326,8 @@ class DocumentQAEngine:
 
         return parsed_output
 
-    def _run_query(self, doc_id, query, context_size=4):
-        relevant_documents = self._get_context(doc_id, query, context_size)
-        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
-                                         for doc in
-                                         relevant_documents]  # filter(lambda d: d['type'] == "sentence", relevant_documents)]
+    def _run_query(self, doc_id, query, context_size=4) -> (List[Document], list):
+        relevant_documents, relevant_document_coordinates = self._get_context(doc_id, query, context_size)
         response = self.chain.run(input_documents=relevant_documents,
                                   question=query)
 
@@ -237,39 +335,46 @@ class DocumentQAEngine:
             self.memory.save_context({"input": query}, {"output": response})
         return response, relevant_document_coordinates
 
-    def _get_context(self, doc_id, query, context_size=4):
-        db = self.embeddings_dict[doc_id]
+    def _get_context(self, doc_id, query, context_size=4) -> (List[Document], list):
+        db = self.data_storage.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size})
         relevant_documents = retriever.get_relevant_documents(query)
+        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
+                                         for doc in
+                                         relevant_documents]
         if self.memory and len(self.memory.buffer_as_messages) > 0:
             relevant_documents.append(
                 Document(
                     page_content="""Following, the previous question and answers. Use these information only when in the question there are unspecified references:\n{}\n\n""".format(
                         self.memory.buffer_as_str))
             )
-        return relevant_documents
+        return relevant_documents, relevant_document_coordinates
 
-    def get_all_context_by_document(self, doc_id):
-        """Return the full context from the document"""
-        db = self.embeddings_dict[doc_id]
+    def get_full_context_by_document(self, doc_id):
+        """
+        Return the full context from the document
+        """
+        db = self.data_storage.embeddings_dict[doc_id]
         docs = db.get()
         return docs['documents']
 
     def _get_context_multiquery(self, doc_id, query, context_size=4):
-        db = self.embeddings_dict[doc_id].as_retriever(search_kwargs={"k": context_size})
+        db = self.data_storage.embeddings_dict[doc_id].as_retriever(search_kwargs={"k": context_size})
         multi_query_retriever = MultiQueryRetriever.from_llm(retriever=db, llm=self.llm)
         relevant_documents = multi_query_retriever.get_relevant_documents(query)
         return relevant_documents
 
     def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, verbose=False):
         """
-        Extract text from documents using Grobid, if chunk_size is < 0 it keeps each paragraph separately
+        Extract text from documents using Grobid.
+        - if chunk_size is < 0, keeps each paragraph separately
+        - if chunk_size > 0, aggregate all paragraphs and split them again using an approximate chunk size
         """
         if verbose:
             print("File", pdf_file_path)
         filename = Path(pdf_file_path).stem
         coordinates = True  # if chunk_size == -1 else False
-        structure = self.grobid_processor.process(pdf_file_path, coordinates=coordinates)
+        structure = self.grobid_processor.process_structure(pdf_file_path, coordinates=coordinates)
 
         biblio = structure['biblio']
         biblio['filename'] = filename.replace(" ", "_")
@@ -303,7 +408,13 @@ class DocumentQAEngine:
 
         return texts, metadatas, ids
 
-    def create_memory_embeddings(self, pdf_path, doc_id=None, chunk_size=500, perc_overlap=0.1):
+    def create_memory_embeddings(
+            self,
+            pdf_path,
+            doc_id=None,
+            chunk_size=500,
+            perc_overlap=0.1
+    ):
         texts, metadata, ids = self.get_text_from_document(
             pdf_path,
             chunk_size=chunk_size,
@@ -313,25 +424,17 @@ class DocumentQAEngine:
         else:
             hash = metadata[0]['hash']
 
-        if hash not in self.embeddings_dict.keys():
-            self.embeddings_dict[hash] = Chroma.from_texts(texts,
-                                                           embedding=self.embedding_function,
-                                                           metadatas=metadata,
-                                                           collection_name=hash)
-        else:
-            # if 'documents' in self.embeddings_dict[hash].get() and len(self.embeddings_dict[hash].get()['documents']) == 0:
-            #     self.embeddings_dict[hash].delete(ids=self.embeddings_dict[hash].get()['ids'])
-            self.embeddings_dict[hash].delete_collection()
-            self.embeddings_dict[hash] = Chroma.from_texts(texts,
-                                                           embedding=self.embedding_function,
-                                                           metadatas=metadata,
-                                                           collection_name=hash)
-
-        self.embeddings_root_path = None
+        self.data_storage.embed_document(hash, texts, metadata)
 
         return hash
 
-    def create_embeddings(self, pdfs_dir_path: Path, chunk_size=500, perc_overlap=0.1, include_biblio=False):
+    def create_embeddings(
+            self,
+            pdfs_dir_path: Path,
+            chunk_size=500,
+            perc_overlap=0.1,
+            include_biblio=False
+    ):
         input_files = []
         for root, dirs, files in os.walk(pdfs_dir_path, followlinks=False):
             for file_ in files:
@@ -343,17 +446,16 @@ class DocumentQAEngine:
                                desc="Grobid + embeddings processing"):
 
             md5 = self.calculate_md5(input_file)
-            data_path = os.path.join(self.embeddings_root_path, md5)
+            data_path = os.path.join(self.data_storage.embeddings_root_path, md5)
 
             if os.path.exists(data_path):
                 print(data_path, "exists. Skipping it ")
                 continue
-            include = ["biblio"] if include_biblio else []
+            # include = ["biblio"] if include_biblio else []
             texts, metadata, ids = self.get_text_from_document(
                 input_file,
                 chunk_size=chunk_size,
-                perc_overlap=perc_overlap,
-                include=include)
+                perc_overlap=perc_overlap)
             filename = metadata[0]['filename']
 
             vector_db_document = Chroma.from_texts(texts,
