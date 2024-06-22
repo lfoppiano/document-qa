@@ -274,9 +274,6 @@ with st.sidebar:
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
     )
 
-    st.markdown(
-        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
-
     if (model in OPEN_MODELS) and model not in st.session_state['api_keys']:
         if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
             api_key = st.text_input('Huggingface API Key', type="password")
@@ -326,7 +323,7 @@ with right_column:
     st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
 
     st.markdown(
-        ":warning: Do not upload sensitive data. We **temporarily** store text from the uploaded PDF documents solely for the purpose of processing your request, and we **do not assume responsibility** for any subsequent use or handling of the data submitted to third parties LLMs.")
+        ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
     uploaded_file = st.file_uploader(
         "Upload an article",
@@ -549,8 +546,6 @@ with left_column:
     if st.session_state['binary']:
         pdf_viewer(
             input=st.session_state['binary'],
-            width=600,
-            height=800,
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
             rendering=st.session_state['pdf_rendering'],
