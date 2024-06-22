@@ -183,6 +183,7 @@ class GrobidProcessor(BaseProcessor):
         })
 
         text_blocks_body = get_xml_nodes_body(soup, verbose=False, use_paragraphs=True)
+        text_blocks_body.extend(get_xml_nodes_back(soup, verbose=False, use_paragraphs=True))
 
         use_paragraphs = True
         if not use_paragraphs:
@@ -793,6 +794,20 @@ def get_xml_nodes_body(soup: object, use_paragraphs: bool = True, verbose: bool 
             # nodes.extend([subchild.find_all(tag_name) for subchild in child.find_all("body")])
             nodes.extend(
                 [subsubchild for subchild in child.find_all("body") for subsubchild in subchild.find_all(tag_name)])
+
+    if verbose:
+        print(str(nodes))
+
+    return nodes
+
+
+def get_xml_nodes_back(soup: object, use_paragraphs: bool = True, verbose: bool = False) -> list:
+    nodes = []
+    tag_name = "p" if use_paragraphs else "s"
+    for child in soup.TEI.children:
+        if child.name == 'text':
+            nodes.extend(
+                [subsubchild for subchild in child.find_all("back") for subsubchild in subchild.find_all(tag_name)])
 
     if verbose:
         print(str(nodes))
