@@ -553,6 +553,6 @@ with left_column:
             height=800,
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
-            rendering=st.session_state['pdf_rendering']
+            rendering=st.session_state['pdf_rendering'],
             render_text=True
         )
