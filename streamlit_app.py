@@ -31,10 +31,9 @@ OPENAI_EMBEDDINGS = [
 ]
 
 OPEN_MODELS = {
-    'mistral-7b-instruct-v0.2': 'mistralai/Mistral-7B-Instruct-v0.2',
-    "zephyr-7b-beta": 'HuggingFaceH4/zephyr-7b-beta'
+    'mistral-7b-instruct-v0.3': 'mistralai/Mistral-7B-Instruct-v0.2',
     # 'Phi-3-mini-128k-instruct': "microsoft/Phi-3-mini-128k-instruct",
-    # 'Phi-3-mini-4k-instruct': "microsoft/Phi-3-mini-4k-instruct"
+    'Phi-3-mini-4k-instruct': "microsoft/Phi-3-mini-4k-instruct"
 }
 
 DEFAULT_OPEN_EMBEDDING_NAME = 'Default (all-MiniLM-L6-v2)'
