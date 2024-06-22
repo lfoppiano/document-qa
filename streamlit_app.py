@@ -486,5 +486,6 @@ with left_column:
             height=800,
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
-            rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed'
+            rendering='unwrap' if st.session_state['pdf_rendering'] == 'PDF.JS' else 'legacy_embed',
+            render_text=True
         )
