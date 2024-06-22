@@ -93,9 +93,6 @@ if 'should_show_annotations' not in st.session_state:
 if 'pdf' not in st.session_state:
     st.session_state['pdf'] = None
 
-if 'pdf_rendering' not in st.session_state:
-    st.session_state['pdf_rendering'] = None
-
 if 'embeddings' not in st.session_state:
     st.session_state['embeddings'] = None
 
@@ -380,16 +377,6 @@ with st.sidebar:
         'The LLM responses undergo post-processing to extract <span style="color:orange">physical quantities, measurements</span>, and <span style="color:green">materials</span> mentions.',
         unsafe_allow_html=True)
 
-    st.session_state['pdf_rendering'] = st.radio(
-        "PDF rendering mode",
-        ("unwrap", "legacy_embed"),
-        index=0,
-        disabled=not uploaded_file,
-        help="PDF rendering engine."
-             "Note: The Legacy PDF viewer does not support annotations and might not work on Chrome.",
-        format_func=lambda q: "Legacy PDF Viewer" if q == "legacy_embed" else "Streamlit PDF Viewer (Pdf.js)"
-    )
-
     st.divider()
 
     st.header("Documentation")
@@ -547,6 +534,5 @@ with left_column:
             input=st.session_state['binary'],
             annotation_outline_size=1,
             annotations=st.session_state['annotations'],
-            rendering=st.session_state['pdf_rendering'],
             render_text=True
         )
