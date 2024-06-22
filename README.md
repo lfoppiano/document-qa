@@ -22,7 +22,7 @@ https://lfoppiano-document-qa.hf.space/
 
 Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, GPT4, GPT4-Turbo, Mistral-7b-instruct and Zephyr-7b-beta.
 The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS (National Institute for Materials Science), in Tsukuba, Japan.
-Different to most of the projects, we focus on scientific articles. 
+**Different to most of the projects**, we focus on scientific articles and we extract text from a structured document. 
 We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
 
 Additionally, this frontend provides the visualisation of named entities on LLM responses to extract <span stype="color:yellow">physical quantities, measurements</span> (with [grobid-quantities](https://github.com/kermitt2/grobid-quantities)) and <span stype="color:blue">materials</span> mentions (with [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors)).
