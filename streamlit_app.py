@@ -257,8 +257,7 @@ with st.sidebar:
         "Model:",
         options=OPENAI_MODELS + list(OPEN_MODELS.keys()),
         index=(OPENAI_MODELS + list(OPEN_MODELS.keys())).index(
-            "mistral-7b-instruct-v0.2") if "DEFAULT_MODEL" not in os.environ or not os.environ["DEFAULT_MODEL"] else (
-                OPENAI_MODELS + list(OPEN_MODELS.keys())).index(os.environ["DEFAULT_MODEL"]),
+            os.environ["DEFAULT_MODEL"]) if "DEFAULT_MODEL" not in os.environ or not os.environ["DEFAULT_MODEL"] else 0,
         placeholder="Select model",
         help="Select the LLM model:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
