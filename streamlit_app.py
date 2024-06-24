@@ -285,8 +285,8 @@ with st.sidebar:
     #     disabled=model in st.session_state['rqa'] and st.session_state['rqa'][model].memory is None)
 
 left_column, right_column = st.columns([1, 1])
-right_column = right_column.container(height=600, border=False)
-left_column = left_column.container(height=600, border=False)
+right_column = right_column.container(border=True)
+left_column = left_column.container(border=True)
 
 with right_column:
     uploaded_file = st.file_uploader(
@@ -483,5 +483,6 @@ with left_column:
             input=st.session_state['binary'],
             annotation_outline_size=2,
             annotations=st.session_state['annotations'],
-            render_text=True
+            render_text=True,
+            height=600
         )
