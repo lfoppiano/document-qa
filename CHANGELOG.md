@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.0] - 2024-06-24
+
+### Added 
++ Add selection of embedding functions 
++ Add selection of text from the pdf viewer (provided by https://github.com/lfoppiano/streamlit-pdf-viewer) 
++ Added an experimental feature for calculating the coefficient that relate the question and the embedding database 
++ Added the data availability statement in the searchable text
+
+### Changed
++ Removed obsolete and non-working models zephyr and mistral v0.1
++ The underlying library was refactored to make it easier to maintain 
++ Removed the native PDF viewer
++ Updated langchain and streamlit to the latest versions
++ Removed conversational memory which was causing more problems than bringing benefits
++ Rearranged the interface to get more space
+
+### Fixed
++ Updated and removed models that were not working 
++ Fixed problems with langchain and other libraries
+
 ## [0.3.4] - 2023-12-26
 
 ### Added

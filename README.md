@@ -21,16 +21,13 @@ https://lfoppiano-document-qa.hf.space/
 ## Introduction
 
 Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, GPT4, GPT4-Turbo, Mistral-7b-instruct and Zephyr-7b-beta.
-The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents, that we are developing at NIMS (National Institute for Materials Science), in Tsukuba, Japan.
+The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents.
 **Different to most of the projects**, we focus on scientific articles and we extract text from a structured document. 
 We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
 
 Additionally, this frontend provides the visualisation of named entities on LLM responses to extract <span stype="color:yellow">physical quantities, measurements</span> (with [grobid-quantities](https://github.com/kermitt2/grobid-quantities)) and <span stype="color:blue">materials</span> mentions (with [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors)).
 
-The conversation is kept in memory by a buffered sliding window memory (top 4 more recent messages) and the messages are injected in the context as "previous messages".   
-
 (The image on the right was generated with https://huggingface.co/spaces/stabilityai/stable-diffusion)
-
 
 [<img src="https://img.youtube.com/vi/M4UaYs5WKGs/hqdefault.jpg" height="300" align="right" 
 />](https://www.youtube.com/embed/M4UaYs5WKGs)
@@ -45,6 +42,9 @@ The conversation is kept in memory by a buffered sliding window memory (top 4 mo
  ![screenshot2.png](docs%2Fimages%2Fscreenshot2.png)
 
 ## Documentation
+
+### Embedding selection
+In the latest version there is the possibility to select both embedding functions and LLMs. There are some limitation, OpenAI embeddings cannot be used with open source models, and viceversa. 
 
 ### Context size
 Allow to change the number of blocks from the original document that are considered for responding. 
@@ -61,8 +61,9 @@ Larger blocks will result in a larger context less constrained around the questi
 
 ### Query mode
 Indicates whether sending a question to the LLM (Language Model) or to the vector storage. 
- - LLM (default) enables question/answering related to the document content.
- - Embeddings: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
+ - **LLM** (default) enables question/answering related to the document content.
+ - **Embeddings**: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
+ - **Question coefficient** (experimental): provide a coefficient that indicate how the question has been far or closed to the retrieved context
 
 ### NER (Named Entities Recognition)
 This feature is specifically crafted for people working with scientific documents in materials science. 
@@ -102,8 +103,9 @@ To install the library with Pypi:
 
 ## Acknowledgement 
 
-This project is developed at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan in collaboration with [Guillaume Lambard](https://github.com/GLambard) and the [Lambard-ML-Team](https://github.com/Lambard-ML-Team).
-Contributed by [Pedro Ortiz Suarez](https://github.com/pjox), [Tomoya Mato](https://github.com/t29mato). 
+The project was initiated at the [National Institute for Materials Science](https://www.nims.go.jp) (NIMS) in Japan. 
+Currently, the development is possible thanks to [ScienciLAB](https://www.sciencialab.com).
+This project was contributed by [Guillaume Lambard](https://github.com/GLambard) and the [Lambard-ML-Team](https://github.com/Lambard-ML-Team), [Pedro Ortiz Suarez](https://github.com/pjox), and [Tomoya Mato](https://github.com/t29mato).
 Thanks also to [Patrice Lopez](https://www.science-miner.com), the author of [Grobid](https://github.com/kermitt2/grobid).
 
 

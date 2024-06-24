@@ -299,7 +299,7 @@ with right_column:
     )
 
     placeholder = st.empty()
-    messages = st.container(height=300, border=False)
+    messages = st.container(height=300)
 
     question = st.chat_input(
         "Ask something about the article",
@@ -483,6 +483,5 @@ with left_column:
             input=st.session_state['binary'],
             annotation_outline_size=2,
             annotations=st.session_state['annotations'],
-            render_text=True,
-            height=700
+            render_text=True
         )
