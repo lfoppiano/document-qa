@@ -39,7 +39,10 @@ OPEN_MODELS = {
 DEFAULT_OPEN_EMBEDDING_NAME = 'Default (all-MiniLM-L6-v2)'
 OPEN_EMBEDDINGS = {
     DEFAULT_OPEN_EMBEDDING_NAME: 'all-MiniLM-L6-v2',
-    'Salesforce/SFR-Embedding-Mistral': 'Salesforce/SFR-Embedding-Mistral'
+    'SFR-Embedding-Mistral': 'Salesforce/SFR-Embedding-Mistral',
+    'SFR-Embedding-2_R': 'Salesforce/SFR-Embedding-2_R',
+    'NV-Embed': 'nvidia/NV-Embed-v1',
+    'e5-mistral-7b-instruct': 'intfloat/e5-mistral-7b-instruct'
 }
 
 if 'rqa' not in st.session_state:
@@ -357,16 +360,6 @@ with st.sidebar:
     if st.session_state['git_rev'] != "unknown":
         st.markdown("**Revision number**: [" + st.session_state[
             'git_rev'] + "](https://github.com/lfoppiano/document-qa/commit/" + st.session_state['git_rev'] + ")")
-
-    st.header("Query mode (Advanced use)")
-    st.markdown(
-        """By default, the mode is set to LLM (Language Model) which enables question/answering. 
-        You can directly ask questions related to the document content, and the system will answer the question using content from the document.""")
-
-    st.markdown(
-        """If you switch the mode to "Embedding," the system will return specific chunks from the document 
-        that are semantically related to your query. This mode helps to test why sometimes the answers are not 
-        satisfying or incomplete. """)
 
 if uploaded_file and not st.session_state.loaded_embeddings:
     if model not in st.session_state['api_keys']:
