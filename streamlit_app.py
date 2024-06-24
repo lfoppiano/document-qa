@@ -425,12 +425,13 @@ with right_column:
 
         text_response = None
         if mode == "embeddings":
-            with st.spinner("Fetching the relevant context..."):
-                text_response, coordinates = st.session_state['rqa'][model].query_storage(
-                    question,
-                    st.session_state.doc_id,
-                    context_size=context_size
-                )
+            with placeholder:
+                with st.spinner("Fetching the relevant context..."):
+                    text_response, coordinates = st.session_state['rqa'][model].query_storage(
+                        question,
+                        st.session_state.doc_id,
+                        context_size=context_size
+                    )
         elif mode == "llm":
             with placeholder:
                 with st.spinner("Generating LLM response..."):
