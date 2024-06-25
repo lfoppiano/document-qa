@@ -8,6 +8,7 @@ sdk_version: 1.36.0
 app_file: streamlit_app.py
 pinned: false
 license: apache-2.0
+app_port: 8501
 ---
 
 # DocumentIQA: Scientific Document Insights Q/A
