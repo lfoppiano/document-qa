@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.memory import ConversationBufferWindowMemory
-from langchain_community.callbacks import PromptLayerCallbackHandler
+# from langchain_community.callbacks import PromptLayerCallbackHandler
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -174,7 +174,7 @@ def init_qa(model, embeddings_name=None, api_key=None):
             temperature=0.01,
             max_new_tokens=4092,
             model_kwargs={"max_length": 8192},
-            callbacks=[PromptLayerCallbackHandler(pl_tags=[model, "document-qa"])]
+            # callbacks=[PromptLayerCallbackHandler(pl_tags=[model, "document-qa"])]
         )
         embeddings = HuggingFaceEmbeddings(
             model_name=OPEN_EMBEDDINGS[embeddings_name])
