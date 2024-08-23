@@ -7,7 +7,7 @@ grobid_tei_xml==0.1.3
 tqdm==4.66.2
 pyyaml==6.0.1
 pytest==8.1.1
-streamlit==1.36.0
+streamlit==1.37.0
 lxml
 Beautifulsoup4
 python-dotenv
@@ -24,6 +24,6 @@ typing-inspect==0.9.0
 typing_extensions==4.11.0
 pydantic==2.6.4
 sentence_transformers==2.6.1
-streamlit-pdf-viewer==0.0.14
+streamlit-pdf-viewer==0.0.17
 umap-learn
 plotly

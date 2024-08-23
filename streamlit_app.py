@@ -31,8 +31,8 @@ OPENAI_EMBEDDINGS = [
 ]
 
 OPEN_MODELS = {
-    'mistral-7b-instruct-v0.3': 'mistralai/Mistral-7B-Instruct-v0.2',
-    # 'Phi-3-mini-128k-instruct': "microsoft/Phi-3-mini-128k-instruct",
+    'Mistral-Nemo-Instruct-2407': 'mistralai/Mistral-Nemo-Instruct-2407',
+    'mistral-7b-instruct-v0.3': 'mistralai/Mistral-7B-Instruct-v0.3',
     'Phi-3-mini-4k-instruct': "microsoft/Phi-3-mini-4k-instruct"
 }
 
@@ -109,6 +109,20 @@ st.set_page_config(
     }
 )
 
+st.markdown(
+    """
+        <style>
+               .block-container {
+                    padding-top: 3rem;
+                    padding-bottom: 1rem;
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                }
+        </style>
+        """,
+    unsafe_allow_html=True
+)
+
 
 def new_file():
     st.session_state['loaded_embeddings'] = None
@@ -154,8 +168,8 @@ def init_qa(model, embeddings_name=None, api_key=None):
         chat = HuggingFaceEndpoint(
             repo_id=OPEN_MODELS[model],
             temperature=0.01,
-            max_new_tokens=2048,
-            model_kwargs={"max_length": 4096}
+            max_new_tokens=4092,
+            model_kwargs={"max_length": 8192}
         )
         embeddings = HuggingFaceEmbeddings(
             model_name=OPEN_EMBEDDINGS[embeddings_name])
@@ -401,20 +415,20 @@ def generate_color_gradient(num_elements):
 
 with right_column:
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
+        # messages.chat_message("user").markdown(question)
+        st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
+
         for message in st.session_state.messages:
-            with messages.chat_message(message["role"]):
-                if message['mode'] == "llm":
-                    messages.chat_message(message["role"]).markdown(message["content"], unsafe_allow_html=True)
-                elif message['mode'] == "embeddings":
-                    messages.chat_message(message["role"]).write(message["content"])
-                if message['mode'] == "question_coefficient":
-                    messages.chat_message(message["role"]).markdown(message["content"], unsafe_allow_html=True)
+            # with messages.chat_message(message["role"]):
+            if message['mode'] == "llm":
+                messages.chat_message(message["role"]).markdown(message["content"], unsafe_allow_html=True)
+            elif message['mode'] == "embeddings":
+                messages.chat_message(message["role"]).write(message["content"])
+            elif message['mode'] == "question_coefficient":
+                messages.chat_message(message["role"]).markdown(message["content"], unsafe_allow_html=True)
         if model not in st.session_state['rqa']:
             st.error("The API Key for the " + model + " is  missing. Please add it before sending any query. `")
             st.stop()
-
-        messages.chat_message("user").markdown(question)
-        st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
 
         text_response = None
         if mode == "embeddings":
@@ -472,10 +486,10 @@ with right_column:
 
 with left_column:
     if st.session_state['binary']:
-        pdf_viewer(
-            input=st.session_state['binary'],
-            annotation_outline_size=2,
-            annotations=st.session_state['annotations'],
-            render_text=True,
-            height=600
-        )
+        with st.container(height=600):
+            pdf_viewer(
+                input=st.session_state['binary'],
+                annotation_outline_size=2,
+                annotations=st.session_state['annotations'],
+                render_text=True
+            )
