@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
+## [0.4.1] - 2024-08-23
+
+### Added
++ Scroll to the first relevant context passage, if the most relevant context passage is at the end, it will scroll to the end of the document
++ Added Mistral NEMO as default model 
+
+### Changed
++ Rearranged the interface to get more space
++ Updated libraries to the latest versions
+
+### Fixed
++ Fixed the chat messages sequence that were buggy
++ Updated the PDF viewer to the latest version
+
 ## [0.4.0] - 2024-06-24
 
 ### Added 
