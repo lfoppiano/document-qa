@@ -6,10 +6,11 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.memory import ConversationBufferWindowMemory
-from langchain_community.chat_models.openai import ChatOpenAI
-from langchain_community.embeddings.huggingface import HuggingFaceEmbeddings
-from langchain_community.embeddings.openai import OpenAIEmbeddings
+from langchain_community.callbacks import PromptLayerCallbackHandler
+from langchain_community.chat_models import ChatOpenAI
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_openai import OpenAIEmbeddings
 from streamlit_pdf_viewer import pdf_viewer
 
 from document_qa.ner_client_generic import NERClientGeneric
@@ -97,6 +98,9 @@ if 'pdf' not in st.session_state:
 if 'embeddings' not in st.session_state:
     st.session_state['embeddings'] = None
 
+if 'scroll_to_first_annotation' not in st.session_state:
+    st.session_state['scroll_to_first_annotation'] = False
+
 st.set_page_config(
     page_title="Scientific Document Insights Q/A",
     page_icon="📝",
@@ -169,7 +173,8 @@ def init_qa(model, embeddings_name=None, api_key=None):
             repo_id=OPEN_MODELS[model],
             temperature=0.01,
             max_new_tokens=4092,
-            model_kwargs={"max_length": 8192}
+            model_kwargs={"max_length": 8192},
+            callbacks=[PromptLayerCallbackHandler(pl_tags=[model, "document-qa"])]
         )
         embeddings = HuggingFaceEmbeddings(
             model_name=OPEN_EMBEDDINGS[embeddings_name])
@@ -233,8 +238,8 @@ def play_old_messages(container):
 # is_api_key_provided = st.session_state['api_key']
 
 with st.sidebar:
-    st.title("📝 Scientific Document Insights Q/A")
-    st.subheader("Upload a scientific article in PDF, ask questions, get insights.")
+    st.title("📝 Document Q/A")
+    st.markdown("Upload a scientific article in PDF, ask questions, get insights.")
     st.markdown(
         ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
 
@@ -301,14 +306,14 @@ with st.sidebar:
     #     help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.",
     #     disabled=model in st.session_state['rqa'] and st.session_state['rqa'][model].memory is None)
 
-left_column, right_column = st.columns([1, 1])
+left_column, right_column = st.columns([5, 4])
 right_column = right_column.container(border=True)
 left_column = left_column.container(border=True)
 
 with right_column:
     uploaded_file = st.file_uploader(
-        "Upload an article",
-        type=("pdf", "txt"),
+        "Upload a scientific article",
+        type=("pdf"),
         on_change=new_file,
         disabled=st.session_state['model'] is not None and st.session_state['model'] not in
                  st.session_state['api_keys'],
@@ -342,6 +347,10 @@ with st.sidebar:
         help="LLM will respond the question, Embedding will show the "
              "relevant paragraphs to the question in the paper. "
              "Question coefficient attempt to estimate how effective the question will be answered."
+    )
+    st.session_state['scroll_to_first_annotation'] = st.checkbox(
+        "Scroll to context",
+        help='The PDF viewer will automatically scroll to the first relevant passage in the document.'
     )
     st.session_state['ner_processing'] = st.checkbox(
         "Identify materials and properties.",
@@ -415,7 +424,6 @@ def generate_color_gradient(num_elements):
 
 with right_column:
     if st.session_state.loaded_embeddings and question and len(question) > 0 and st.session_state.doc_id:
-        # messages.chat_message("user").markdown(question)
         st.session_state.messages.append({"role": "user", "mode": mode, "content": question})
 
         for message in st.session_state.messages:
@@ -491,5 +499,6 @@ with left_column:
                 input=st.session_state['binary'],
                 annotation_outline_size=2,
                 annotations=st.session_state['annotations'],
-                render_text=True
+                render_text=True,
+                scroll_to_annotation=1 if (st.session_state['annotations'] and st.session_state['scroll_to_first_annotation']) else None
             )
