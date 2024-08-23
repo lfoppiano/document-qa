@@ -16,14 +16,17 @@ dateparser
 
 # LLM
 chromadb==0.4.24
-tiktoken==0.6.0
-openai==1.16.2
-langchain==0.1.14
-langchain-core==0.1.40
+tiktoken==0.7.0
+openai==1.42.0
+langchain==0.2.14
+langchain-core==0.2.34
+langchain-openai==0.1.22
+langchain-huggingface==0.0.3
+langchain-community==0.2.12
 typing-inspect==0.9.0
 typing_extensions==4.11.0
 pydantic==2.6.4
 sentence_transformers==2.6.1
-streamlit-pdf-viewer==0.0.17
+streamlit-pdf-viewer==0.0.18-dev1
 umap-learn
 plotly

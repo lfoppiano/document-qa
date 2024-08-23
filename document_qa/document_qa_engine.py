@@ -7,7 +7,6 @@ import tiktoken
 from langchain.chains import create_extraction_chain
 from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
     map_rerank_prompt
-from langchain.evaluation import PairwiseEmbeddingDistanceEvalChain, load_evaluator, EmbeddingDistance
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
 from langchain.schema import Document
@@ -273,7 +272,7 @@ class DocumentQAEngine:
         """
         db = self.data_storage.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
-        relevant_documents = retriever.get_relevant_documents(query)
+        relevant_documents = retriever.invoke(query)
 
         return relevant_documents
 
@@ -284,7 +283,7 @@ class DocumentQAEngine:
         #     search_type="similarity_score_threshold"
         # )
         retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
-        relevant_documents = retriever.get_relevant_documents(query)
+        relevant_documents = retriever.invoke(query)
         relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
                                          for doc in
                                          relevant_documents]
@@ -338,7 +337,7 @@ class DocumentQAEngine:
     def _get_context(self, doc_id, query, context_size=4) -> (List[Document], list):
         db = self.data_storage.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size})
-        relevant_documents = retriever.get_relevant_documents(query)
+        relevant_documents = retriever.invoke(query)
         relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
                                          for doc in
                                          relevant_documents]
@@ -361,7 +360,7 @@ class DocumentQAEngine:
     def _get_context_multiquery(self, doc_id, query, context_size=4):
         db = self.data_storage.embeddings_dict[doc_id].as_retriever(search_kwargs={"k": context_size})
         multi_query_retriever = MultiQueryRetriever.from_llm(retriever=db, llm=self.llm)
-        relevant_documents = multi_query_retriever.get_relevant_documents(query)
+        relevant_documents = multi_query_retriever.invoke(query)
         return relevant_documents
 
     def get_text_from_document(self, pdf_file_path, chunk_size=-1, perc_overlap=0.1, verbose=False):

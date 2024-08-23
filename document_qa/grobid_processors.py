@@ -148,15 +148,15 @@ class GrobidProcessor(BaseProcessor):
         soup = BeautifulSoup(text, 'xml')
         blocks_header = get_xml_nodes_header(soup, use_paragraphs=True)
 
-        passages.append({
-            "text": f"authors: {biblio['authors']}",
-            "type": passage_type,
-            "section": "<header>",
-            "subSection": "<authors>",
-            "passage_id": "hauthors",
-            "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
-                                     blocks_header['authors']])
-        })
+        # passages.append({
+        #     "text": f"authors: {biblio['authors']}",
+        #     "type": passage_type,
+        #     "section": "<header>",
+        #     "subSection": "<authors>",
+        #     "passage_id": "hauthors",
+        #     "coordinates": ";".join([node['coords'] if coordinates and node.has_attr('coords') else "" for node in
+        #                              blocks_header['authors']])
+        # })
 
         passages.append({
             "text": self.post_process(" ".join([node.text for node in blocks_header['title']])),
