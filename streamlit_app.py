@@ -43,7 +43,8 @@ OPEN_EMBEDDINGS = {
     'SFR-Embedding-Mistral': 'Salesforce/SFR-Embedding-Mistral',
     'SFR-Embedding-2_R': 'Salesforce/SFR-Embedding-2_R',
     'NV-Embed': 'nvidia/NV-Embed-v1',
-    'e5-mistral-7b-instruct': 'intfloat/e5-mistral-7b-instruct'
+    'e5-mistral-7b-instruct': 'intfloat/e5-mistral-7b-instruct',
+    'gte-large-en-v1.5': 'Alibaba-NLP/gte-large-en-v1.5'
 }
 
 if 'rqa' not in st.session_state:
