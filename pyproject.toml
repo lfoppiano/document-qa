@@ -28,7 +28,7 @@ readme = "README.md"
 dynamic = ['version', "dependencies"]
 
 [tool.setuptools]
-license-files = ["LICENSE"]
+license-files = []
 
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
