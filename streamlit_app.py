@@ -6,7 +6,6 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.memory import ConversationBufferWindowMemory
-# from langchain_community.callbacks import PromptLayerCallbackHandler
 from langchain_community.chat_models import ChatOpenAI
 from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
 from langchain_huggingface import HuggingFaceEmbeddings
@@ -499,7 +498,7 @@ with left_column:
             pdf_viewer(
                 input=st.session_state['binary'],
                 annotation_outline_size=2,
-                annotations=st.session_state['annotations'],
+                annotations=st.session_state['annotations'] if st.session_state['annotations'] else [],
                 render_text=True,
                 scroll_to_annotation=1 if (st.session_state['annotations'] and st.session_state['scroll_to_first_annotation']) else None
             )
