@@ -554,17 +554,20 @@ class GrobidAggregationProcessor(GrobidQuantitiesProcessor, GrobidMaterialsProce
             return []
 
     @staticmethod
-    def box_to_dict(box, color=None, type=None):
+    def box_to_dict(box, color=None, type=None, border=None):
 
         if box is None or box == "" or len(box) < 5:
             return {}
 
         item = {"page": box[0], "x": box[1], "y": box[2], "width": box[3], "height": box[4]}
-        if color is not None:
+        if color:
             item['color'] = color
 
         if type:
             item['type'] = type
+
+        if border:
+            item['border'] = border
 
         return item
 

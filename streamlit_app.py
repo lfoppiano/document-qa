@@ -470,6 +470,9 @@ with right_column:
         for i, color in enumerate(gradients):
             for annotation in annotations[i]:
                 annotation['color'] = color
+                if i == 0:
+                    annotation['border'] = "dotted"
+
         st.session_state['annotations'] = [annotation for annotation_doc in annotations for annotation in
                                            annotation_doc]
 
