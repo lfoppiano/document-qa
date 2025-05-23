@@ -6,7 +6,7 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.memory import ConversationBufferMemory
-from langchain_huggingface import HuggingFaceEmbeddings
+from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_openai import ChatOpenAI
 from streamlit_pdf_viewer import pdf_viewer
 
@@ -23,9 +23,7 @@ API_MODELS = {
 }
 
 API_EMBEDDINGS = {
-    'intfloat/e5-large-v2': 'intfloat/e5-large-v2',
-    'intfloat/multilingual-e5-large-instruct': 'intfloat/multilingual-e5-large-instruct:',
-    'Salesforce/SFR-Embedding-2_R': 'Salesforce/SFR-Embedding-2_R'
+    'intfloat/multilingual-e5-large-instruct': 'intfloat/multilingual-e5-large-instruct'
 }
 
 if 'rqa' not in st.session_state:
@@ -135,8 +133,9 @@ def init_qa(model_name, embeddings_name):
         api_key=os.environ.get('API_KEY')
     )
 
-    embeddings = HuggingFaceEmbeddings(
-        model_name=API_EMBEDDINGS[embeddings_name])
+    embeddings = HuggingFaceEndpointEmbeddings(
+        repo_id=API_EMBEDDINGS[embeddings_name]
+    )
 
     storage = DataStorage(embeddings)
     return DocumentQAEngine(chat, storage, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
@@ -320,7 +319,8 @@ if uploaded_file and not st.session_state.loaded_embeddings:
             st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(
                 tmp_file.name,
                 chunk_size=chunk_size,
-                perc_overlap=0.1)
+                perc_overlap=0.1
+            )
             st.session_state['loaded_embeddings'] = True
             st.session_state.messages = []
 

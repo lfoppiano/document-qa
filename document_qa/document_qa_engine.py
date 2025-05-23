@@ -423,7 +423,7 @@ class DocumentQAEngine:
         if doc_id:
             hash = doc_id
         else:
-            hash = metadata[0]['hash']
+            hash = metadata[0]['hash'] if len(metadata) > 0 and 'hash' in metadata[0] else ""
 
         self.data_storage.embed_document(hash, texts, metadata)
 
