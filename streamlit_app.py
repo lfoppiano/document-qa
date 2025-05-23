@@ -196,6 +196,7 @@ with st.sidebar:
     st.markdown("Upload a scientific article in PDF, ask questions, get insights.")
     st.markdown(
         ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
+    st.markdown("Powered by [Huggingface](https://huggingface.co) and [Modal.com](https://modal.com/)")
 
     st.divider()
     st.session_state['model'] = model = st.selectbox(
