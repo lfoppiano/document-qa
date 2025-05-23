@@ -19,12 +19,14 @@ app_port: 8501
 
 https://lfoppiano-document-qa.hf.space/
 
+**NOTE**: The LLM API is kindly provided by [Modal.com](https://www.modal.com) which offers 30$/month for computing. When these are done, the app will stop answering. 😅
+
 ## Introduction
 
-Question/Answering on scientific documents using LLMs: ChatGPT-3.5-turbo, GPT4, GPT4-Turbo, Mistral-7b-instruct and Zephyr-7b-beta.
+Question/Answering on scientific documents using LLMs. The tool can be customized to use different types of LLM APIs.
 The streamlit application demonstrates the implementation of a RAG (Retrieval Augmented Generation) on scientific documents.
-**Different to most of the projects**, we focus on scientific articles and we extract text from a structured document. 
-We target only the full-text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of other solutions).
+**Different from most of the projects**, we focus on scientific articles and extract text from a structured document. 
+We target only the full text using [Grobid](https://github.com/kermitt2/grobid) which provides cleaner results than the raw PDF2Text converter (which is comparable with most of the other solutions).
 
 Additionally, this frontend provides the visualisation of named entities on LLM responses to extract <span stype="color:yellow">physical quantities, measurements</span> (with [grobid-quantities](https://github.com/kermitt2/grobid-quantities)) and <span stype="color:blue">materials</span> mentions (with [grobid-superconductors](https://github.com/lfoppiano/grobid-superconductors)).
 
@@ -35,8 +37,6 @@ Additionally, this frontend provides the visualisation of named entities on LLM 
 
 ## Getting started
 
-- Select the model+embedding combination you want to use 
-- If using gpt3.5-turbo, gpt4 or gpt4-turbo, enter your API Key ([Open AI](https://platform.openai.com/account/api-keys)). 
 - Upload a scientific article as a PDF document. You will see a spinner or loading indicator while the processing is in progress. 
 - Once the spinner disappears, you can proceed to ask your questions
 
@@ -45,7 +45,7 @@ Additionally, this frontend provides the visualisation of named entities on LLM 
 ## Documentation
 
 ### Embedding selection
-In the latest version there is the possibility to select both embedding functions and LLMs. There are some limitation, OpenAI embeddings cannot be used with open source models, and viceversa. 
+In the latest version, there is the possibility to select both embedding functions and LLMs. There are some limitations, OpenAI embeddings cannot be used with open source models, and vice-versa. 
 
 ### Context size
 Allow to change the number of blocks from the original document that are considered for responding. 
@@ -61,10 +61,10 @@ Smaller blocks will result in a smaller context, yielding more precise sections 
 Larger blocks will result in a larger context less constrained around the question.
 
 ### Query mode
-Indicates whether sending a question to the LLM (Language Model) or to the vector storage. 
+Indicates whether sending a question to the LLM (Language Model) or the vector storage. 
  - **LLM** (default) enables question/answering related to the document content.
  - **Embeddings**: the response will consist of the raw text from the document related to the question (based on the embeddings). This mode helps to test why sometimes the answers are not satisfying or incomplete.
- - **Question coefficient** (experimental): provide a coefficient that indicate how the question has been far or closed to the retrieved context
+ - **Question coefficient** (experimental): provide a coefficient that indicates how the question has been far or closed to the retrieved context
 
 ### NER (Named Entities Recognition)
 This feature is specifically crafted for people working with scientific documents in materials science. 
@@ -73,8 +73,8 @@ This feature leverages both [grobid-quantities](https://github.com/kermitt2/grob
 
 ### Troubleshooting
 Error: `streamlit: Your system has an unsupported version of sqlite3. Chroma requires sqlite3 >= 3.35.0`.
-Here the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
-For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on Chroma website.
+Here is the [solution on Linux](https://stackoverflow.com/questions/76958817/streamlit-your-system-has-an-unsupported-version-of-sqlite3-chroma-requires-sq).
+For more information, see the [details](https://docs.trychroma.com/troubleshooting#sqlite) on the Chroma website.
 
 ## Disclaimer on Data, Security, and Privacy ⚠️
 
