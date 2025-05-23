@@ -5,7 +5,8 @@ from typing import Union, Any, List
 
 import tiktoken
 from langchain.chains import create_extraction_chain
-from langchain.chains.question_answering import load_qa_chain, stuff_prompt, refine_prompts, map_reduce_prompt, \
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain.chains.question_answering import stuff_prompt, refine_prompts, map_reduce_prompt, \
     map_rerank_prompt
 from langchain.prompts import SystemMessagePromptTemplate, HumanMessagePromptTemplate, ChatPromptTemplate
 from langchain.retrievers import MultiQueryRetriever
@@ -14,7 +15,6 @@ from langchain_community.vectorstores.chroma import Chroma
 from langchain_core.vectorstores import VectorStore
 from tqdm import tqdm
 
-# from document_qa.embedding_visualiser import QueryVisualiser
 from document_qa.grobid_processors import GrobidProcessor
 from document_qa.langchain import ChromaAdvancedRetrieval
 
@@ -177,17 +177,19 @@ class DataStorage:
 
     def embed_document(self, doc_id, texts, metadatas):
         if doc_id not in self.embeddings_dict.keys():
-            self.embeddings_dict[doc_id] = self.engine.from_texts(texts,
-                                                                  embedding=self.embedding_function,
-                                                                  metadatas=metadatas,
-                                                                  collection_name=doc_id)
+            self.embeddings_dict[doc_id] = self.engine.from_texts(
+                texts,
+                embedding=self.embedding_function,
+                metadatas=metadatas,
+                collection_name=doc_id)
         else:
             # Workaround Chroma (?) breaking change
             self.embeddings_dict[doc_id].delete_collection()
-            self.embeddings_dict[doc_id] = self.engine.from_texts(texts,
-                                                                  embedding=self.embedding_function,
-                                                                  metadatas=metadatas,
-                                                                  collection_name=doc_id)
+            self.embeddings_dict[doc_id] = self.engine.from_texts(
+                texts,
+                embedding=self.embedding_function,
+                metadatas=metadatas,
+                collection_name=doc_id)
 
         self.embeddings_root_path = None
 
@@ -206,14 +208,13 @@ class DocumentQAEngine:
     def __init__(self,
                  llm,
                  data_storage: DataStorage,
-                 qa_chain_type="stuff",
                  grobid_url=None,
                  memory=None
                  ):
 
         self.llm = llm
         self.memory = memory
-        self.chain = load_qa_chain(llm, chain_type=qa_chain_type)
+        self.chain = create_stuff_documents_chain(llm, self.default_prompts['stuff'].PROMPT)
         self.text_merger = TextMerger()
         self.data_storage = data_storage
 
@@ -271,7 +272,10 @@ class DocumentQAEngine:
         Returns both the context and the embedding information from a given query
         """
         db = self.data_storage.embeddings_dict[doc_id]
-        retriever = db.as_retriever(search_kwargs={"k": context_size}, search_type="similarity_with_embeddings")
+        retriever = db.as_retriever(
+            search_kwargs={"k": context_size},
+            search_type="similarity_with_embeddings"
+        )
         relevant_documents = retriever.invoke(query)
 
         return relevant_documents
@@ -327,20 +331,18 @@ class DocumentQAEngine:
 
     def _run_query(self, doc_id, query, context_size=4) -> (List[Document], list):
         relevant_documents, relevant_document_coordinates = self._get_context(doc_id, query, context_size)
-        response = self.chain.run(input_documents=relevant_documents,
-                                  question=query)
-
-        if self.memory:
-            self.memory.save_context({"input": query}, {"output": response})
+        response = self.chain.invoke({"context": relevant_documents, "question": query})
         return response, relevant_document_coordinates
 
     def _get_context(self, doc_id, query, context_size=4) -> (List[Document], list):
         db = self.data_storage.embeddings_dict[doc_id]
         retriever = db.as_retriever(search_kwargs={"k": context_size})
         relevant_documents = retriever.invoke(query)
-        relevant_document_coordinates = [doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
-                                         for doc in
-                                         relevant_documents]
+        relevant_document_coordinates = [
+            doc.metadata['coordinates'].split(";") if 'coordinates' in doc.metadata else []
+            for doc in
+            relevant_documents
+        ]
         if self.memory and len(self.memory.buffer_as_messages) > 0:
             relevant_documents.append(
                 Document(

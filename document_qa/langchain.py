@@ -1,4 +1,3 @@
-from pathlib import Path
 from typing import Any, Optional, List, Dict, Tuple, ClassVar, Collection
 
 from langchain.schema import Document

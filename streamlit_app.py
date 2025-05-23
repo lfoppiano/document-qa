@@ -5,11 +5,9 @@ from tempfile import NamedTemporaryFile
 
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
-from langchain.memory import ConversationBufferWindowMemory
-from langchain_community.chat_models import ChatOpenAI
-from langchain_community.llms.huggingface_endpoint import HuggingFaceEndpoint
+from langchain.memory import ConversationBufferMemory
 from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_openai import OpenAIEmbeddings
+from langchain_openai import ChatOpenAI
 from streamlit_pdf_viewer import pdf_viewer
 
 from document_qa.ner_client_generic import NERClientGeneric
@@ -20,30 +18,14 @@ import streamlit as st
 from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 
-OPENAI_MODELS = ['gpt-3.5-turbo',
-                 "gpt-4",
-                 "gpt-4-1106-preview"]
-
-OPENAI_EMBEDDINGS = [
-    'text-embedding-ada-002',
-    'text-embedding-3-large',
-    'openai-text-embedding-3-small'
-]
-
-OPEN_MODELS = {
-    'Mistral-Nemo-Instruct-2407': 'mistralai/Mistral-Nemo-Instruct-2407',
-    'mistral-7b-instruct-v0.3': 'mistralai/Mistral-7B-Instruct-v0.3',
-    'Phi-3-mini-4k-instruct': "microsoft/Phi-3-mini-4k-instruct"
+API_MODELS = {
+    "microsoft/Phi-4-mini-instruct": os.environ["MODAL_1_URL"]
 }
 
-DEFAULT_OPEN_EMBEDDING_NAME = 'Default (all-MiniLM-L6-v2)'
-OPEN_EMBEDDINGS = {
-    DEFAULT_OPEN_EMBEDDING_NAME: 'all-MiniLM-L6-v2',
-    'SFR-Embedding-Mistral': 'Salesforce/SFR-Embedding-Mistral',
-    'SFR-Embedding-2_R': 'Salesforce/SFR-Embedding-2_R',
-    'NV-Embed': 'nvidia/NV-Embed-v1',
-    'e5-mistral-7b-instruct': 'intfloat/e5-mistral-7b-instruct',
-    'gte-large-en-v1.5': 'Alibaba-NLP/gte-large-en-v1.5'
+API_EMBEDDINGS = {
+    'intfloat/e5-large-v2': 'intfloat/e5-large-v2',
+    'intfloat/multilingual-e5-large-instruct': 'intfloat/multilingual-e5-large-instruct:',
+    'Salesforce/SFR-Embedding-2_R': 'Salesforce/SFR-Embedding-2_R'
 }
 
 if 'rqa' not in st.session_state:
@@ -141,48 +123,20 @@ def clear_memory():
 
 
 # @st.cache_resource
-def init_qa(model, embeddings_name=None, api_key=None):
-    ## For debug add: callbacks=[PromptLayerCallbackHandler(pl_tags=["langchain", "chatgpt", "document-qa"])])
-    if model in OPENAI_MODELS:
-        if embeddings_name is None:
-            embeddings_name = 'text-embedding-ada-002'
+def init_qa(model_name, embeddings_name):
+    st.session_state['memory'] = ConversationBufferMemory(
+        memory_key="chat_history",
+        return_messages=True
+    )
+    chat = ChatOpenAI(
+        model=model_name,
+        temperature=0.0,
+        base_url=API_MODELS[model_name],
+        api_key=os.environ.get('API_KEY')
+    )
 
-        st.session_state['memory'] = ConversationBufferWindowMemory(k=4)
-        if api_key:
-            chat = ChatOpenAI(model_name=model,
-                              temperature=0,
-                              openai_api_key=api_key,
-                              frequency_penalty=0.1)
-            if embeddings_name not in OPENAI_EMBEDDINGS:
-                st.error(f"The embeddings provided {embeddings_name} are not supported by this model {model}.")
-                st.stop()
-                return
-            embeddings = OpenAIEmbeddings(model=embeddings_name, openai_api_key=api_key)
-
-        else:
-            chat = ChatOpenAI(model_name=model,
-                              temperature=0,
-                              frequency_penalty=0.1)
-            embeddings = OpenAIEmbeddings(model=embeddings_name)
-
-    elif model in OPEN_MODELS:
-        if embeddings_name is None:
-            embeddings_name = DEFAULT_OPEN_EMBEDDING_NAME
-
-        chat = HuggingFaceEndpoint(
-            repo_id=OPEN_MODELS[model],
-            temperature=0.01,
-            max_new_tokens=4092,
-            model_kwargs={"max_length": 8192},
-            # callbacks=[PromptLayerCallbackHandler(pl_tags=[model, "document-qa"])]
-        )
-        embeddings = HuggingFaceEmbeddings(
-            model_name=OPEN_EMBEDDINGS[embeddings_name])
-        # st.session_state['memory'] = ConversationBufferWindowMemory(k=4) if model not in DISABLE_MEMORY else None
-    else:
-        st.error("The model was not loaded properly. Try reloading. ")
-        st.stop()
-        return
+    embeddings = HuggingFaceEmbeddings(
+        model_name=API_EMBEDDINGS[embeddings_name])
 
     storage = DataStorage(embeddings)
     return DocumentQAEngine(chat, storage, grobid_url=os.environ['GROBID_URL'], memory=st.session_state['memory'])
@@ -246,65 +200,31 @@ with st.sidebar:
     st.divider()
     st.session_state['model'] = model = st.selectbox(
         "Model:",
-        options=OPENAI_MODELS + list(OPEN_MODELS.keys()),
-        index=(OPENAI_MODELS + list(OPEN_MODELS.keys())).index(
+        options=API_MODELS.keys(),
+        index=(list(API_MODELS.keys())).index(
             os.environ["DEFAULT_MODEL"]) if "DEFAULT_MODEL" in os.environ and os.environ["DEFAULT_MODEL"] else 0,
         placeholder="Select model",
         help="Select the LLM model:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
     )
-    embedding_choices = OPENAI_EMBEDDINGS if model in OPENAI_MODELS else OPEN_EMBEDDINGS
 
     st.session_state['embeddings'] = embedding_name = st.selectbox(
         "Embeddings:",
-        options=embedding_choices,
-        index=0,
+        options=API_EMBEDDINGS.keys(),
+        index=(list(API_EMBEDDINGS.keys())).index(
+            os.environ["DEFAULT_EMBEDDING"]) if "DEFAULT_EMBEDDING" in os.environ and os.environ[
+            "DEFAULT_EMBEDDING"] else 0,
         placeholder="Select embedding",
         help="Select the Embedding function:",
         disabled=st.session_state['doc_id'] is not None or st.session_state['uploaded']
     )
 
-    if (model in OPEN_MODELS) and model not in st.session_state['api_keys']:
-        if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
-            api_key = st.text_input('Huggingface API Key', type="password")
+    api_key = os.environ['API_KEY']
 
-            st.markdown("Get it [here](https://huggingface.co/docs/hub/security-tokens)")
-        else:
-            api_key = os.environ['HUGGINGFACEHUB_API_TOKEN']
-
-        if api_key:
-            # st.session_state['api_key'] = is_api_key_provided = True
-            if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
-                with st.spinner("Preparing environment"):
-                    st.session_state['api_keys'][model] = api_key
-                    # if 'HUGGINGFACEHUB_API_TOKEN' not in os.environ:
-                    #     os.environ["HUGGINGFACEHUB_API_TOKEN"] = api_key
-                    st.session_state['rqa'][model] = init_qa(model, embedding_name)
-
-    elif model in OPENAI_MODELS and model not in st.session_state['api_keys']:
-        if 'OPENAI_API_KEY' not in os.environ:
-            api_key = st.text_input('OpenAI API Key', type="password")
-            st.markdown("Get it [here](https://platform.openai.com/account/api-keys)")
-        else:
-            api_key = os.environ['OPENAI_API_KEY']
-
-        if api_key:
-            if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
-                with st.spinner("Preparing environment"):
-                    st.session_state['api_keys'][model] = api_key
-                    if 'OPENAI_API_KEY' not in os.environ:
-                        st.session_state['rqa'][model] = init_qa(model, st.session_state['embeddings'], api_key)
-                    else:
-                        st.session_state['rqa'][model] = init_qa(model, st.session_state['embeddings'])
-    # else:
-    #     is_api_key_provided = st.session_state['api_key']
-
-    # st.button(
-    #     'Reset chat memory.',
-    #     key="reset-memory-button",
-    #     on_click=clear_memory,
-    #     help="Clear the conversational memory. Currently implemented to retrain the 4 most recent messages.",
-    #     disabled=model in st.session_state['rqa'] and st.session_state['rqa'][model].memory is None)
+    if model not in st.session_state['rqa'] or model not in st.session_state['api_keys']:
+        with st.spinner("Preparing environment"):
+            st.session_state['rqa'][model] = init_qa(model, st.session_state['embeddings'])
+            st.session_state['api_keys'][model] = api_key
 
 left_column, right_column = st.columns([5, 4])
 right_column = right_column.container(border=True)
@@ -390,15 +310,16 @@ if uploaded_file and not st.session_state.loaded_embeddings:
         st.stop()
 
     with left_column:
-        with st.spinner('Reading file, calling Grobid, and creating memory embeddings...'):
+        with st.spinner('Reading file, calling Grobid, and creating in-memory embeddings...'):
             binary = uploaded_file.getvalue()
             tmp_file = NamedTemporaryFile()
             tmp_file.write(bytearray(binary))
             st.session_state['binary'] = binary
 
-            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(tmp_file.name,
-                                                                                                        chunk_size=chunk_size,
-                                                                                                        perc_overlap=0.1)
+            st.session_state['doc_id'] = hash = st.session_state['rqa'][model].create_memory_embeddings(
+                tmp_file.name,
+                chunk_size=chunk_size,
+                perc_overlap=0.1)
             st.session_state['loaded_embeddings'] = True
             st.session_state.messages = []
 
@@ -477,7 +398,7 @@ with right_column:
                                            annotation_doc]
 
         if not text_response:
-            st.error("Something went wrong. Contact Luca Foppiano (Foppiano.Luca@nims.co.jp) to report the issue.")
+            st.error("Something went wrong. Contact info AT sciencialab.com to report the issue through GitHub.")
 
         if mode == "llm":
             if st.session_state['ner_processing']:
@@ -503,5 +424,6 @@ with left_column:
                 annotation_outline_size=2,
                 annotations=st.session_state['annotations'] if st.session_state['annotations'] else [],
                 render_text=True,
-                scroll_to_annotation=1 if (st.session_state['annotations'] and st.session_state['scroll_to_first_annotation']) else None
+                scroll_to_annotation=1 if (st.session_state['annotations'] and st.session_state[
+                    'scroll_to_first_annotation']) else None
             )
