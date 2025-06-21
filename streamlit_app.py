@@ -19,7 +19,8 @@ from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 
 API_MODELS = {
-    "microsoft/Phi-4-mini-instruct": os.environ["LM_URL"]
+    "microsoft/Phi-4-mini-instruct": os.environ["PHI_URL"],
+    "Qwen/Qwen3-0.6B": os.environ["QWEN_URL"]
 }
 
 API_EMBEDDINGS = {
