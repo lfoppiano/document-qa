@@ -6,10 +6,10 @@ from tempfile import NamedTemporaryFile
 import dotenv
 from grobid_quantities.quantities import QuantitiesAPI
 from langchain.memory import ConversationBufferMemory
-from langchain_huggingface import HuggingFaceEmbeddings, HuggingFaceEndpointEmbeddings
 from langchain_openai import ChatOpenAI
 from streamlit_pdf_viewer import pdf_viewer
 
+from document_qa.custom_embeddings import ModalEmbeddings
 from document_qa.ner_client_generic import NERClientGeneric
 
 dotenv.load_dotenv(override=True)
@@ -19,11 +19,11 @@ from document_qa.document_qa_engine import DocumentQAEngine, DataStorage
 from document_qa.grobid_processors import GrobidAggregationProcessor, decorate_text_with_annotations
 
 API_MODELS = {
-    "microsoft/Phi-4-mini-instruct": os.environ["MODAL_1_URL"]
+    "microsoft/Phi-4-mini-instruct": os.environ["LM_URL"]
 }
 
 API_EMBEDDINGS = {
-    'intfloat/multilingual-e5-large-instruct': 'intfloat/multilingual-e5-large-instruct'
+    'intfloat/multilingual-e5-large-instruct-modal': os.environ['EMBEDS_URL']
 }
 
 if 'rqa' not in st.session_state:
@@ -112,6 +112,7 @@ def new_file():
     st.session_state['loaded_embeddings'] = None
     st.session_state['doc_id'] = None
     st.session_state['uploaded'] = True
+    st.session_state['annotations'] = []
     if st.session_state['memory']:
         st.session_state['memory'].clear()
 
@@ -133,8 +134,10 @@ def init_qa(model_name, embeddings_name):
         api_key=os.environ.get('API_KEY')
     )
 
-    embeddings = HuggingFaceEndpointEmbeddings(
-        repo_id=API_EMBEDDINGS[embeddings_name]
+    embeddings = ModalEmbeddings(
+        url=API_EMBEDDINGS[embeddings_name],
+        model_name=embeddings_name,
+        api_key=os.environ.get('EMBEDS_API_KEY')
     )
 
     storage = DataStorage(embeddings)
@@ -195,7 +198,7 @@ with st.sidebar:
     st.markdown("Upload a scientific article in PDF, ask questions, get insights.")
     st.markdown(
         ":warning: [Usage disclaimer](https://github.com/lfoppiano/document-qa?tab=readme-ov-file#disclaimer-on-data-security-and-privacy-%EF%B8%8F) :warning: ")
-    st.markdown("Powered by [Huggingface](https://huggingface.co) and [Modal.com](https://modal.com/)")
+    st.markdown("LM and Embeddings are powered by [Modal.com](https://modal.com/)")
 
     st.divider()
     st.session_state['model'] = model = st.selectbox(
